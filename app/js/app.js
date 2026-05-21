@@ -105,26 +105,42 @@ const App = (() => {
     root.appendChild(title);
     root.appendChild(sub);
 
-    const grid = document.createElement("div");
-    grid.className = "form-grid";
+    // Agrupa los formularios por área, conservando el orden de aparición.
+    const areas = [];
+    const byArea = {};
     FORMS.forEach(f => {
-      const card = document.createElement("button");
-      card.type = "button";
-      card.className = "form-card";
-      card.innerHTML = `
-        <div class="badge-icon">${f.icon}</div>
-        <span class="code">${f.code}</span>
-        <h3>${f.shortTitle}</h3>
-        <p class="desc">${f.desc}</p>
-        <div class="meta">
-          <span>v${f.version}</span>
-          <span>·</span>
-          <span>Revisión ${f.revision}</span>
-        </div>`;
-      card.addEventListener("click", () => goForm(f.id));
-      grid.appendChild(card);
+      const area = f.area || "Calidad";
+      if (!byArea[area]) { byArea[area] = []; areas.push(area); }
+      byArea[area].push(f);
     });
-    root.appendChild(grid);
+
+    areas.forEach(area => {
+      const heading = document.createElement("h2");
+      heading.className = "area-title";
+      heading.textContent = area;
+      root.appendChild(heading);
+
+      const grid = document.createElement("div");
+      grid.className = "form-grid";
+      byArea[area].forEach(f => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "form-card";
+        card.innerHTML = `
+          <div class="badge-icon">${f.icon}</div>
+          <span class="code">${f.code}</span>
+          <h3>${f.shortTitle}</h3>
+          <p class="desc">${f.desc}</p>
+          <div class="meta">
+            <span>v${f.version}</span>
+            <span>·</span>
+            <span>Revisión ${f.revision}</span>
+          </div>`;
+        card.addEventListener("click", () => goForm(f.id));
+        grid.appendChild(card);
+      });
+      root.appendChild(grid);
+    });
 
     const savedBtn = document.createElement("button");
     savedBtn.className = "btn btn-ghost";
