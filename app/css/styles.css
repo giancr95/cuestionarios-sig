@@ -740,3 +740,19 @@ main {
   color: var(--ink-muted);
   white-space: nowrap;
 }
+
+/* --- Secciones colapsables --- */
+.section.collapsible > h3 {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sec-chevron {
+  font-size: 12px;
+  color: var(--ink-muted);
+  transition: transform 0.15s ease;
+}
+.section.collapsed .sec-chevron { transform: rotate(-90deg); }
+.section.collapsed > *:not(h3) { display: none; }
