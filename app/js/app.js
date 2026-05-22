@@ -37,7 +37,10 @@ const App = (() => {
   }
   function tabBar(active) {
     const bar = el2("div", "tab-bar");
-    [["select", "Registros"], ["saved", "Guardados"]].forEach(([v, label]) => {
+    const user = Store.cachedUser();
+    const tabs = [["select", "Registros"], ["saved", "Guardados"]];
+    if (user && user.rol === "admin") tabs.push(["users", "Usuarios"]);
+    tabs.forEach(([v, label]) => {
       const t = el2("button", "tab" + (v === active ? " active" : ""), label);
       t.type = "button";
       t.addEventListener("click", () => { if (v !== active) { state = { view: v }; render(); } });
@@ -55,7 +58,7 @@ const App = (() => {
     }
     topbar.hidden = false;
     userChip.textContent = user.rol === "admin" ? `${user.nombre} · admin` : user.nombre;
-    btnBack.hidden = state.view === "select" || state.view === "saved";
+    btnBack.hidden = state.view === "select" || state.view === "saved" || state.view === "users";
   }
 
   btnBack.addEventListener("click", () => {
@@ -76,6 +79,7 @@ const App = (() => {
     if (state.view === "form")   return renderFormView();
     if (state.view === "saved")  return renderSaved();
     if (state.view === "submission") return renderSubmission();
+    if (state.view === "users")  return renderUsers();
   }
 
   function renderLogin() {
@@ -125,14 +129,14 @@ const App = (() => {
   async function renderSelect() {
     root.innerHTML = "";
     root.appendChild(tabBar("select"));
-    const title = document.createElement("h1");
-    title.className = "page-title";
-    title.textContent = "Seleccione el registro a completar";
-    const sub = document.createElement("p");
-    sub.className = "page-sub";
-    sub.textContent = "Formularios del Sistema Integrado de Gestión.";
-    root.appendChild(title);
-    root.appendChild(sub);
+    root.appendChild(el2("h1", "page-title", "Seleccione el registro a completar"));
+    root.appendChild(el2("p", "page-sub", "Formularios del Sistema Integrado de Gestión."));
+
+    const search = document.createElement("input");
+    search.className = "input search-input";
+    search.type = "search";
+    search.placeholder = "Buscar registro por nombre, palabra clave o código…";
+    root.appendChild(search);
 
     // Agrupa los formularios por área, conservando el orden de aparición.
     const areas = [];
@@ -143,14 +147,26 @@ const App = (() => {
       byArea[area].push(f);
     });
 
+    const groups = [];
     areas.forEach(area => {
-      const heading = document.createElement("h2");
-      heading.className = "area-title";
-      heading.textContent = area;
-      root.appendChild(heading);
+      const group = el2("div", "area-group");
 
-      const grid = document.createElement("div");
-      grid.className = "form-grid";
+      const heading = el2("button", "area-title");
+      heading.type = "button";
+      heading.appendChild(el2("span", null, area));
+      const count = el2("span", "area-count", String(byArea[area].length));
+      const chevron = el2("span", "sec-chevron", "▾");
+      const right = el2("span", "area-title-right");
+      right.appendChild(count);
+      right.appendChild(chevron);
+      heading.appendChild(right);
+      heading.addEventListener("click", () => {
+        group.className = group.className.indexOf("collapsed") >= 0
+          ? "area-group" : "area-group collapsed";
+      });
+
+      const grid = el2("div", "form-grid");
+      const cards = [];
       byArea[area].forEach(f => {
         const card = document.createElement("button");
         card.type = "button";
@@ -167,9 +183,38 @@ const App = (() => {
           </div>`;
         card.addEventListener("click", () => goForm(f.id));
         grid.appendChild(card);
+        cards.push({ card, form: f });
       });
-      root.appendChild(grid);
+
+      group.appendChild(heading);
+      group.appendChild(grid);
+      root.appendChild(group);
+      groups.push({ area, group, cards });
     });
+
+    const noResults = el2("div", "empty", "Ningún registro coincide con la búsqueda.");
+    noResults.style.display = "none";
+    root.appendChild(noResults);
+
+    function applyFilter() {
+      const q = search.value.trim().toLowerCase();
+      let totalVisible = 0;
+      groups.forEach(g => {
+        let visible = 0;
+        g.cards.forEach(({ card, form }) => {
+          const hay = !q || [form.shortTitle, form.title, form.code, form.desc, g.area]
+            .some(s => s && s.toLowerCase().indexOf(q) >= 0);
+          card.style.display = hay ? "" : "none";
+          if (hay) visible++;
+        });
+        g.group.style.display = visible ? "" : "none";
+        totalVisible += visible;
+        // Al buscar, expande los grupos que tienen coincidencias.
+        if (q && visible) g.group.className = "area-group";
+      });
+      noResults.style.display = totalVisible ? "none" : "";
+    }
+    search.addEventListener("input", applyFilter);
   }
 
   function renderFormView() {
@@ -306,6 +351,149 @@ const App = (() => {
     root.appendChild(formWrap);
     Render.renderForm(schema, formWrap, { readonly: true, data: s.data || {} });
     window.scrollTo({ top: 0, behavior: "instant" });
+  }
+
+  async function renderUsers() {
+    root.innerHTML = "";
+    root.appendChild(tabBar("users"));
+    const me = Store.cachedUser();
+    if (!me || me.rol !== "admin") {
+      root.appendChild(el2("div", "empty", "Solo los administradores pueden gestionar usuarios."));
+      return;
+    }
+    root.appendChild(el2("h1", "page-title", "Gestión de usuarios"));
+    root.appendChild(el2("p", "page-sub", "Cree y administre las cuentas de acceso al sistema."));
+
+    const loading = el2("div", "empty", "Cargando…");
+    root.appendChild(loading);
+    let usuarios = [];
+    try { usuarios = await Store.listUsers(); }
+    catch (err) {
+      loading.textContent = "No fue posible cargar los usuarios.";
+      showToast(err.message || "Error al cargar", "err");
+      return;
+    }
+    loading.remove();
+
+    let editId = null;
+    const formCard = el2("div", "user-form-card");
+    const tableWrap = el2("div", "table-wrap");
+    root.appendChild(formCard);
+    root.appendChild(tableWrap);
+
+    function inputField(label, type, value, disabled) {
+      const wrap = el2("div", "field");
+      wrap.appendChild(el2("label", null, label));
+      const inp = document.createElement("input");
+      inp.className = "input";
+      inp.type = type;
+      if (value != null) inp.value = value;
+      if (disabled) inp.disabled = true;
+      wrap.appendChild(inp);
+      wrap._input = inp;
+      return wrap;
+    }
+    function selectField(label, value) {
+      const wrap = el2("div", "field");
+      wrap.appendChild(el2("label", null, label));
+      const sel = document.createElement("select");
+      sel.className = "select";
+      [["operador", "Operador"], ["admin", "Administrador"]].forEach(([v, l]) => {
+        const o = el2("option", null, l); o.value = v;
+        if (v === value) o.selected = true;
+        sel.appendChild(o);
+      });
+      wrap.appendChild(sel);
+      wrap._input = sel;
+      return wrap;
+    }
+
+    function drawForm() {
+      formCard.innerHTML = "";
+      const editing = editId != null;
+      const u = editing ? usuarios.find(x => x.id === editId) : null;
+      formCard.appendChild(el2("h3", null, editing ? "Editar usuario" : "Nuevo usuario"));
+
+      const grid = el2("div", "two-col");
+      const fUsuario = inputField("Usuario (acceso)", "text", u ? u.usuario : "", editing);
+      const fNombre = inputField("Nombre completo", "text", u ? u.nombre : "", false);
+      const fPass = inputField(editing ? "Contraseña nueva (opcional)" : "Contraseña", "text", "", false);
+      const fRol = selectField("Rol", u ? u.rol : "operador");
+      [fUsuario, fNombre, fPass, fRol].forEach(f => grid.appendChild(f));
+      formCard.appendChild(grid);
+
+      const actions = el2("div", "form-actions");
+      actions.appendChild(mkBtn(editing ? "Guardar cambios" : "Crear usuario", "btn btn-primary", async () => {
+        const body = {
+          nombre: fNombre._input.value.trim(),
+          rol: fRol._input.value,
+          password: fPass._input.value
+        };
+        try {
+          if (editing) {
+            await Store.updateUser(editId, body);
+            showToast("Usuario actualizado", "ok");
+          } else {
+            body.usuario = fUsuario._input.value.trim();
+            await Store.createUser(body);
+            showToast("Usuario creado", "ok");
+          }
+          editId = null;
+          renderUsers();
+        } catch (err) {
+          showToast(err.message || "No se pudo guardar", "err");
+        }
+      }));
+      if (editing) {
+        actions.appendChild(mkBtn("Cancelar", "btn btn-ghost", () => { editId = null; drawForm(); }));
+      }
+      formCard.appendChild(actions);
+    }
+
+    function drawTable() {
+      tableWrap.innerHTML = "";
+      const table = el2("table", "data-table");
+      table.innerHTML =
+        "<thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th>" +
+        "<th>Registros</th><th></th></tr></thead>";
+      const tbody = document.createElement("tbody");
+      usuarios.forEach(u => {
+        const tr = document.createElement("tr");
+        tr.appendChild(el2("td", "cell-main", u.usuario));
+        tr.appendChild(el2("td", null, u.nombre));
+        const tdRol = document.createElement("td");
+        tdRol.appendChild(el2("span", "rol-badge rol-" + u.rol,
+          u.rol === "admin" ? "Administrador" : "Operador"));
+        tr.appendChild(tdRol);
+        tr.appendChild(el2("td", null, String(u.submissions != null ? u.submissions : "—")));
+        const acc = el2("td", "row-actions");
+        acc.appendChild(mkBtn("Editar", "btn btn-sm", () => {
+          editId = u.id; drawForm(); window.scrollTo({ top: 0, behavior: "instant" });
+        }));
+        const del = mkBtn("Eliminar", "btn btn-sm btn-danger", async () => {
+          const warn = u.submissions > 0
+            ? `Eliminar a ${u.usuario} también borrará sus ${u.submissions} registro(s) guardado(s). ¿Continuar?`
+            : `¿Eliminar al usuario ${u.usuario}?`;
+          if (!confirm(warn)) return;
+          try {
+            await Store.deleteUser(u.id);
+            showToast("Usuario eliminado", "ok");
+            renderUsers();
+          } catch (err) {
+            showToast(err.message || "No se pudo eliminar", "err");
+          }
+        });
+        if (u.usuario === me.usuario) del.disabled = true;
+        acc.appendChild(del);
+        tr.appendChild(acc);
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      tableWrap.appendChild(table);
+    }
+
+    drawForm();
+    drawTable();
   }
 
   function downloadJSON(submission, form) {
