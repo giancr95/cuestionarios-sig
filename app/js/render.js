@@ -98,6 +98,7 @@ const Render = (() => {
   function sectionFields(sec) {
     const box = el("section", { class: "section" });
     if (sec.title) box.appendChild(el("h3", null, sec.title));
+    if (sec.note) box.appendChild(el("div", { class: "note" }, sec.note));
     const grid = el("div", { class: sec.columns === 2 ? "two-col" : "" });
     for (const f of sec.fields) grid.appendChild(renderField(f));
     box.appendChild(grid);
@@ -202,9 +203,13 @@ const Render = (() => {
     table.appendChild(thead);
 
     const tbody = el("tbody");
-    sec.rows.forEach((row, rIdx) => {
+    let rIdx = 0;
+    function dataRow(label, equipo) {
       const tr = el("tr");
-      tr.appendChild(el("td", { class: "aspect" }, `${rIdx + 1}. ${row}`));
+      const cell = el("td", { class: "aspect" }, `${rIdx + 1}. ${label}`);
+      if (equipo) cell.appendChild(el("div", { class: "meta", style: "font-size:11px;color:var(--ink-muted);margin-top:2px" }, equipo));
+      tr.appendChild(cell);
+      const myIdx = rIdx;
       sec.days.forEach((d) => {
         const td = el("td", { class: "day-cell" });
         const stack = el("div", { class: "stack" });
@@ -212,7 +217,7 @@ const Render = (() => {
           const line = el("label", { class: "check-inline", style: "display:flex;align-items:center;gap:6px;font-size:12px" });
           const cb = el("input", {
             type: "checkbox",
-            name: `ldd__${rIdx}__${d.key}__${col.key}`
+            name: `ldd__${myIdx}__${d.key}__${col.key}`
           });
           line.appendChild(cb);
           line.appendChild(el("span", null, col.label));
@@ -222,7 +227,21 @@ const Render = (() => {
         tr.appendChild(td);
       });
       tbody.appendChild(tr);
-    });
+      rIdx++;
+    }
+    if (sec.groups) {
+      sec.groups.forEach((g) => {
+        const trg = el("tr", { class: "group-row" });
+        trg.appendChild(el("td", { colspan: String(sec.days.length + 1), class: "group-head" }, g.name));
+        tbody.appendChild(trg);
+        g.rows.forEach((row) => dataRow(row.label, row.equipo));
+      });
+    } else {
+      sec.rows.forEach((row) => {
+        if (typeof row === "string") dataRow(row);
+        else dataRow(row.label, row.equipo);
+      });
+    }
     table.appendChild(tbody);
     scroll.appendChild(table);
     box.appendChild(scroll);
@@ -547,6 +566,152 @@ const Render = (() => {
     return d;
   }
 
+  // ---------- generic field for repeater tables ----------
+  function repField(name, col) {
+    const d = el("div", { class: "field" });
+    d.appendChild(el("label", null, col.label));
+    if (col.type === "select") {
+      const s = el("select", { class: "select", name });
+      s.appendChild(el("option", { value: "" }, "—"));
+      (col.options || []).forEach(o => {
+        const v = typeof o === "string" ? o : o.value;
+        const l = typeof o === "string" ? o : o.label;
+        s.appendChild(el("option", { value: v }, l));
+      });
+      d.appendChild(s);
+    } else if (col.type === "radio") {
+      const seg = el("div", { class: "segmented sm" });
+      (col.options || []).forEach(o => {
+        const v = typeof o === "string" ? o : o.value;
+        const l = typeof o === "string" ? o : o.label;
+        const id = `${name}-${v}`;
+        seg.appendChild(el("input", { type: "radio", name, id, value: v }));
+        seg.appendChild(el("label", { for: id }, l));
+      });
+      d.appendChild(seg);
+    } else if (col.type === "textarea") {
+      d.appendChild(el("textarea", { class: "textarea", name, placeholder: col.placeholder || "" }));
+    } else {
+      d.appendChild(el("input", {
+        type: col.type || "text", class: "input", name,
+        placeholder: col.placeholder || "",
+        value: col.default === "today" ? todayISO() : (col.default || ""),
+        min: col.min, max: col.max, step: col.step
+      }));
+    }
+    return d;
+  }
+
+  // ---------- section: material-list (fixed item list with inputs) ----------
+  function sectionMaterialList(sec) {
+    const box = el("section", { class: "section" });
+    if (sec.title) box.appendChild(el("h3", null, sec.title));
+    if (sec.note) box.appendChild(el("div", { class: "note" }, sec.note));
+
+    const scroll = el("div", { class: "grid-scroll" });
+    const table = el("table", { class: "grid-table" });
+    const thead = el("thead");
+    const trh = el("tr");
+    if (sec.showCode !== false) trh.appendChild(el("th", null, "Código"));
+    trh.appendChild(el("th", null, "Descripción"));
+    sec.columns.forEach(c => trh.appendChild(el("th", { style: "text-align:center" }, c.label)));
+    thead.appendChild(trh);
+    table.appendChild(thead);
+
+    const tbody = el("tbody");
+    sec.items.forEach((item, idx) => {
+      const tr = el("tr");
+      if (sec.showCode !== false) tr.appendChild(el("td", { class: "code-cell" }, item.codigo || ""));
+      tr.appendChild(el("td", { class: "aspect" }, item.desc));
+      sec.columns.forEach(col => {
+        const td = el("td");
+        td.appendChild(el("input", {
+          type: col.type || "number", class: "mini-input",
+          name: `${sec.id}__${idx}__${col.key}`,
+          min: col.type === "number" ? "0" : col.min,
+          step: col.step, placeholder: "—"
+        }));
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    scroll.appendChild(table);
+    box.appendChild(scroll);
+    return box;
+  }
+
+  // ---------- section: repeater-table (add-row card list) ----------
+  function sectionRepeaterTable(sec) {
+    const box = el("section", { class: "section" });
+    if (sec.title) box.appendChild(el("h3", null, sec.title));
+    if (sec.note) box.appendChild(el("div", { class: "note" }, sec.note));
+
+    const wrap = el("div", { class: "repeater", id: `${sec.id}-repeater` });
+    box.appendChild(wrap);
+
+    const addBtn = el("button", {
+      type: "button", class: "btn btn-ghost add-row",
+      onclick: () => addRepRow(wrap, sec)
+    }, `+ Agregar ${sec.rowLabel || "fila"}`);
+    box.appendChild(addBtn);
+
+    addRepRow(wrap, sec);
+    return box;
+  }
+
+  function addRepRow(container, sec) {
+    const idx = container.querySelectorAll(".repeater-row").length;
+    const label = sec.rowLabel || "Fila";
+    const row = el("div", { class: "repeater-row", "data-idx": idx });
+    const head = el("div", { class: "row-head" });
+    head.appendChild(el("div", { class: "row-num" }, `${label} ${idx + 1}`));
+    head.appendChild(el("button", {
+      type: "button", class: "row-del",
+      onclick: () => { row.remove(); renumberRep(container, label); }
+    }, "Eliminar"));
+    row.appendChild(head);
+
+    const grid = el("div", { class: sec.columns.length > 1 ? "two-col" : "" });
+    sec.columns.forEach(col => {
+      grid.appendChild(repField(`${sec.id}__${idx}__${col.key}`, col));
+    });
+    row.appendChild(grid);
+    container.appendChild(row);
+  }
+
+  function renumberRep(container, label) {
+    container.querySelectorAll(".repeater-row").forEach((r, i) => {
+      r.setAttribute("data-idx", i);
+      const num = r.querySelector(".row-num");
+      if (num) num.textContent = `${label} ${i + 1}`;
+    });
+  }
+
+  // ---------- section: checkbox-list (multi-select, optional quantity) ----------
+  function sectionCheckboxList(sec) {
+    const box = el("section", { class: "section" });
+    if (sec.title) box.appendChild(el("h3", null, sec.title));
+    if (sec.note) box.appendChild(el("div", { class: "note" }, sec.note));
+    const list = el("div", { class: "checklist" });
+    sec.items.forEach((item, idx) => {
+      const row = el("div", { class: "check-row" });
+      const lbl = el("label", { class: "check-inline", style: "display:flex;align-items:center;gap:8px;flex:1" });
+      lbl.appendChild(el("input", { type: "checkbox", name: `${sec.id}__${idx}`, value: item }));
+      lbl.appendChild(el("span", null, item));
+      row.appendChild(lbl);
+      if (sec.withQty) {
+        row.appendChild(el("input", {
+          type: "number", class: "mini-input", min: "0",
+          name: `${sec.id}__${idx}__qty`, placeholder: "Cant."
+        }));
+      }
+      list.appendChild(row);
+    });
+    box.appendChild(list);
+    return box;
+  }
+
   // ---------- observaciones ----------
   function sectionObservaciones() {
     const box = el("section", { class: "section" });
@@ -599,6 +764,9 @@ const Render = (() => {
         case "checklist":              node = sectionChecklist(sec); break;
         case "daily-checks":           node = sectionDailyChecks(sec); break;
         case "daily-activity-matrix":  node = sectionActivityMatrix(sec); break;
+        case "material-list":          node = sectionMaterialList(sec); break;
+        case "repeater-table":         node = sectionRepeaterTable(sec); break;
+        case "checkbox-list":          node = sectionCheckboxList(sec); break;
         case "epp-grid":               node = sectionEppGrid(sec); break;
         case "evaluacion-grid":        node = sectionEvalGrid(sec); break;
         case "produccion":             node = sectionProduccion(sec); break;
