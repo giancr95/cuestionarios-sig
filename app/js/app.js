@@ -455,24 +455,48 @@ const App = (() => {
       const table = el2("table", "data-table");
       table.innerHTML =
         "<thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th>" +
-        "<th>Registros</th><th></th></tr></thead>";
+        "<th>Estado</th><th>Registros</th><th></th></tr></thead>";
       const tbody = document.createElement("tbody");
       usuarios.forEach(u => {
         const tr = document.createElement("tr");
+        if (!u.activo) tr.className = "row-inactive";
         tr.appendChild(el2("td", "cell-main", u.usuario));
         tr.appendChild(el2("td", null, u.nombre));
         const tdRol = document.createElement("td");
         tdRol.appendChild(el2("span", "rol-badge rol-" + u.rol,
           u.rol === "admin" ? "Administrador" : "Operador"));
         tr.appendChild(tdRol);
+        const tdEstado = document.createElement("td");
+        tdEstado.appendChild(el2("span",
+          "estado-badge estado-" + (u.activo ? "activo" : "inactivo"),
+          u.activo ? "Activo" : "Inactivo"));
+        tr.appendChild(tdEstado);
         tr.appendChild(el2("td", null, String(u.submissions != null ? u.submissions : "—")));
+
         const acc = el2("td", "row-actions");
         acc.appendChild(mkBtn("Editar", "btn btn-sm", () => {
           editId = u.id; drawForm(); window.scrollTo({ top: 0, behavior: "instant" });
         }));
+        const toggle = mkBtn(u.activo ? "Desactivar" : "Activar",
+          "btn btn-sm" + (u.activo ? "" : " btn-primary"), async () => {
+          const msg = u.activo
+            ? `¿Desactivar a ${u.usuario}? No podrá iniciar sesión; sus registros se conservan.`
+            : `¿Reactivar al usuario ${u.usuario}?`;
+          if (!confirm(msg)) return;
+          try {
+            await Store.updateUser(u.id, { activo: !u.activo });
+            showToast(u.activo ? "Usuario desactivado" : "Usuario reactivado", "ok");
+            renderUsers();
+          } catch (err) {
+            showToast(err.message || "No se pudo actualizar", "err");
+          }
+        });
+        if (u.usuario === me.usuario && u.activo) toggle.disabled = true;
+        acc.appendChild(toggle);
+
         const del = mkBtn("Eliminar", "btn btn-sm btn-danger", async () => {
           const warn = u.submissions > 0
-            ? `Eliminar a ${u.usuario} también borrará sus ${u.submissions} registro(s) guardado(s). ¿Continuar?`
+            ? `Eliminar a ${u.usuario} también borrará sus ${u.submissions} registro(s). Para conservarlos use «Desactivar». ¿Eliminar de todas formas?`
             : `¿Eliminar al usuario ${u.usuario}?`;
           if (!confirm(warn)) return;
           try {

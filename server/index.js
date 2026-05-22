@@ -56,6 +56,9 @@ app.post("/api/login", loginRateLimit, (req, res) => {
   if (!usuario || !password) return res.status(400).json({ error: "Usuario y contraseña requeridos" });
   const u = login(usuario, password);
   if (!u) return res.status(401).json({ error: "Usuario o contraseña incorrectos" });
+  if (u.inactive) {
+    return res.status(403).json({ error: "La cuenta está desactivada. Contacte al administrador." });
+  }
   req.session.uid = u.id;
   req.session.iat = Date.now();
   res.json({ usuario: u.usuario, nombre: u.nombre, rol: u.rol });
@@ -114,7 +117,7 @@ app.post("/api/users", requireAdmin, (req, res, next) => {
 });
 
 app.patch("/api/users/:id", requireAdmin, (req, res, next) => {
-  try { res.json(users.update(Number(req.params.id), req.body || {})); }
+  try { res.json(users.update(Number(req.params.id), req.body || {}, req.user.id)); }
   catch (e) { next(e); }
 });
 

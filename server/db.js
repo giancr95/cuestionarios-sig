@@ -17,6 +17,7 @@ db.exec(`
     nombre      TEXT NOT NULL,
     password    TEXT NOT NULL,
     rol         TEXT NOT NULL CHECK (rol IN ('admin','operador')),
+    activo      INTEGER NOT NULL DEFAULT 1,
     created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
@@ -33,6 +34,13 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_submissions_form    ON submissions(form_id);
   CREATE INDEX IF NOT EXISTS idx_submissions_created ON submissions(created_at DESC);
 `);
+
+// Migración: agrega la columna `activo` en instalaciones previas a esta versión.
+const hasActivo = db.prepare("PRAGMA table_info(users)").all()
+  .some(c => c.name === "activo");
+if (!hasActivo) {
+  db.exec("ALTER TABLE users ADD COLUMN activo INTEGER NOT NULL DEFAULT 1");
+}
 
 // ---------------------------------------------------------------------------
 // Seed inicial — si la tabla users está vacía, crea los 6 usuarios base.
