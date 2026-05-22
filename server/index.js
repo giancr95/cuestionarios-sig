@@ -3,8 +3,9 @@ const crypto = require("crypto");
 const express = require("express");
 const cookieSession = require("cookie-session");
 
-const { login, requireAuth } = require("./auth");
+const { login, requireAuth, requireAdmin } = require("./auth");
 const subs = require("./submissions");
+const users = require("./users");
 
 const PORT = Number(process.env.PORT) || 3000;
 const NODE_ENV = process.env.NODE_ENV || "development";
@@ -100,6 +101,29 @@ app.delete("/api/submissions/:id", requireAuth, (req, res) => {
   const ok = subs.remove(req.params.id, { userId: req.user.id, isAdmin: req.user.rol === "admin" });
   if (!ok) return res.status(404).json({ error: "No encontrado o sin permiso" });
   res.json({ ok: true });
+});
+
+// ---------- Usuarios (solo administradores) ----------
+app.get("/api/users", requireAdmin, (_req, res) => {
+  res.json(users.list());
+});
+
+app.post("/api/users", requireAdmin, (req, res, next) => {
+  try { res.status(201).json(users.create(req.body || {})); }
+  catch (e) { next(e); }
+});
+
+app.patch("/api/users/:id", requireAdmin, (req, res, next) => {
+  try { res.json(users.update(Number(req.params.id), req.body || {})); }
+  catch (e) { next(e); }
+});
+
+app.delete("/api/users/:id", requireAdmin, (req, res, next) => {
+  try {
+    const ok = users.remove(Number(req.params.id), req.user.id);
+    if (!ok) return res.status(404).json({ error: "Usuario no encontrado" });
+    res.json({ ok: true });
+  } catch (e) { next(e); }
 });
 
 // ---------- Archivos estáticos (frontend) ----------

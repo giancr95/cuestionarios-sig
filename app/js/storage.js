@@ -68,8 +68,23 @@ const Store = (() => {
     return req("DELETE", "/submissions/" + encodeURIComponent(id));
   }
 
+  // --- Usuarios (solo administradores) ---
+  async function listUsers() {
+    return req("GET", "/users");
+  }
+  async function createUser(body) {
+    return req("POST", "/users", body);
+  }
+  async function updateUser(id, body) {
+    return req("PATCH", "/users/" + encodeURIComponent(id), body);
+  }
+  async function deleteUser(id) {
+    return req("DELETE", "/users/" + encodeURIComponent(id));
+  }
+
   return {
     login, logout, currentUser, cachedUser,
-    allSubmissions, saveSubmission, getSubmission, deleteSubmission
+    allSubmissions, saveSubmission, getSubmission, deleteSubmission,
+    listUsers, createUser, updateUser, deleteUser
   };
 })();
