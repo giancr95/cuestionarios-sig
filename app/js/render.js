@@ -28,6 +28,48 @@ const Render = (() => {
     return d.toISOString().slice(0, 10);
   }
 
+  // Opciones del render en curso (modo solo-lectura, datos guardados).
+  let currentOpts = {};
+
+  // Cuántas filas de un repeater reconstruir a partir de los datos guardados.
+  function repeaterRowCount(prefix) {
+    const data = currentOpts.data;
+    if (!data) return 1;
+    let max = -1;
+    const esc = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp("^" + esc + "(\\d+)__");
+    for (const k in data) { const m = k.match(re); if (m) max = Math.max(max, +m[1]); }
+    return max >= 0 ? max + 1 : 1;
+  }
+
+  // Rellena el formulario con datos guardados y lo deja en solo-lectura.
+  function applyReadonly(form, data) {
+    data = data || {};
+    const cl = {};
+    (data._checklist || []).forEach(c => { cl["checklist__" + (c.idx - 1)] = c.valor; });
+    const nodes = form.querySelectorAll("input, select, textarea");
+    nodes.forEach(node => {
+      const name = node.getAttribute("name");
+      if (name) {
+        let val = data[name];
+        if (val === undefined && cl[name] !== undefined) val = cl[name];
+        const type = (node.getAttribute("type") || "").toLowerCase();
+        if (type === "radio") {
+          if (val !== undefined && node.value === String(val)) node.checked = true;
+        } else if (type === "checkbox") {
+          if (val !== undefined && val !== null && val !== "" && val !== false) {
+            if (!node.value || node.value === "on" || node.value === String(val)) node.checked = true;
+          }
+        } else if (val !== undefined && val !== null) {
+          node.value = val;
+        }
+      }
+      node.setAttribute("disabled", "");
+      node.disabled = true;
+    });
+    form.querySelectorAll(".add-row, .row-del").forEach(b => b.remove());
+  }
+
   // Convierte una sección con título en un bloque colapsable.
   function makeCollapsible(section) {
     const h = section.children[0];
@@ -276,7 +318,8 @@ const Render = (() => {
     }, "+ Agregar colaborador");
     box.appendChild(addBtn);
 
-    addEppRow(wrap, sec);
+    const eppRows = repeaterRowCount("epp__");
+    for (let i = 0; i < eppRows; i++) addEppRow(wrap, sec);
     return box;
   }
 
@@ -445,7 +488,8 @@ const Render = (() => {
     }, "+ Agregar producción");
     box.appendChild(addBtn);
 
-    addProdRow(wrap, sec);
+    const prodRows = repeaterRowCount("prod__");
+    for (let i = 0; i < prodRows; i++) addProdRow(wrap, sec);
     return box;
   }
 
@@ -669,7 +713,8 @@ const Render = (() => {
     }, `+ Agregar ${sec.rowLabel || "fila"}`);
     box.appendChild(addBtn);
 
-    addRepRow(wrap, sec);
+    const repRows = repeaterRowCount(sec.id + "__");
+    for (let i = 0; i < repRows; i++) addRepRow(wrap, sec);
     return box;
   }
 
@@ -759,7 +804,9 @@ const Render = (() => {
   }
 
   // ---------- main ----------
-  function renderForm(schema, container) {
+  function renderForm(schema, container, opts) {
+    currentOpts = opts || {};
+    const readonly = !!currentOpts.readonly;
     container.innerHTML = "";
     const header = el("header", { class: "form-header" });
     header.appendChild(el("p", { class: "code" }, schema.code + " · v" + schema.version));
@@ -792,23 +839,28 @@ const Render = (() => {
       form.appendChild(node);
     });
 
-    const actions = el("div", { class: "form-actions" });
-    actions.appendChild(el("button", {
-      type: "button", class: "btn btn-ghost btn-block",
-      onclick: () => App.goSelect()
-    }, "Cancelar"));
-    actions.appendChild(el("button", {
-      type: "submit", class: "btn btn-primary btn-block"
-    }, "Guardar"));
-    form.appendChild(actions);
+    if (!readonly) {
+      const actions = el("div", { class: "form-actions" });
+      actions.appendChild(el("button", {
+        type: "button", class: "btn btn-ghost btn-block",
+        onclick: () => App.goSelect()
+      }, "Cancelar"));
+      actions.appendChild(el("button", {
+        type: "submit", class: "btn btn-primary btn-block"
+      }, "Guardar"));
+      form.appendChild(actions);
 
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const data = collectData(form, schema);
-      App.handleSave(schema, data);
-    });
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const data = collectData(form, schema);
+        App.handleSave(schema, data);
+      });
+    }
 
     container.appendChild(form);
+
+    if (readonly) applyReadonly(form, currentOpts.data);
+    currentOpts = {};
   }
 
   // ---------- collection ----------

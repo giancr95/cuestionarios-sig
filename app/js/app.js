@@ -22,6 +22,30 @@ const App = (() => {
     toastTimer = setTimeout(() => { toast.hidden = true; }, 2800);
   }
 
+  // --- DOM helpers ---
+  function el2(tag, cls, text) {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function mkBtn(text, cls, onClick) {
+    const b = el2("button", cls, text);
+    b.type = "button";
+    b.addEventListener("click", onClick);
+    return b;
+  }
+  function tabBar(active) {
+    const bar = el2("div", "tab-bar");
+    [["select", "Registros"], ["saved", "Guardados"]].forEach(([v, label]) => {
+      const t = el2("button", "tab" + (v === active ? " active" : ""), label);
+      t.type = "button";
+      t.addEventListener("click", () => { if (v !== active) { state = { view: v }; render(); } });
+      bar.appendChild(t);
+    });
+    return bar;
+  }
+
   // --- Topbar ---
   function updateTopbar() {
     const user = Store.cachedUser();
@@ -31,10 +55,13 @@ const App = (() => {
     }
     topbar.hidden = false;
     userChip.textContent = user.rol === "admin" ? `${user.nombre} · admin` : user.nombre;
-    btnBack.hidden = state.view === "select";
+    btnBack.hidden = state.view === "select" || state.view === "saved";
   }
 
-  btnBack.addEventListener("click", () => goSelect());
+  btnBack.addEventListener("click", () => {
+    if (state.view === "submission") goSaved();
+    else goSelect();
+  });
   btnLogout.addEventListener("click", async () => {
     await Store.logout();
     state = { view: "login" };
@@ -48,6 +75,7 @@ const App = (() => {
     if (state.view === "select") return renderSelect();
     if (state.view === "form")   return renderFormView();
     if (state.view === "saved")  return renderSaved();
+    if (state.view === "submission") return renderSubmission();
   }
 
   function renderLogin() {
@@ -96,6 +124,7 @@ const App = (() => {
 
   async function renderSelect() {
     root.innerHTML = "";
+    root.appendChild(tabBar("select"));
     const title = document.createElement("h1");
     title.className = "page-title";
     title.textContent = "Seleccione el registro a completar";
@@ -141,13 +170,6 @@ const App = (() => {
       });
       root.appendChild(grid);
     });
-
-    const savedBtn = document.createElement("button");
-    savedBtn.className = "btn btn-ghost";
-    savedBtn.style.marginTop = "18px";
-    savedBtn.textContent = "Ver registros guardados";
-    savedBtn.addEventListener("click", () => { state.view = "saved"; render(); });
-    root.appendChild(savedBtn);
   }
 
   function renderFormView() {
@@ -159,26 +181,20 @@ const App = (() => {
 
   async function renderSaved() {
     root.innerHTML = "";
+    root.appendChild(tabBar("saved"));
     const user = Store.cachedUser();
-    const title = document.createElement("h1");
-    title.className = "page-title";
-    title.textContent = user && user.rol === "admin" ? "Todos los registros guardados" : "Mis registros guardados";
-    const sub = document.createElement("p");
-    sub.className = "page-sub";
-    sub.textContent = user && user.rol === "admin"
-      ? "Visualización de administrador: todos los registros del sistema."
-      : "Registros enviados por su cuenta.";
-    root.appendChild(title);
-    root.appendChild(sub);
+    root.appendChild(el2("h1", "page-title", "Registros guardados"));
+    root.appendChild(el2("p", "page-sub",
+      user && user.rol === "admin"
+        ? "Todos los registros enviados en el sistema."
+        : "Registros enviados por su cuenta."));
 
-    const loading = document.createElement("div");
-    loading.className = "empty";
-    loading.textContent = "Cargando…";
+    const loading = el2("div", "empty", "Cargando…");
     root.appendChild(loading);
 
-    let subsList = [];
+    let subs = [];
     try {
-      subsList = await Store.allSubmissions();
+      subs = await Store.allSubmissions();
     } catch (err) {
       loading.textContent = "No fue posible cargar los registros.";
       showToast(err.message || "Error al cargar", "err");
@@ -186,63 +202,110 @@ const App = (() => {
     }
     loading.remove();
 
-    if (!subsList.length) {
-      const empty = document.createElement("div");
-      empty.className = "empty";
-      empty.textContent = "Aún no hay registros guardados.";
-      root.appendChild(empty);
-      addBack();
+    if (!subs.length) {
+      root.appendChild(el2("div", "empty", "Aún no hay registros guardados."));
       return;
     }
 
-    const list = document.createElement("div");
-    list.className = "saved-list";
-    subsList.forEach(s => {
-      const form = FORMS.find(f => f.id === s.formId);
-      const item = document.createElement("div");
-      item.className = "saved-item";
-      const meta = document.createElement("div");
-      meta.className = "meta";
-      meta.innerHTML = `
-        <div class="title">${form ? form.shortTitle : s.formId}</div>
-        <div class="sub">${new Date(s.savedAt).toLocaleString("es-CR")} · ${s.savedByName}</div>`;
-      item.appendChild(meta);
-
-      const actions = document.createElement("div");
-      actions.style.display = "flex";
-      actions.style.gap = "6px";
-      const dl = document.createElement("button");
-      dl.className = "btn";
-      dl.textContent = "Descargar";
-      dl.addEventListener("click", () => downloadJSON(s, form));
-      const rm = document.createElement("button");
-      rm.className = "btn btn-danger";
-      rm.textContent = "Eliminar";
-      rm.addEventListener("click", async () => {
-        if (!confirm("¿Eliminar este registro?")) return;
-        try {
-          await Store.deleteSubmission(s.id);
-          render();
-        } catch (err) {
-          showToast(err.message || "No se pudo eliminar", "err");
-        }
-      });
-      actions.appendChild(dl);
-      actions.appendChild(rm);
-      item.appendChild(actions);
-      list.appendChild(item);
+    // Enriquece cada registro con datos del formulario asociado.
+    subs.forEach(s => {
+      const f = FORMS.find(x => x.id === s.formId);
+      s._form = f;
+      s._name = f ? f.shortTitle : s.formId;
+      s._code = f ? f.code : s.formId;
+      s._area = f ? (f.area || "Calidad") : "—";
+      s._date = new Date(s.savedAt);
     });
-    root.appendChild(list);
-    addBack();
+
+    const search = document.createElement("input");
+    search.className = "input search-input";
+    search.type = "search";
+    search.placeholder = "Buscar por registro, área, fecha o responsable…";
+    root.appendChild(search);
+
+    const tableWrap = el2("div", "table-wrap");
+    root.appendChild(tableWrap);
+
+    function fmtDate(d) {
+      return d.toLocaleString("es-CR", { dateStyle: "short", timeStyle: "short" });
+    }
+
+    function draw() {
+      const q = search.value.trim().toLowerCase();
+      const rows = subs.filter(s => !q ||
+        s._name.toLowerCase().includes(q) ||
+        s._code.toLowerCase().includes(q) ||
+        s._area.toLowerCase().includes(q) ||
+        s.savedByName.toLowerCase().includes(q) ||
+        fmtDate(s._date).toLowerCase().includes(q));
+      tableWrap.innerHTML = "";
+      tableWrap.appendChild(el2("p", "result-count",
+        `${rows.length} de ${subs.length} registro${subs.length === 1 ? "" : "s"}`));
+
+      if (!rows.length) {
+        tableWrap.appendChild(el2("div", "empty", "Sin coincidencias."));
+        return;
+      }
+
+      const table = el2("table", "data-table");
+      table.innerHTML =
+        "<thead><tr><th>Registro</th><th>Área</th><th>Fecha</th>" +
+        "<th>Llenado por</th><th></th></tr></thead>";
+      const tbody = document.createElement("tbody");
+      rows.forEach(s => {
+        const tr = el2("tr", "data-row");
+        const tdName = document.createElement("td");
+        tdName.appendChild(el2("div", "cell-main", s._name));
+        tdName.appendChild(el2("div", "cell-sub", s._code));
+        tr.appendChild(tdName);
+        tr.appendChild(el2("td", null, s._area));
+        tr.appendChild(el2("td", null, fmtDate(s._date)));
+        tr.appendChild(el2("td", null, s.savedByName));
+
+        const actions = el2("td", "row-actions");
+        const view = mkBtn("Ver", "btn btn-sm", () => goSubmission(s));
+        const dl = mkBtn("⤓", "btn btn-sm btn-icon", () => downloadJSON(s, s._form));
+        dl.title = "Descargar JSON";
+        const rm = mkBtn("✕", "btn btn-sm btn-icon btn-danger", async () => {
+          if (!confirm("¿Eliminar este registro?")) return;
+          try { await Store.deleteSubmission(s.id); render(); }
+          catch (err) { showToast(err.message || "No se pudo eliminar", "err"); }
+        });
+        rm.title = "Eliminar";
+        [view, dl, rm].forEach(b => {
+          b.addEventListener("click", e => e.stopPropagation());
+          actions.appendChild(b);
+        });
+        tr.appendChild(actions);
+
+        tr.addEventListener("click", () => goSubmission(s));
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      tableWrap.appendChild(table);
+    }
+
+    search.addEventListener("input", draw);
+    draw();
   }
 
-  function addBack() {
-    const back = document.createElement("button");
-    back.className = "btn btn-ghost";
-    back.style.marginTop = "18px";
-    back.textContent = "← Volver";
-    back.addEventListener("click", () => goSelect());
-    root.appendChild(back);
+  function renderSubmission() {
+    const s = state.currentSubmission;
+    if (!s) { goSaved(); return; }
+    root.innerHTML = "";
+    const schema = FORMS.find(f => f.id === s.formId);
+    if (!schema) {
+      root.appendChild(el2("div", "empty",
+        "No se encontró la definición del formulario de este registro."));
+      return;
+    }
+    root.appendChild(el2("div", "ro-banner",
+      `Solo lectura · Llenado por ${s.savedByName} · ` +
+      new Date(s.savedAt).toLocaleString("es-CR")));
+    const formWrap = document.createElement("div");
+    root.appendChild(formWrap);
+    Render.renderForm(schema, formWrap, { readonly: true, data: s.data || {} });
+    window.scrollTo({ top: 0, behavior: "instant" });
   }
 
   function downloadJSON(submission, form) {
@@ -261,6 +324,14 @@ const App = (() => {
   }
   function goForm(id) {
     state = { view: "form", currentFormId: id };
+    render();
+  }
+  function goSaved() {
+    state = { view: "saved" };
+    render();
+  }
+  function goSubmission(s) {
+    state = { view: "submission", currentSubmission: s };
     render();
   }
 

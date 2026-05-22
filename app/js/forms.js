@@ -5037,5 +5037,70 @@ const FORMS = [
         ]
       }
     ]
+  },
+
+// ===== R-MTU-001 (PLAGAS, .xls) =====
+  {
+    id: "MTU-001", code: "R-MTU-001", area: "Plagas",
+    title: "Registro Monitoreo de Insectos en Trampas de Luz Ultravioleta",
+    shortTitle: "Monitoreo Trampas Luz UV",
+    desc: "Conteo de insectos capturados en las 10 trampas de luz ultravioleta.",
+    icon: "🪰", version: 3, emision: "Feb-2025", revision: "May-2025",
+    sections: [
+      {
+        type: "fields", title: "Información general", columns: 2,
+        fields: [
+          { id: "responsable", label: "Responsable", type: "text", required: true },
+          { id: "fechaInicio", label: "Fecha inicio", type: "date", required: true, default: "today" },
+          { id: "fechaFin", label: "Fecha fin", type: "date" },
+          { id: "hora", label: "Hora", type: "time" }
+        ]
+      },
+      {
+        type: "material-list", id: "trampa",
+        title: "Insectos recolectados por trampa",
+        note: "Cantidad de cada insecto por trampa. Hallazgos: A/B/C/D. Nivel máximo aceptable: 25 insectos/día, 50 por revisión (cada 2 días).",
+        columns: [
+          { key: "sitophilus", label: "Sitophilus", type: "number" },
+          { key: "rhyzopertha", label: "Rhyzopertha", type: "number" },
+          { key: "tribolium", label: "Tribolium", type: "number" },
+          { key: "criptolestes", label: "Criptolestes", type: "number" },
+          { key: "sitotroga", label: "Sitotroga", type: "number" },
+          { key: "plodia", label: "Plodia", type: "number" },
+          { key: "moscas", label: "Moscas", type: "number" },
+          { key: "ephestia", label: "Ephestia", type: "number" },
+          { key: "otros", label: "Otros", type: "text" },
+          { key: "total", label: "Sumatoria total", type: "number" },
+          { key: "hallazgo", label: "Hallazgos (A/B/C/D)", type: "text" },
+          { key: "cambioFluor", label: "Cambio fluorescente", type: "text" },
+          { key: "medidas", label: "Medidas correctivas", type: "text" }
+        ],
+        items: [
+          { codigo: "L-01", desc: "Empaque" },
+          { codigo: "L-02", desc: "Empaque" },
+          { codigo: "L-03", desc: "Empaque" },
+          { codigo: "L-04", desc: "Planta Frijol" },
+          { codigo: "L-05", desc: "Pilado" },
+          { codigo: "L-06", desc: "Pilado" },
+          { codigo: "L-07", desc: "Secado" },
+          { codigo: "L-08", desc: "Empaque" },
+          { codigo: "L-09", desc: "Subproductos" },
+          { codigo: "L-10", desc: "Pilado" }
+        ]
+      },
+      {
+        type: "info", title: "Referencia",
+        lines: [
+          "Nivel máximo aceptable: 25 insectos plaga/día, 50 por revisión (cada 2 días).",
+          "Nombre científico: Sitophilus oryzae, Rhyzopertha dominica, Tribolium confusum, Criptolestes spp.",
+          "Hallazgo D — acciones: notificar a Calidad/Administración de Riesgos; revisar mercadería, estructuras y equipos; solicitar fumigación/limpieza; retirar mercadería no conforme y fumigar."
+        ]
+      },
+      { type: "observaciones" },
+      { type: "firmas", fields: [
+        { id: "firmaCalidad", label: "Firma Calidad" },
+        { id: "firmaSIG", label: "Firma SIG" }
+      ] }
+    ]
   }
 ];
