@@ -3,10 +3,11 @@ const db = require("./db");
 
 function login(usuario, password) {
   const u = db
-    .prepare("SELECT id, usuario, nombre, password, rol FROM users WHERE usuario = ? COLLATE NOCASE")
+    .prepare("SELECT id, usuario, nombre, password, rol, activo FROM users WHERE usuario = ? COLLATE NOCASE")
     .get(String(usuario || "").trim());
   if (!u) return null;
   if (!bcrypt.compareSync(password, u.password)) return null;
+  if (!u.activo) return { inactive: true };
   return { id: u.id, usuario: u.usuario, nombre: u.nombre, rol: u.rol };
 }
 
@@ -14,8 +15,8 @@ function requireAuth(req, res, next) {
   if (!req.session || !req.session.uid) {
     return res.status(401).json({ error: "No autenticado" });
   }
-  const u = db.prepare("SELECT id, usuario, nombre, rol FROM users WHERE id = ?").get(req.session.uid);
-  if (!u) {
+  const u = db.prepare("SELECT id, usuario, nombre, rol, activo FROM users WHERE id = ?").get(req.session.uid);
+  if (!u || !u.activo) {
     req.session = null;
     return res.status(401).json({ error: "Sesión inválida" });
   }
