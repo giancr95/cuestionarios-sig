@@ -28,6 +28,19 @@ const Render = (() => {
     return d.toISOString().slice(0, 10);
   }
 
+  // Convierte una sección con título en un bloque colapsable.
+  function makeCollapsible(section) {
+    const h = section.children[0];
+    if (!h || String(h.tagName).toLowerCase() !== "h3") return;
+    section.className += " collapsible";
+    h.appendChild(el("span", { class: "sec-chevron" }, "▾"));
+    h.addEventListener("click", () => {
+      section.className = section.className.indexOf("collapsed") >= 0
+        ? section.className.replace(/\s*collapsed/, "")
+        : section.className + " collapsed";
+    });
+  }
+
   function weekInfo(date) {
     const d = date ? new Date(date) : new Date();
     // ISO week number
@@ -775,6 +788,7 @@ const Render = (() => {
         case "info":                   node = sectionInfo(sec); break;
         default: node = el("div", null, `[sección desconocida: ${sec.type}]`);
       }
+      makeCollapsible(node);
       form.appendChild(node);
     });
 
