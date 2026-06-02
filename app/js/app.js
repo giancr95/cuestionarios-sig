@@ -35,6 +35,16 @@ const App = (() => {
     b.addEventListener("click", onClick);
     return b;
   }
+  // SQLite guarda created_at en UTC sin marca de zona. Interpretarlo como
+  // local (lo que hace `new Date(...)` por defecto en navegadores) da la hora
+  // equivocada en CR; añadir la Z fuerza el parseo como UTC.
+  function parseUTC(s) {
+    return s ? new Date(String(s).replace(" ", "T") + "Z") : null;
+  }
+  function fmtDateTime(d) {
+    return d ? d.toLocaleString("es-CR", { dateStyle: "short", timeStyle: "short" }) : "—";
+  }
+
   function tabBar(active) {
     const bar = el2("div", "tab-bar");
     const user = Store.cachedUser();
@@ -138,10 +148,16 @@ const App = (() => {
     search.placeholder = "Buscar registro por nombre, palabra clave o código…";
     root.appendChild(search);
 
+    // Si el usuario tiene áreas asignadas, solo ve esas. Admins ven todas.
+    const me0 = Store.cachedUser();
+    const allowedAreas = (me0 && me0.rol !== "admin" && Array.isArray(me0.areas) && me0.areas.length)
+      ? new Set(me0.areas) : null;
+    const visibleForms = FORMS.filter(f => !allowedAreas || allowedAreas.has(f.area || "Calidad"));
+
     // Agrupa los formularios por área, conservando el orden de aparición.
     const areas = [];
     const byArea = {};
-    FORMS.forEach(f => {
+    visibleForms.forEach(f => {
       const area = f.area || "Calidad";
       if (!byArea[area]) { byArea[area] = []; areas.push(area); }
       byArea[area].push(f);
@@ -259,8 +275,23 @@ const App = (() => {
       s._name = f ? f.shortTitle : s.formId;
       s._code = f ? f.code : s.formId;
       s._area = f ? (f.area || "Calidad") : "—";
-      s._date = new Date(s.savedAt);
+      s._date = parseUTC(s.savedAt);
+      s._editedDate = parseUTC(s.editedAt);
     });
+
+    // Filtro por estado (Todos / Pendientes / Aprobados).
+    let statusFilter = "all";
+    const filterBar = el2("div", "chip-bar");
+    [["all", "Todos"], ["pending", "Pendientes"], ["approved", "Aprobados"]].forEach(([v, label]) => {
+      const chip = mkBtn(label, "chip" + (v === statusFilter ? " active" : ""), () => {
+        statusFilter = v;
+        [...filterBar.children].forEach(c =>
+          c.className = c.textContent === label ? "chip active" : "chip");
+        draw();
+      });
+      filterBar.appendChild(chip);
+    });
+    root.appendChild(filterBar);
 
     const search = document.createElement("input");
     search.className = "input search-input";
@@ -277,12 +308,15 @@ const App = (() => {
 
     function draw() {
       const q = search.value.trim().toLowerCase();
-      const rows = subs.filter(s => !q ||
-        s._name.toLowerCase().includes(q) ||
-        s._code.toLowerCase().includes(q) ||
-        s._area.toLowerCase().includes(q) ||
-        s.savedByName.toLowerCase().includes(q) ||
-        fmtDate(s._date).toLowerCase().includes(q));
+      const rows = subs.filter(s => {
+        if (statusFilter !== "all" && s.status !== statusFilter) return false;
+        if (!q) return true;
+        return s._name.toLowerCase().includes(q) ||
+          s._code.toLowerCase().includes(q) ||
+          s._area.toLowerCase().includes(q) ||
+          s.savedByName.toLowerCase().includes(q) ||
+          fmtDate(s._date).toLowerCase().includes(q);
+      });
       tableWrap.innerHTML = "";
       tableWrap.appendChild(el2("p", "result-count",
         `${rows.length} de ${subs.length} registro${subs.length === 1 ? "" : "s"}`));
@@ -294,8 +328,8 @@ const App = (() => {
 
       const table = el2("table", "data-table");
       table.innerHTML =
-        "<thead><tr><th>Registro</th><th>Área</th><th>Fecha</th>" +
-        "<th>Llenado por</th><th></th></tr></thead>";
+        "<thead><tr><th>Registro</th><th>Área</th><th>Estado</th>" +
+        "<th>Fecha</th><th>Llenado por</th><th></th></tr></thead>";
       const tbody = document.createElement("tbody");
       rows.forEach(s => {
         const tr = el2("tr", "data-row");
@@ -304,6 +338,11 @@ const App = (() => {
         tdName.appendChild(el2("div", "cell-sub", s._code));
         tr.appendChild(tdName);
         tr.appendChild(el2("td", null, s._area));
+        const tdEstado = document.createElement("td");
+        tdEstado.appendChild(el2("span",
+          "estado-badge estado-" + (s.status === "approved" ? "aprobado" : "pendiente"),
+          s.status === "approved" ? "Aprobado" : "Pendiente"));
+        tr.appendChild(tdEstado);
         tr.appendChild(el2("td", null, fmtDate(s._date)));
         tr.appendChild(el2("td", null, s.savedByName));
 
@@ -338,18 +377,71 @@ const App = (() => {
     const s = state.currentSubmission;
     if (!s) { goSaved(); return; }
     root.innerHTML = "";
+    const me = Store.cachedUser() || {};
     const schema = FORMS.find(f => f.id === s.formId);
     if (!schema) {
       root.appendChild(el2("div", "empty",
         "No se encontró la definición del formulario de este registro."));
       return;
     }
-    root.appendChild(el2("div", "ro-banner",
-      `Solo lectura · Llenado por ${s.savedByName} · ` +
-      new Date(s.savedAt).toLocaleString("es-CR")));
+    const isAdmin = me.rol === "admin";
+    const alreadyApprovedByMe = (s.approvals || []).some(a => a.reviewer_id === me.id);
+    const canApprove = me.isReviewer && s.status === "pending" && !alreadyApprovedByMe;
+
+    // Banner de estado / autoría / edición / aprobaciones.
+    const banner = el2("div", "ro-banner");
+    const statusLabel = s.status === "approved" ? "Aprobado" : "Pendiente de revisión";
+    banner.appendChild(el2("div", null,
+      `${statusLabel} · Llenado por ${s.savedByName} · ${fmtDateTime(parseUTC(s.savedAt))}`));
+    if (s.editedAt) {
+      banner.appendChild(el2("div", null,
+        `Editado por ${s.editedByName || "—"} · ${fmtDateTime(parseUTC(s.editedAt))}`));
+    }
+    if (s.approvals && s.approvals.length) {
+      banner.appendChild(el2("div", null,
+        "Aprobado por: " + s.approvals
+          .map(a => `${a.reviewer_name} (${fmtDateTime(parseUTC(a.approved_at))})`)
+          .join(", ")));
+    }
+    root.appendChild(banner);
+
     const formWrap = document.createElement("div");
     root.appendChild(formWrap);
-    Render.renderForm(schema, formWrap, { readonly: true, data: s.data || {} });
+
+    if (isAdmin) {
+      // El administrador puede editar el registro guardado.
+      Render.renderForm(schema, formWrap, {
+        data: s.data || {},
+        submitLabel: "Guardar cambios",
+        onCancel: () => goSaved(),
+        onSubmit: async (data) => {
+          try {
+            await Store.updateSubmission(s.id, data);
+            showToast("Registro actualizado", "ok");
+            goSaved();
+          } catch (err) { showToast(err.message || "No se pudo guardar", "err"); }
+        }
+      });
+    } else {
+      Render.renderForm(schema, formWrap, { readonly: true, data: s.data || {} });
+    }
+
+    if (canApprove) {
+      const bar = el2("div", "review-bar");
+      bar.appendChild(mkBtn("Aprobar registro", "btn btn-primary btn-block", async () => {
+        try {
+          const updated = await Store.reviewSubmission(s.id);
+          state.currentSubmission = updated;
+          showToast(
+            updated.status === "approved"
+              ? "Aprobación registrada — todos los revisores aprobaron"
+              : "Aprobación registrada",
+            "ok");
+          render();
+        } catch (err) { showToast(err.message || "No se pudo aprobar", "err"); }
+      }));
+      root.appendChild(bar);
+    }
     window.scrollTo({ top: 0, behavior: "instant" });
   }
 
@@ -408,6 +500,21 @@ const App = (() => {
       return wrap;
     }
 
+    function checkboxField(label, checked) {
+      const wrap = el2("div", "field");
+      const lbl = el2("label", "check-inline");
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = !!checked;
+      lbl.appendChild(cb);
+      lbl.appendChild(el2("span", null, " " + label));
+      wrap.appendChild(lbl);
+      wrap._input = cb;
+      return wrap;
+    }
+
+    const ALL_AREAS = [...new Set(FORMS.map(f => f.area || "Calidad"))].sort();
+
     function drawForm() {
       formCard.innerHTML = "";
       const editing = editId != null;
@@ -419,15 +526,37 @@ const App = (() => {
       const fNombre = inputField("Nombre completo", "text", u ? u.nombre : "", false);
       const fPass = inputField(editing ? "Contraseña nueva (opcional)" : "Contraseña", "text", "", false);
       const fRol = selectField("Rol", u ? u.rol : "operador");
-      [fUsuario, fNombre, fPass, fRol].forEach(f => grid.appendChild(f));
+      const fReviewer = checkboxField("Marcar como revisor (aprueba registros pendientes)",
+        u ? !!u.isReviewer : false);
+      [fUsuario, fNombre, fPass, fRol, fReviewer].forEach(f => grid.appendChild(f));
       formCard.appendChild(grid);
+
+      // Áreas asignadas (vacío = sin restricción).
+      formCard.appendChild(el2("label", "areas-label",
+        "Áreas asignadas (sin marcar = puede ver todas)"));
+      const areasGrid = el2("div", "areas-checkbox-grid");
+      const areaCBs = {};
+      ALL_AREAS.forEach(a => {
+        const lbl = el2("label", "area-checkbox");
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        if (u && Array.isArray(u.areas) && u.areas.indexOf(a) >= 0) cb.checked = true;
+        areaCBs[a] = cb;
+        lbl.appendChild(cb);
+        lbl.appendChild(el2("span", null, " " + a));
+        areasGrid.appendChild(lbl);
+      });
+      formCard.appendChild(areasGrid);
 
       const actions = el2("div", "form-actions");
       actions.appendChild(mkBtn(editing ? "Guardar cambios" : "Crear usuario", "btn btn-primary", async () => {
+        const selectedAreas = Object.keys(areaCBs).filter(a => areaCBs[a].checked);
         const body = {
           nombre: fNombre._input.value.trim(),
           rol: fRol._input.value,
-          password: fPass._input.value
+          password: fPass._input.value,
+          isReviewer: fReviewer._input.checked,
+          areas: selectedAreas.length ? selectedAreas : null
         };
         try {
           if (editing) {
@@ -461,10 +590,18 @@ const App = (() => {
         const tr = document.createElement("tr");
         if (!u.activo) tr.className = "row-inactive";
         tr.appendChild(el2("td", "cell-main", u.usuario));
-        tr.appendChild(el2("td", null, u.nombre));
+        const tdNombre = document.createElement("td");
+        tdNombre.appendChild(el2("div", null, u.nombre));
+        if (u.areas && u.areas.length) {
+          tdNombre.appendChild(el2("div", "cell-sub", `Áreas: ${u.areas.join(", ")}`));
+        }
+        tr.appendChild(tdNombre);
         const tdRol = document.createElement("td");
         tdRol.appendChild(el2("span", "rol-badge rol-" + u.rol,
           u.rol === "admin" ? "Administrador" : "Operador"));
+        if (u.isReviewer) {
+          tdRol.appendChild(el2("span", "rol-badge rol-revisor", "Revisor"));
+        }
         tr.appendChild(tdRol);
         const tdEstado = document.createElement("td");
         tdEstado.appendChild(el2("span",

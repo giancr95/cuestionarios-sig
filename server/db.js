@@ -18,29 +18,61 @@ db.exec(`
     password    TEXT NOT NULL,
     rol         TEXT NOT NULL CHECK (rol IN ('admin','operador')),
     activo      INTEGER NOT NULL DEFAULT 1,
+    is_reviewer INTEGER NOT NULL DEFAULT 0,
+    areas       TEXT,
     created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
   CREATE TABLE IF NOT EXISTS submissions (
-    id          TEXT PRIMARY KEY,
-    form_id     TEXT NOT NULL,
-    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    user_name   TEXT NOT NULL,
-    data        TEXT NOT NULL,
-    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+    id              TEXT PRIMARY KEY,
+    form_id         TEXT NOT NULL,
+    user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_name       TEXT NOT NULL,
+    data            TEXT NOT NULL,
+    status          TEXT NOT NULL DEFAULT 'approved'
+                    CHECK (status IN ('pending','approved')),
+    edited_at       DATETIME,
+    edited_by_id    INTEGER,
+    edited_by_name  TEXT,
+    created_at      DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS submission_reviews (
+    submission_id   TEXT NOT NULL REFERENCES submissions(id) ON DELETE CASCADE,
+    reviewer_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    reviewer_name   TEXT NOT NULL,
+    approved_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (submission_id, reviewer_id)
   );
 
   CREATE INDEX IF NOT EXISTS idx_submissions_user    ON submissions(user_id);
   CREATE INDEX IF NOT EXISTS idx_submissions_form    ON submissions(form_id);
   CREATE INDEX IF NOT EXISTS idx_submissions_created ON submissions(created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_submissions_status  ON submissions(status);
 `);
 
-// Migración: agrega la columna `activo` en instalaciones previas a esta versión.
-const hasActivo = db.prepare("PRAGMA table_info(users)").all()
-  .some(c => c.name === "activo");
-if (!hasActivo) {
-  db.exec("ALTER TABLE users ADD COLUMN activo INTEGER NOT NULL DEFAULT 1");
+// Migraciones para instalaciones previas a esta versión.
+function addColumn(table, name, ddl) {
+  const has = db.prepare(`PRAGMA table_info(${table})`).all().some(c => c.name === name);
+  if (!has) db.exec(`ALTER TABLE ${table} ADD COLUMN ${name} ${ddl}`);
 }
+addColumn("users", "activo",        "INTEGER NOT NULL DEFAULT 1");
+addColumn("users", "is_reviewer",   "INTEGER NOT NULL DEFAULT 0");
+addColumn("users", "areas",         "TEXT");
+addColumn("submissions", "status",         "TEXT NOT NULL DEFAULT 'approved'");
+addColumn("submissions", "edited_at",      "DATETIME");
+addColumn("submissions", "edited_by_id",   "INTEGER");
+addColumn("submissions", "edited_by_name", "TEXT");
+db.exec(`
+  CREATE TABLE IF NOT EXISTS submission_reviews (
+    submission_id   TEXT NOT NULL REFERENCES submissions(id) ON DELETE CASCADE,
+    reviewer_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    reviewer_name   TEXT NOT NULL,
+    approved_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (submission_id, reviewer_id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_submissions_status ON submissions(status);
+`);
 
 // ---------------------------------------------------------------------------
 // Seed inicial — si la tabla users está vacía, crea los 6 usuarios base.

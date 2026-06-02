@@ -42,32 +42,42 @@ const Render = (() => {
     return max >= 0 ? max + 1 : 1;
   }
 
-  // Rellena el formulario con datos guardados y lo deja en solo-lectura.
-  function applyReadonly(form, data) {
+  // Rellena los campos del formulario con los datos guardados.
+  function fillFromData(form, data) {
     data = data || {};
     const cl = {};
     (data._checklist || []).forEach(c => { cl["checklist__" + (c.idx - 1)] = c.valor; });
-    const nodes = form.querySelectorAll("input, select, textarea");
-    nodes.forEach(node => {
+    form.querySelectorAll("input, select, textarea").forEach(node => {
       const name = node.getAttribute("name");
-      if (name) {
-        let val = data[name];
-        if (val === undefined && cl[name] !== undefined) val = cl[name];
-        const type = (node.getAttribute("type") || "").toLowerCase();
-        if (type === "radio") {
-          if (val !== undefined && node.value === String(val)) node.checked = true;
-        } else if (type === "checkbox") {
-          if (val !== undefined && val !== null && val !== "" && val !== false) {
-            if (!node.value || node.value === "on" || node.value === String(val)) node.checked = true;
-          }
-        } else if (val !== undefined && val !== null) {
-          node.value = val;
+      if (!name) return;
+      let val = data[name];
+      if (val === undefined && cl[name] !== undefined) val = cl[name];
+      const type = (node.getAttribute("type") || "").toLowerCase();
+      if (type === "radio") {
+        if (val !== undefined && node.value === String(val)) node.checked = true;
+      } else if (type === "checkbox") {
+        if (val !== undefined && val !== null && val !== "" && val !== false) {
+          if (!node.value || node.value === "on" || node.value === String(val)) node.checked = true;
         }
+      } else if (val !== undefined && val !== null) {
+        node.value = val;
       }
+    });
+  }
+
+  // Deshabilita todos los controles y elimina botones interactivos.
+  function disableForm(form) {
+    form.querySelectorAll("input, select, textarea").forEach(node => {
       node.setAttribute("disabled", "");
       node.disabled = true;
     });
     form.querySelectorAll(".add-row, .row-del").forEach(b => b.remove());
+  }
+
+  // Campos de identificación que ya se conocen por la sesión del usuario.
+  function isAutoFilledField(f) {
+    if (!f || !f.id) return false;
+    return /^(encargado|responsable)$/i.test(f.id);
   }
 
   // Convierte una sección con título en un bloque colapsable.
@@ -155,7 +165,8 @@ const Render = (() => {
     if (sec.title) box.appendChild(el("h3", null, sec.title));
     if (sec.note) box.appendChild(el("div", { class: "note" }, sec.note));
     const grid = el("div", { class: sec.columns === 2 ? "two-col" : "" });
-    for (const f of sec.fields) grid.appendChild(renderField(f));
+    const fields = (sec.fields || []).filter(f => !isAutoFilledField(f));
+    for (const f of fields) grid.appendChild(renderField(f));
     box.appendChild(grid);
     return box;
   }
@@ -214,7 +225,7 @@ const Render = (() => {
     const thead = el("thead");
     const trh = el("tr");
     trh.appendChild(el("th", null, "Parámetro"));
-    for (const d of sec.days) trh.appendChild(el("th", { style: "text-align:center" }, d.label));
+    trh.appendChild(el("th", { style: "text-align:center" }, "Cumplimiento"));
     thead.appendChild(trh);
     table.appendChild(thead);
 
@@ -222,18 +233,16 @@ const Render = (() => {
     sec.rows.forEach((row, rIdx) => {
       const tr = el("tr");
       tr.appendChild(el("td", { class: "aspect" }, `${row.label}`, el("div", { class: "meta", style: "font-size:11px;color:var(--ink-muted);margin-top:2px" }, row.valor)));
-      sec.days.forEach((d) => {
-        const td = el("td", { style: "text-align:center" });
-        const seg = el("div", { class: "segmented sm", style: "justify-content:center" });
-        for (const opt of sec.options) {
-          const name = `daily__${rIdx}__${d.key}`;
-          const id = `${name}-${opt.value}`;
-          seg.appendChild(el("input", { type: "radio", name, id, value: opt.value }));
-          seg.appendChild(el("label", { for: id }, opt.label));
-        }
-        td.appendChild(seg);
-        tr.appendChild(td);
-      });
+      const td = el("td", { style: "text-align:center" });
+      const seg = el("div", { class: "segmented sm", style: "justify-content:center" });
+      for (const opt of sec.options) {
+        const name = `daily__${rIdx}`;
+        const id = `${name}-${opt.value}`;
+        seg.appendChild(el("input", { type: "radio", name, id, value: opt.value }));
+        seg.appendChild(el("label", { for: id }, opt.label));
+      }
+      td.appendChild(seg);
+      tr.appendChild(td);
       tbody.appendChild(tr);
     });
     table.appendChild(tbody);
@@ -253,7 +262,7 @@ const Render = (() => {
     const thead = el("thead");
     const trh = el("tr");
     trh.appendChild(el("th", null, "Equipo / Actividad"));
-    for (const d of sec.days) trh.appendChild(el("th", { style: "text-align:center" }, d.label));
+    trh.appendChild(el("th", { style: "text-align:center" }, "Estado"));
     thead.appendChild(trh);
     table.appendChild(thead);
 
@@ -265,29 +274,24 @@ const Render = (() => {
       if (equipo) cell.appendChild(el("div", { class: "meta", style: "font-size:11px;color:var(--ink-muted);margin-top:2px" }, equipo));
       tr.appendChild(cell);
       const myIdx = rIdx;
-      sec.days.forEach((d) => {
-        const td = el("td", { class: "day-cell" });
-        const stack = el("div", { class: "stack" });
-        sec.columns.forEach((col) => {
-          const line = el("label", { class: "check-inline", style: "display:flex;align-items:center;gap:6px;font-size:12px" });
-          const cb = el("input", {
-            type: "checkbox",
-            name: `ldd__${myIdx}__${d.key}__${col.key}`
-          });
-          line.appendChild(cb);
-          line.appendChild(el("span", null, col.label));
-          stack.appendChild(line);
-        });
-        td.appendChild(stack);
-        tr.appendChild(td);
+      const td = el("td", { class: "day-cell" });
+      const stack = el("div", { class: "stack" });
+      sec.columns.forEach((col) => {
+        const line = el("label", { class: "check-inline", style: "display:flex;align-items:center;gap:6px;font-size:12px" });
+        const cb = el("input", { type: "checkbox", name: `ldd__${myIdx}__${col.key}` });
+        line.appendChild(cb);
+        line.appendChild(el("span", null, col.label));
+        stack.appendChild(line);
       });
+      td.appendChild(stack);
+      tr.appendChild(td);
       tbody.appendChild(tr);
       rIdx++;
     }
     if (sec.groups) {
       sec.groups.forEach((g) => {
         const trg = el("tr", { class: "group-row" });
-        trg.appendChild(el("td", { colspan: String(sec.days.length + 1), class: "group-head" }, g.name));
+        trg.appendChild(el("td", { colspan: "2", class: "group-head" }, g.name));
         tbody.appendChild(trg);
         g.rows.forEach((row) => dataRow(row.label, row.equipo));
       });
@@ -399,76 +403,44 @@ const Render = (() => {
     const thead = el("thead");
     const trh = el("tr");
     trh.appendChild(el("th", { class: "aspect" }, "Aspecto"));
-    for (const d of sec.days) trh.appendChild(el("th", { style: "text-align:center", colspan: "3" }, d.label));
+    trh.appendChild(el("th", { style: "text-align:center", "class": "subhead" }, "Evaluación"));
+    trh.appendChild(el("th", { style: "text-align:center", "class": "subhead" }, "Descripción"));
+    trh.appendChild(el("th", { style: "text-align:center", "class": "subhead" }, "Acción"));
     thead.appendChild(trh);
-    const trSub = el("tr");
-    trSub.appendChild(el("th", { class: "aspect" }));
-    for (const _ of sec.days) {
-      trSub.appendChild(el("th", { style: "text-align:center", "class": "subhead" }, "Evaluación"));
-      trSub.appendChild(el("th", { style: "text-align:center", "class": "subhead" }, "Descripción"));
-      trSub.appendChild(el("th", { style: "text-align:center", "class": "subhead" }, "Acción"));
-    }
-    thead.appendChild(trSub);
     table.appendChild(thead);
 
     const tbody = el("tbody");
     sec.aspectos.forEach((aspecto, i) => {
       const tr = el("tr");
       tr.appendChild(el("td", { class: "aspect" }, `${i + 1}. ${aspecto}`));
-      sec.days.forEach((d) => {
-        // Eval cell
-        const tdEval = el("td", { style: "text-align:center" });
-        const seg = el("div", { class: "segmented sm", style: "justify-content:center" });
-        for (const opt of sec.options) {
-          const name = `${keyPrefix}__${i}__${d.key}__val`;
-          const id = `${name}-${opt.value}`;
-          seg.appendChild(el("input", { type: "radio", name, id, value: opt.value }));
-          seg.appendChild(el("label", { for: id }, opt.label));
-        }
-        tdEval.appendChild(seg);
-        tr.appendChild(tdEval);
-
-        // Desc cell
-        const tdDesc = el("td");
-        tdDesc.appendChild(el("input", {
-          type: "text", class: "mini-input",
-          name: `${keyPrefix}__${i}__${d.key}__desc`,
-          placeholder: "—"
-        }));
-        tr.appendChild(tdDesc);
-
-        // Acción cell
-        const tdAcc = el("td");
-        tdAcc.appendChild(el("input", {
-          type: "text", class: "mini-input",
-          name: `${keyPrefix}__${i}__${d.key}__accion`,
-          placeholder: "—"
-        }));
-        tr.appendChild(tdAcc);
-      });
+      // Eval
+      const tdEval = el("td", { style: "text-align:center" });
+      const seg = el("div", { class: "segmented sm", style: "justify-content:center" });
+      for (const opt of sec.options) {
+        const name = `${keyPrefix}__${i}__val`;
+        const id = `${name}-${opt.value}`;
+        seg.appendChild(el("input", { type: "radio", name, id, value: opt.value }));
+        seg.appendChild(el("label", { for: id }, opt.label));
+      }
+      tdEval.appendChild(seg);
+      tr.appendChild(tdEval);
+      // Desc
+      tr.appendChild(el("td", null, el("input", {
+        type: "text", class: "mini-input",
+        name: `${keyPrefix}__${i}__desc`,
+        placeholder: "—"
+      })));
+      // Acción
+      tr.appendChild(el("td", null, el("input", {
+        type: "text", class: "mini-input",
+        name: `${keyPrefix}__${i}__accion`,
+        placeholder: "—"
+      })));
       tbody.appendChild(tr);
     });
     table.appendChild(tbody);
     scroll.appendChild(table);
     box.appendChild(scroll);
-
-    if (sec.responsablePorDia) {
-      const respRow = el("div", { class: "two-col", style: "margin-top:12px" });
-      sec.days.forEach((d) => {
-        respRow.appendChild(el("div", { class: "field" },
-          el("label", null, `Responsable ${d.label}`),
-          (() => {
-            const s = el("select", {
-              class: "select", name: `${keyPrefix}__resp__${d.key}`
-            });
-            s.appendChild(el("option", { value: "" }, "—"));
-            sec.responsables.forEach(r => s.appendChild(el("option", { value: r }, r)));
-            return s;
-          })()
-        ));
-      });
-      box.appendChild(respRow);
-    }
 
     return box;
   }
@@ -839,27 +811,33 @@ const Render = (() => {
       form.appendChild(node);
     });
 
+    const opts0 = currentOpts;
     if (!readonly) {
       const actions = el("div", { class: "form-actions" });
+      const cancelLabel = opts0.cancelLabel || "Cancelar";
+      const submitLabel = opts0.submitLabel || "Guardar";
+      const onCancel = opts0.onCancel || (() => App.goSelect());
       actions.appendChild(el("button", {
         type: "button", class: "btn btn-ghost btn-block",
-        onclick: () => App.goSelect()
-      }, "Cancelar"));
+        onclick: onCancel
+      }, cancelLabel));
       actions.appendChild(el("button", {
         type: "submit", class: "btn btn-primary btn-block"
-      }, "Guardar"));
+      }, submitLabel));
       form.appendChild(actions);
 
       form.addEventListener("submit", (e) => {
         e.preventDefault();
         const data = collectData(form, schema);
-        App.handleSave(schema, data);
+        if (opts0.onSubmit) opts0.onSubmit(data);
+        else App.handleSave(schema, data);
       });
     }
 
     container.appendChild(form);
 
-    if (readonly) applyReadonly(form, currentOpts.data);
+    if (opts0.data) fillFromData(form, opts0.data);
+    if (readonly) disableForm(form);
     currentOpts = {};
   }
 

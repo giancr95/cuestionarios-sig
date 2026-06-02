@@ -3,7 +3,7 @@ const crypto = require("crypto");
 const express = require("express");
 const cookieSession = require("cookie-session");
 
-const { login, requireAuth, requireAdmin } = require("./auth");
+const { login, requireAuth, requireAdmin, requireReviewer } = require("./auth");
 const subs = require("./submissions");
 const users = require("./users");
 
@@ -61,7 +61,10 @@ app.post("/api/login", loginRateLimit, (req, res) => {
   }
   req.session.uid = u.id;
   req.session.iat = Date.now();
-  res.json({ usuario: u.usuario, nombre: u.nombre, rol: u.rol });
+  res.json({
+    id: u.id, usuario: u.usuario, nombre: u.nombre, rol: u.rol,
+    isReviewer: !!u.isReviewer, areas: u.areas || null
+  });
 });
 
 app.post("/api/logout", (req, res) => {
@@ -71,15 +74,17 @@ app.post("/api/logout", (req, res) => {
 
 app.get("/api/me", requireAuth, (req, res) => {
   res.json({
+    id: req.user.id,
     usuario: req.user.usuario,
     nombre: req.user.nombre,
-    rol: req.user.rol
+    rol: req.user.rol,
+    isReviewer: !!req.user.isReviewer,
+    areas: req.user.areas || null
   });
 });
 
 app.get("/api/submissions", requireAuth, (req, res) => {
-  const list = subs.list({ userId: req.user.id, isAdmin: req.user.rol === "admin" });
-  res.json(list);
+  res.json(subs.list(req.user));
 });
 
 app.post("/api/submissions", requireAuth, (req, res) => {
@@ -87,17 +92,31 @@ app.post("/api/submissions", requireAuth, (req, res) => {
   if (!formId || !data || typeof data !== "object") {
     return res.status(400).json({ error: "formId y data requeridos" });
   }
-  const rec = subs.create(req.user.id, req.user.nombre, formId, data);
+  const rec = subs.create(req.user, formId, data);
   res.status(201).json(rec);
 });
 
 app.get("/api/submissions/:id", requireAuth, (req, res) => {
   const rec = subs.get(req.params.id);
   if (!rec) return res.status(404).json({ error: "No encontrado" });
-  if (req.user.rol !== "admin" && rec.savedBy !== req.user.id) {
-    return res.status(403).json({ error: "Sin permiso" });
-  }
+  const canSee =
+    req.user.rol === "admin" ||
+    rec.savedBy === req.user.id ||
+    (req.user.isReviewer && rec.status === "pending");
+  if (!canSee) return res.status(403).json({ error: "Sin permiso" });
   res.json(rec);
+});
+
+app.patch("/api/submissions/:id", requireAdmin, (req, res, next) => {
+  try {
+    const { data } = req.body || {};
+    res.json(subs.update(req.params.id, req.user, data));
+  } catch (e) { next(e); }
+});
+
+app.post("/api/submissions/:id/review", requireReviewer, (req, res, next) => {
+  try { res.json(subs.addReview(req.params.id, req.user)); }
+  catch (e) { next(e); }
 });
 
 app.delete("/api/submissions/:id", requireAuth, (req, res) => {

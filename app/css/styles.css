@@ -915,3 +915,58 @@ main {
 .estado-inactivo { background: #fdeaea; color: #c0392b; }
 .data-table tr.row-inactive { opacity: 0.55; }
 .data-table tr.row-inactive:hover { opacity: 0.8; }
+
+/* --- Estado de un registro (pendiente / aprobado) --- */
+.estado-aprobado { background: var(--green-soft); color: var(--green-dark); }
+.estado-pendiente { background: #fff4d8; color: #8a6300; }
+
+/* Chips para filtrar por estado en "Guardados" */
+.chip-bar { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+.chip {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 13px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+.chip:hover { color: var(--ink); }
+.chip.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+
+/* Badge de revisor */
+.rol-revisor { background: #e7eefb; color: #1a4fb3; margin-left: 6px; }
+
+/* Áreas asignadas (gestión de usuarios) */
+.areas-label {
+  display: block;
+  margin: 16px 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+.areas-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 6px 12px;
+  margin-bottom: 12px;
+}
+.area-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* Banner de registro guardado (varias líneas) */
+.ro-banner > div { margin: 2px 0; }
+.ro-banner > div:first-child { font-weight: 700; }
+
+/* Barra de aprobación de registro */
+.review-bar { margin-top: 18px; }

@@ -67,6 +67,12 @@ const Store = (() => {
   async function deleteSubmission(id) {
     return req("DELETE", "/submissions/" + encodeURIComponent(id));
   }
+  async function updateSubmission(id, data) {
+    return req("PATCH", "/submissions/" + encodeURIComponent(id), { data });
+  }
+  async function reviewSubmission(id) {
+    return req("POST", "/submissions/" + encodeURIComponent(id) + "/review");
+  }
 
   // --- Usuarios (solo administradores) ---
   async function listUsers() {
@@ -85,6 +91,7 @@ const Store = (() => {
   return {
     login, logout, currentUser, cachedUser,
     allSubmissions, saveSubmission, getSubmission, deleteSubmission,
+    updateSubmission, reviewSubmission,
     listUsers, createUser, updateUser, deleteUser
   };
 })();
