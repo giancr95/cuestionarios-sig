@@ -48,7 +48,6 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_submissions_user    ON submissions(user_id);
   CREATE INDEX IF NOT EXISTS idx_submissions_form    ON submissions(form_id);
   CREATE INDEX IF NOT EXISTS idx_submissions_created ON submissions(created_at DESC);
-  CREATE INDEX IF NOT EXISTS idx_submissions_status  ON submissions(status);
 `);
 
 // Migraciones para instalaciones previas a esta versión.
