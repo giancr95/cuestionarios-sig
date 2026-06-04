@@ -5109,5 +5109,427 @@ const FORMS = [
         { id: "firmaSIG",     label: "Firma SIG" }
       ] }
     ]
+  },
+
+  // ===== R-AGF-001 (CALIDAD) =====
+  {
+    id: "AGF-001", code: "R-AGF-001", area: "Calidad",
+    title: "Registro Control Análisis Grano de Frijol",
+    shortTitle: "Análisis Grano de Frijol",
+    desc: "Análisis de calidad por lote de frijol: humedad, quebrado, contraste, pesos y revisión visual.",
+    icon: "🫘", version: 2, emision: "Feb-2024", revision: "Jun-2026",
+    sections: [
+      {
+        type: "info", title: "Especificaciones de calidad — Frijol",
+        lines: [
+          "Tabla de referencia — Grado 1 / Grado 2:",
+          "Humedad %: 16 / 16 · Tiempo de cocción (min): 95 / 126 · Impurezas %: 0,5 / 2 · Grano contrastante %: 1 / 3.",
+          "Grano dañado total %: 1 / 3 · Grano quebrado %: 0,5 / 0,75 · Grano partido %: 0,5 / 3 · Otros granos %: 0,25 / 0,5.",
+          "Infestado: no se acepta · Dudosamente infestado: 5 / 5.",
+          "Cocción: 500 g de frijol en 1 500 mL de agua a ebullición. Muestreo a los 65, 80, 95, 110, 126 min hasta ≥96% granos cocidos."
+        ]
+      },
+      {
+        type: "repeater-table", id: "ana", rowLabel: "Análisis",
+        title: "Análisis por lote",
+        columns: [
+          { key: "semana", label: "# Semana", type: "number" },
+          { key: "dia", label: "Día", type: "text" },
+          { key: "turno", label: "Turno", type: "text" },
+          { key: "operario", label: "Operario", type: "text" },
+          { key: "humedad", label: "Humedad %", type: "number", step: "0.01" },
+          { key: "hora", label: "Hora", type: "time" },
+          { key: "lote", label: "Lote producción", type: "text" },
+          { key: "codigo", label: "Código producto", type: "text" },
+          { key: "presentacion", label: "Presentación", type: "text" },
+          { key: "calidad", label: "Calidad", type: "text" },
+          { key: "quebradoTapita", label: "Quebrado tapita", type: "text" },
+          { key: "granoQuebrado", label: "Grano quebrado %", type: "number", step: "0.01" },
+          { key: "contraste", label: "Contraste %", type: "number", step: "0.01" },
+          { key: "descascarado", label: "Descascarado %", type: "number", step: "0.01" },
+          { key: "impureza", label: "Impureza %", type: "number", step: "0.01" },
+          { key: "peso1", label: "Peso 1", type: "number", step: "0.01" },
+          { key: "peso2", label: "Peso 2", type: "number", step: "0.01" },
+          { key: "peso3", label: "Peso 3", type: "number", step: "0.01" },
+          { key: "peso4", label: "Peso 4", type: "number", step: "0.01" },
+          { key: "promedio", label: "Promedio", type: "number", step: "0.01" },
+          { key: "pesoBolsa", label: "Peso bolsa", type: "number", step: "0.01" },
+          { key: "diferencial", label: "Diferencial peso", type: "number", step: "0.01" },
+          { key: "empacadora", label: "Empacadora", type: "text" },
+          { key: "flujo", label: "Flujo", type: "text" },
+          { key: "tipoFrijol", label: "Tipo de frijol", type: "text" },
+          { key: "impresion", label: "Impresión", type: "text" },
+          { key: "selloVert", label: "Sello vertical", type: "text" },
+          { key: "selloHoriz", label: "Sello horizontal", type: "text" },
+          { key: "plaga", label: "Presencia de plaga", type: "select", options: ["Sí", "No"] }
+        ]
+      },
+      { type: "observaciones" }
+    ]
+  },
+
+  // ===== R-CDC-001 (PRODUCCIÓN) =====
+  {
+    id: "CDC-001", code: "R-CDC-001", area: "Producción",
+    title: "Certificado de Calidad",
+    shortTitle: "Certificado de Calidad",
+    desc: "Certificación de calidad de un lote de producto terminado.",
+    icon: "📜", version: 1, emision: "Aug-2024", revision: "Jun-2026",
+    sections: [
+      {
+        type: "fields", title: "Detalles generales", columns: 2,
+        fields: [
+          { id: "nombreComercial", label: "Nombre comercial", type: "text", required: true },
+          { id: "calidad", label: "Calidad", type: "text" },
+          { id: "presentacion", label: "Presentación", type: "text" },
+          { id: "industrializadoPor", label: "Industrializado por", type: "text", default: "Arrocera Liborio S.A." },
+          { id: "lote", label: "Lote", type: "text", required: true },
+          { id: "registroSanitario", label: "Registro sanitario", type: "text" },
+          { id: "fechaProduccion", label: "Fecha de producción", type: "date", required: true, default: "today" },
+          { id: "fechaVencimiento", label: "Fecha de vencimiento", type: "date" }
+        ]
+      },
+      {
+        type: "info", title: "Certificación",
+        lines: [
+          "El laboratorio de Calidad de Arrocera Liborio S.A. certifica que el producto descrito se encuentra dentro de las especificaciones de calidad, libre de plagas, libre de alérgenos y libre de otras sustancias de riesgo para la salud humana."
+        ]
+      },
+      {
+        type: "fields", title: "Descripción general del producto",
+        fields: [
+          { id: "porcentajeGranoEntero", label: "% Grano entero", type: "number", step: "0.01" },
+          { id: "paisOrigen", label: "País de origen de materia prima", type: "text" },
+          { id: "notasDescripcion", label: "Notas adicionales", type: "textarea" }
+        ]
+      },
+      {
+        type: "fields", title: "Especificaciones de calidad — resultados", columns: 2,
+        fields: [
+          { id: "humedadMax", label: "% Humedad (máximo)", type: "number", step: "0.01" },
+          { id: "granoEnteroMin", label: "% Grano entero (mínimo)", type: "number", step: "0.01" },
+          { id: "granoQuebradoMax", label: "% Grano quebrado (máximo)", type: "number", step: "0.01" },
+          { id: "puntillaMax", label: "% Puntilla (máximo)", type: "number", step: "0.01" },
+          { id: "manchadoMax", label: "% Arroz manchado (máximo)", type: "number", step: "0.01" },
+          { id: "danadoMax", label: "% Arroz dañado (máximo)", type: "number", step: "0.01" },
+          { id: "yesosoMax", label: "% Arroz yesoso (máximo)", type: "number", step: "0.01" },
+          { id: "rojoMax", label: "% Arroz rojo (máximo)", type: "number", step: "0.01" },
+          { id: "semillasGranzasIntegral", label: "Semillas, granzas e integral (máx en 500 g)", type: "number" },
+          { id: "blancura", label: "Resultado blancura", type: "number", step: "0.01" },
+          { id: "alergenos", label: "Presencia de alérgenos", type: "select", options: ["Ausente", "Presente"] },
+          { id: "insectos", label: "Presencia de insectos", type: "select", options: ["Ausente", "Presente"] },
+          { id: "coccion", label: "Resultado cocción", type: "text" }
+        ]
+      },
+      {
+        type: "info", title: "Instrucciones de uso y conservación",
+        lines: [
+          "Manténgase en lugar seco bajo techo, sobre tarimas, alejado de agroquímicos o productos de limpieza.",
+          "Verifique que la zona de almacenamiento esté protegida contra el ingreso de plagas o roedores.",
+          "Una vez abierto, almacenar el producto en un recipiente grado alimenticio, limpio, seco y con tapa."
+        ]
+      },
+      {
+        type: "material-list", id: "micro",
+        title: "Análisis microbiológico",
+        showCode: false,
+        columns: [
+          { key: "resultado", label: "Resultado", type: "text" },
+          { key: "certificado", label: "Certificado", type: "text" }
+        ],
+        items: [
+          { codigo: "", desc: "Recuento de coliformes fecales" },
+          { codigo: "", desc: "Recuento de coliformes totales" },
+          { codigo: "", desc: "Salmonella" },
+          { codigo: "", desc: "Aflatoxinas" }
+        ]
+      },
+      { type: "observaciones" }
+    ]
+  },
+
+  // ===== R-CPH-001 (CALIDAD) =====
+  {
+    id: "CPH-001", code: "R-CPH-001", area: "Calidad",
+    title: "Registro Control de Cloro y pH en el Agua",
+    shortTitle: "Cloro y pH en Agua",
+    desc: "Control de cloro residual y pH del agua con acciones correctivas.",
+    icon: "💧", version: 2, emision: "Feb-2024", revision: "Jun-2026",
+    sections: [
+      {
+        type: "info", title: "Rangos permitidos",
+        lines: [
+          "pH: 6,0 – 8,0",
+          "Cloro residual libre: 0,3 – 1,0 mg/L"
+        ]
+      },
+      {
+        type: "repeater-table", id: "muestra", rowLabel: "Muestra",
+        title: "Mediciones",
+        columns: [
+          { key: "fecha", label: "Fecha", type: "date", default: "today" },
+          { key: "hora", label: "Hora", type: "time" },
+          { key: "punto", label: "Punto de muestreo", type: "text" },
+          { key: "cloro", label: "Cloro (mg/L)", type: "number", step: "0.01" },
+          { key: "ph", label: "pH", type: "number", step: "0.01" },
+          { key: "acciones", label: "Acciones correctivas", type: "text" }
+        ]
+      },
+      { type: "observaciones" }
+    ]
+  },
+
+  // ===== R-IBP-001 (CALIDAD) =====
+  {
+    id: "IBP-001", code: "R-IBP-001", area: "Calidad",
+    title: "Registro Control Incumplimiento BPM",
+    shortTitle: "Incumplimiento BPM",
+    desc: "Registro de incumplimientos de Buenas Prácticas de Manufactura por colaborador.",
+    icon: "⚠️", version: 2, emision: "Feb-2024", revision: "Jun-2026",
+    sections: [
+      {
+        type: "fields", title: "Información general", columns: 2,
+        fields: [
+          { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" },
+          { id: "area", label: "Área", type: "text" },
+          { id: "colaborador", label: "Colaborador", type: "text", required: true }
+        ]
+      },
+      {
+        type: "checkbox-list", id: "incumplimientos",
+        title: "Incumplimientos detectados",
+        note: "Marque cada incumplimiento observado.",
+        items: [
+          "Uñas largas",
+          "Falta uso de redecilla para cabello",
+          "Fumado en área laboral",
+          "Cabello largo",
+          "Ingreso con alhajas y relojes",
+          "Uso no permitido de celular",
+          "Uniforme no adecuado",
+          "Escupir en área laboral",
+          "Lavado inadecuado de manos",
+          "Barba / bigote largo",
+          "Consumo de alimentos en área laboral",
+          "Uso de colonia / desodorante no neutro",
+          "Falta de anteojos de protección",
+          "Falta de tapones auditivos",
+          "Falta de zapatos de protección",
+          "Falta de arnés / líneas de vida",
+          "Falta de máscara para soldar",
+          "Falta de guantes, polainas, mangas o delantal de cuero",
+          "Falta de máscara para esmerilar",
+          "Falta de mascarilla desechable",
+          "Falta de mascarilla doble vía",
+          "No cierran puertas",
+          "Otro incumplimiento"
+        ]
+      },
+      {
+        type: "fields", title: "Detalle adicional",
+        fields: [
+          { id: "otroEspecifique", label: "Otro (especifique)", type: "textarea" }
+        ]
+      },
+      { type: "observaciones" }
+    ]
+  },
+
+  // ===== R-NCE-001 (CALIDAD) =====
+  {
+    id: "NCE-001", code: "R-NCE-001", area: "Calidad",
+    title: "Registro de No Conformidad — Material de Empaque",
+    shortTitle: "No Conformidad Material Empaque",
+    desc: "Reporte de no conformidades de material de empaque entregado por proveedor.",
+    icon: "📦", version: 2, emision: "Feb-2024", revision: "Jun-2026",
+    sections: [
+      {
+        type: "fields", title: "Información general", columns: 2,
+        fields: [
+          { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" },
+          { id: "consecutivo", label: "Consecutivo No Conformidad", type: "text", required: true },
+          { id: "comunicaNoConformidad", label: "Encargado de comunicar la no conformidad", type: "text" },
+          { id: "inspector", label: "Inspector de Control de Calidad", type: "text" }
+        ]
+      },
+      {
+        type: "fields", title: "Datos del material", columns: 2,
+        fields: [
+          { id: "material", label: "Material", type: "text" },
+          { id: "lote", label: "Lote", type: "text" },
+          { id: "op", label: "OP", type: "text" },
+          { id: "cantidad", label: "Cantidad (kg / unidades)", type: "text" }
+        ]
+      },
+      {
+        type: "fields", title: "Datos del proveedor", columns: 2,
+        fields: [
+          { id: "proveedor", label: "Proveedor", type: "text" },
+          { id: "codigoSistema", label: "Código en sistema", type: "text" },
+          { id: "telefonoReferencia", label: "Teléfono / referencia", type: "text" },
+          { id: "representanteVentas", label: "Representante de ventas", type: "text" }
+        ]
+      },
+      {
+        type: "fields", title: "Descripción de la no conformidad",
+        fields: [
+          { id: "descripcionNoConformidad", label: "Descripción", type: "textarea" }
+        ]
+      },
+      {
+        type: "fields", title: "Disposición y observaciones del proveedor",
+        fields: [
+          { id: "disposicionProducto", label: "Disposición del producto revisado", type: "textarea" },
+          { id: "observacionesProveedor", label: "Observaciones del proveedor", type: "textarea" }
+        ]
+      },
+      { type: "observaciones" }
+    ]
+  },
+
+  // ===== R-PQV-001 (CALIDAD) =====
+  {
+    id: "PQV-001", code: "R-PQV-001", area: "Calidad",
+    title: "Protocolo de Recolección de Vidrio y Materiales Quebradizos",
+    shortTitle: "Recolección Vidrio Quebradizo",
+    desc: "Protocolo cuando se detecta rotura de vidrio o material quebradizo.",
+    icon: "🧯", version: 2, emision: "Feb-2024", revision: "Jun-2026",
+    sections: [
+      {
+        type: "fields", title: "Información general", columns: 2,
+        fields: [
+          { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" },
+          { id: "ubicacion", label: "Ubicación del vidrio o acrílico dañado", type: "text" }
+        ]
+      },
+      {
+        type: "fields", title: "Detalle del incidente",
+        fields: [
+          { id: "descripcion", label: "Descripción de lo sucedido", type: "textarea" },
+          { id: "accionesCorrectivas", label: "Acciones correctivas y manejo de producto afectado", type: "textarea" },
+          { id: "seguimiento", label: "Seguimiento", type: "textarea" }
+        ]
+      },
+      { type: "observaciones" }
+    ]
+  },
+
+  // ===== R-RFD-001 (CALIDAD) =====
+  {
+    id: "RFD-001", code: "R-RFD-001", area: "Calidad",
+    title: "Registro de Recepción y Fumigación de Devoluciones",
+    shortTitle: "Recepción Fumigación Devoluciones",
+    desc: "Recepción de devoluciones con evaluación de plagas y fumigación con fosfuro.",
+    icon: "🚛", version: 1, emision: "Apr-2026", revision: "Apr-2026",
+    sections: [
+      {
+        type: "fields", title: "1. Información general de la recepción", columns: 2,
+        fields: [
+          { id: "fechaIngreso", label: "Fecha de ingreso", type: "date", default: "today" },
+          { id: "numeroBoleta", label: "Número de boleta / factura", type: "text" },
+          { id: "cliente", label: "Nombre del cliente", type: "text" },
+          { id: "placa", label: "Placa del vehículo", type: "text" },
+          { id: "chofer", label: "Nombre del chofer", type: "text" }
+        ]
+      },
+      {
+        type: "fields", title: "2. Evaluación de calidad y control de plagas", columns: 2,
+        note: "A realizarse en la zona de espera antes del ingreso a planta.",
+        fields: [
+          { id: "producto", label: "Producto", type: "select", options: ["Arroz Granza", "Arroz Pilado", "Otros"] },
+          { id: "productoOtros", label: "Otros (especifique)", type: "text" },
+          { id: "cantidad", label: "Cantidad (sacos / kilos)", type: "text" },
+          { id: "nivelInfestacion", label: "Nivel de infestación", type: "select",
+            options: ["Leve — escasos insectos adultos", "Moderada — adultos y larvas en costuras", "Crítica — alta densidad, harinilla y calor"] },
+          { id: "tipoPlaga", label: "Tipo de plaga identificada", type: "text" }
+        ]
+      },
+      {
+        type: "fields", title: "3. Tratamiento químico (DETIA / Fosfuro de Aluminio)", columns: 2,
+        note: "A realizarse una vez descargado en el contenedor de cuarentena.",
+        fields: [
+          { id: "idContenedor", label: "ID del contenedor de fumigación", type: "text" },
+          { id: "horaSellado", label: "Hora de sellado hermético", type: "time" },
+          { id: "productoQuimico", label: "Producto químico", type: "text", default: "DETIA (Fosfuro de Aluminio)" },
+          { id: "dosis", label: "Dosis aplicada (tabletas / pellets)", type: "text" },
+          { id: "volumenContenedor", label: "Volumen del contenedor (m³)", type: "number", step: "0.01" },
+          { id: "fechaAperturaProgramada", label: "Fecha apertura programada (mín 72-96 h)", type: "date" },
+          { id: "horaAperturaProgramada", label: "Hora apertura programada", type: "time" }
+        ]
+      },
+      {
+        type: "fields", title: "4. Verificación de seguridad y aireación", columns: 2,
+        note: "A realizarse antes de retirar el producto del contenedor.",
+        fields: [
+          { id: "fechaApertura", label: "Fecha de apertura", type: "date" },
+          { id: "horaApertura", label: "Hora de apertura", type: "time" },
+          { id: "gasResidual", label: "Gas residual PH₃ (ppm; <0,3 para ingreso)", type: "number", step: "0.01" },
+          { id: "mortalidad", label: "Verificación de mortalidad", type: "select",
+            options: ["Éxito — 100% eliminada", "Fallido — presencia de plaga viva (requiere re-tratamiento)"] }
+        ]
+      },
+      {
+        type: "fields", title: "5. Disposición final del producto",
+        fields: [
+          { id: "destino", label: "Destino autorizado por Calidad", type: "select",
+            options: ["Reproceso (limpieza mecánica profunda y re-empaque)", "Subproducto (consumo animal / granja)", "Producto no conforme"] },
+          { id: "destinoNotas", label: "Notas del destino", type: "textarea" }
+        ]
+      },
+      { type: "observaciones" }
+    ]
+  },
+
+  // ===== R-VPQ-001 (CALIDAD) =====
+  {
+    id: "VPQ-001", code: "R-VPQ-001", area: "Calidad",
+    title: "Registro Revisión de Vidrio y Plástico Quebradizo",
+    shortTitle: "Vidrio y Plástico Quebradizo",
+    desc: "Revisión del estado de vidrios, acrílicos y plásticos quebradizos por ubicación.",
+    icon: "🪟", version: 2, emision: "May-2024", revision: "Jun-2026",
+    sections: [
+      {
+        type: "fields", title: "Información general", columns: 2,
+        fields: [
+          { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" },
+          { id: "hora", label: "Hora", type: "time" }
+        ]
+      },
+      {
+        type: "material-list", id: "vidrios",
+        title: "Revisión por elemento",
+        note: "Marque el estado de cada elemento revisado.",
+        columns: [
+          { key: "estado", label: "Estado", type: "select", options: ["Buen Estado", "Dañado"] },
+          { key: "observaciones", label: "Observaciones", type: "text" }
+        ],
+        items: [
+          { codigo: "VC-1",  desc: "Oficinas — Ventanales de vidrio, puerta principal" },
+          { codigo: "VC-2",  desc: "Oficinas — Ventanal de vidrio Ventas" },
+          { codigo: "VC-3",  desc: "Oficinas — Ventana vidrio Ventas" },
+          { codigo: "VC-4",  desc: "Oficinas — Ventana y puerta SIG" },
+          { codigo: "VC-5",  desc: "Oficinas — Ventana y puerta oficina gerente Administrativo" },
+          { codigo: "VC-6",  desc: "Oficinas — Ventana y puerta oficina gerente General" },
+          { codigo: "VC-7",  desc: "Oficinas — Ventana y puerta sala de juntas" },
+          { codigo: "VC-8",  desc: "Oficinas — Ventana y puerta de comedor" },
+          { codigo: "VC-9",  desc: "Oficinas — Ventana y puerta oficina contabilidad y tesorería" },
+          { codigo: "VC-10", desc: "Oficinas — Ventana y puerta oficina Recursos Humanos" },
+          { codigo: "VC-11", desc: "Oficinas — Ventanillas" },
+          { codigo: "VA-12", desc: "Laboratorio Empaque — Ventana acrílico" },
+          { codigo: "VA-13", desc: "Laboratorio Empaque — Ventana acrílico" },
+          { codigo: "VC-14", desc: "Estación pesaje camiones — Ventana cristal" },
+          { codigo: "VC-15", desc: "Estación pesaje camiones — Ventana cristal" },
+          { codigo: "VC-16", desc: "Puesto seguridad — Ventana cristal" },
+          { codigo: "VC-17", desc: "Laboratorio y Proveeduría — Ventana cristal" },
+          { codigo: "VC-18", desc: "Laboratorio y Proveeduría — Ventana cristal" },
+          { codigo: "VC-19", desc: "Laboratorio y Proveeduría — Ventana cristal" },
+          { codigo: "VC-20", desc: "Laboratorio y Proveeduría — Ventana cristal" },
+          { codigo: "VC-21", desc: "Laboratorio y Proveeduría — Ventana cristal" },
+          { codigo: "VC-22", desc: "Laboratorio y Proveeduría — Ventana cristal" },
+          { codigo: "VC-23", desc: "Laboratorio y Proveeduría — Ventana cristal" }
+        ]
+      },
+      { type: "observaciones" }
+    ]
   }
 ];
