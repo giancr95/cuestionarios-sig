@@ -978,3 +978,11 @@ main {
   font-weight: 600;
   cursor: not-allowed;
 }
+
+/* --- Checkboxes dentro de tablas (material-list) --- */
+.mini-checkbox {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--green);
+}

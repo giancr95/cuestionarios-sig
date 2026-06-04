@@ -5050,30 +5050,44 @@ const FORMS = [
       {
         type: "fields", title: "Información general", columns: 2,
         fields: [
-          { id: "responsable", label: "Responsable", type: "text", required: true },
-          { id: "fechaInicio", label: "Fecha inicio", type: "date", required: true, default: "today" },
-          { id: "fechaFin", label: "Fecha fin", type: "date" },
+          { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" },
           { id: "hora", label: "Hora", type: "time" }
+        ]
+      },
+      {
+        type: "info", title: "Códigos de Hallazgos y Medidas Correctivas",
+        lines: [
+          "Tipos de Hallazgos — A: Trampa sucia · B: Trampa dañada · C: Fluorescentes dañados · D: Captura excede el nivel máximo aceptable.",
+          "Medidas Correctivas — A: Limpiar trampa · B: Reparar trampa o cambiarla · C: Cambiar fluorescentes dañados · D: Informar a Gerencia para limpieza.",
+          "Nivel máximo aceptable: 25 insectos plaga/día, 50 por revisión (cada 2 días).",
+          "Nombre científico: Sitophilus oryzae, Rhyzopertha dominica, Tribolium confusum, Criptolestes spp."
         ]
       },
       {
         type: "material-list", id: "trampa",
         title: "Insectos recolectados por trampa",
-        note: "Cantidad de cada insecto por trampa. Hallazgos: A/B/C/D. Nivel máximo aceptable: 25 insectos/día, 50 por revisión (cada 2 días).",
+        note: "El total se calcula automáticamente sumando los conteos. Marque hallazgos y medidas correctivas que apliquen (A/B/C/D según códigos arriba).",
         columns: [
-          { key: "sitophilus", label: "Sitophilus", type: "number" },
-          { key: "rhyzopertha", label: "Rhyzopertha", type: "number" },
-          { key: "tribolium", label: "Tribolium", type: "number" },
-          { key: "criptolestes", label: "Criptolestes", type: "number" },
-          { key: "sitotroga", label: "Sitotroga", type: "number" },
-          { key: "plodia", label: "Plodia", type: "number" },
-          { key: "moscas", label: "Moscas", type: "number" },
-          { key: "ephestia", label: "Ephestia", type: "number" },
-          { key: "otros", label: "Otros", type: "text" },
-          { key: "total", label: "Sumatoria total", type: "number" },
-          { key: "hallazgo", label: "Hallazgos (A/B/C/D)", type: "text" },
-          { key: "cambioFluor", label: "Cambio fluorescente", type: "text" },
-          { key: "medidas", label: "Medidas correctivas", type: "text" }
+          { key: "sitophilus",   label: "Sitophilus",     type: "number" },
+          { key: "rhyzopertha",  label: "Rhyzopertha",    type: "number" },
+          { key: "tribolium",    label: "Tribolium",      type: "number" },
+          { key: "criptolestes", label: "Criptolestes",   type: "number" },
+          { key: "sitotroga",    label: "Sitotroga",      type: "number" },
+          { key: "plodia",       label: "Plodia",         type: "number" },
+          { key: "moscas",       label: "Moscas",         type: "number" },
+          { key: "ephestia",     label: "Ephestia",       type: "number" },
+          { key: "otros",        label: "Otros",          type: "text" },
+          { key: "total",        label: "Sumatoria total", type: "number",
+            compute: "sitophilus + rhyzopertha + tribolium + criptolestes + sitotroga + plodia + moscas + ephestia" },
+          { key: "hallA",        label: "H-A",            type: "checkbox" },
+          { key: "hallB",        label: "H-B",            type: "checkbox" },
+          { key: "hallC",        label: "H-C",            type: "checkbox" },
+          { key: "hallD",        label: "H-D",            type: "checkbox" },
+          { key: "cambioFluor",  label: "Cambio fluor.",  type: "select", options: ["Sí", "No"] },
+          { key: "medA",         label: "MC-A",           type: "checkbox" },
+          { key: "medB",         label: "MC-B",           type: "checkbox" },
+          { key: "medC",         label: "MC-C",           type: "checkbox" },
+          { key: "medD",         label: "MC-D",           type: "checkbox" }
         ],
         items: [
           { codigo: "L-01", desc: "Empaque" },
@@ -5086,14 +5100,6 @@ const FORMS = [
           { codigo: "L-08", desc: "Empaque" },
           { codigo: "L-09", desc: "Subproductos" },
           { codigo: "L-10", desc: "Pilado" }
-        ]
-      },
-      {
-        type: "info", title: "Referencia",
-        lines: [
-          "Nivel máximo aceptable: 25 insectos plaga/día, 50 por revisión (cada 2 días).",
-          "Nombre científico: Sitophilus oryzae, Rhyzopertha dominica, Tribolium confusum, Criptolestes spp.",
-          "Hallazgo D — acciones: notificar a Calidad/Administración de Riesgos; revisar mercadería, estructuras y equipos; solicitar fumigación/limpieza; retirar mercadería no conforme y fumigar."
         ]
       },
       { type: "observaciones" },
