@@ -378,6 +378,7 @@ const FORMS = [
   {
     id: "LDD-001",
     code: "R-LDD-001",
+    area: "Limpieza",
     title: "Limpieza y Desinfección Dispensadores de Agua",
     shortTitle: "Dispensadores de Agua",
     desc: "Registro semanal de limpieza y desinfección de dispensadores.",
@@ -1454,7 +1455,7 @@ const FORMS = [
   // 9. R-RDI-001 Revisión de Imanes
   // =================================================================
   {
-    id: "RDI-001", code: "R-RDI-001", area: "Calidad",
+    id: "RDI-001", code: "R-RDI-001", area: ["Calidad", "Pilado"],
     title: "Registro Revisión de Imanes",
     shortTitle: "Revisión de Imanes",
     desc: "Revisión de imanes por equipo (Empaque, Pilado y Frijoles), metales y residuos.",

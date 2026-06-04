@@ -44,6 +44,11 @@ const App = (() => {
   function fmtDateTime(d) {
     return d ? d.toLocaleString("es-CR", { dateStyle: "short", timeStyle: "short" }) : "—";
   }
+  // Áreas de un formulario — admite string ("Calidad") o array (["Calidad","Pilado"]).
+  function formAreas(f) {
+    if (Array.isArray(f.area)) return f.area.length ? f.area : ["Calidad"];
+    return [f.area || "Calidad"];
+  }
 
   function tabBar(active) {
     const bar = el2("div", "tab-bar");
@@ -152,15 +157,20 @@ const App = (() => {
     const me0 = Store.cachedUser();
     const allowedAreas = (me0 && me0.rol !== "admin" && Array.isArray(me0.areas) && me0.areas.length)
       ? new Set(me0.areas) : null;
-    const visibleForms = FORMS.filter(f => !allowedAreas || allowedAreas.has(f.area || "Calidad"));
+    const visibleForms = FORMS.filter(f => {
+      if (!allowedAreas) return true;
+      return formAreas(f).some(a => allowedAreas.has(a));
+    });
 
-    // Agrupa los formularios por área, conservando el orden de aparición.
+    // Agrupa los formularios por área. Un formulario con varias áreas
+    // aparece en cada grupo correspondiente.
     const areas = [];
     const byArea = {};
     visibleForms.forEach(f => {
-      const area = f.area || "Calidad";
-      if (!byArea[area]) { byArea[area] = []; areas.push(area); }
-      byArea[area].push(f);
+      formAreas(f).forEach(area => {
+        if (!byArea[area]) { byArea[area] = []; areas.push(area); }
+        byArea[area].push(f);
+      });
     });
 
     const groups = [];
@@ -292,7 +302,7 @@ const App = (() => {
       s._form = f;
       s._name = f ? f.shortTitle : s.formId;
       s._code = f ? f.code : s.formId;
-      s._area = f ? (f.area || "Calidad") : "—";
+      s._area = f ? formAreas(f).join(", ") : "—";
       s._date = parseUTC(s.savedAt);
       s._editedDate = parseUTC(s.editedAt);
     });
@@ -531,7 +541,7 @@ const App = (() => {
       return wrap;
     }
 
-    const ALL_AREAS = [...new Set(FORMS.map(f => f.area || "Calidad"))].sort();
+    const ALL_AREAS = [...new Set(FORMS.flatMap(f => formAreas(f)))].sort();
 
     function drawForm() {
       formCard.innerHTML = "";
