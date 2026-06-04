@@ -80,6 +80,12 @@ const Render = (() => {
     return /^(encargado|responsable)$/i.test(f.id);
   }
 
+  // Las listas que apuntan a `RESPONSABLES` se llenan a mano: ya no hay una
+  // lista fija de responsables (los usuarios cambian).
+  function isResponsablesList(opts) {
+    return typeof RESPONSABLES !== "undefined" && opts === RESPONSABLES;
+  }
+
   // Convierte una sección con título en un bloque colapsable.
   function makeCollapsible(section) {
     const h = section.children[0];
@@ -129,7 +135,13 @@ const Render = (() => {
     wrap.appendChild(el("label", { html: labelHtml, for: field.id }));
 
     let input;
-    if (field.type === "select") {
+    if (field.type === "select" && isResponsablesList(field.options)) {
+      // El listado de responsables ya no se ofrece — se llena manualmente.
+      input = el("input", {
+        id: field.id, name: field.id, class: "input", type: "text",
+        placeholder: field.placeholder || ""
+      });
+    } else if (field.type === "select") {
       input = el("select", { id: field.id, name: field.id, class: "select" });
       input.appendChild(el("option", { value: "" }, "— Seleccione —"));
       for (const opt of field.options) {
@@ -573,13 +585,11 @@ const Render = (() => {
     d.appendChild(s);
     return d;
   }
-  function selResp(name, label, responsables) {
+  function selResp(name, label /*, responsables (ignorado) */) {
+    // El nombre del responsable se llena a mano (sin listado predefinido).
     const d = el("div", { class: "field" });
     d.appendChild(el("label", null, label));
-    const s = el("select", { class: "select", name });
-    s.appendChild(el("option", { value: "" }, "—"));
-    responsables.forEach(r => s.appendChild(el("option", { value: r }, r)));
-    d.appendChild(s);
+    d.appendChild(el("input", { type: "text", class: "input", name }));
     return d;
   }
   function selSiNo(name, label) {
@@ -599,7 +609,9 @@ const Render = (() => {
   function repField(name, col) {
     const d = el("div", { class: "field" });
     d.appendChild(el("label", null, col.label));
-    if (col.type === "select") {
+    if (col.type === "select" && isResponsablesList(col.options)) {
+      d.appendChild(el("input", { type: "text", class: "input", name, placeholder: col.placeholder || "" }));
+    } else if (col.type === "select") {
       const s = el("select", { class: "select", name });
       s.appendChild(el("option", { value: "" }, "—"));
       (col.options || []).forEach(o => {
