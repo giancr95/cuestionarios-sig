@@ -1557,7 +1557,7 @@ const FORMS = [
   // 11. R-CEF-001 Cuchillos y Cucharones Empaque Frijoles
   // =================================================================
   {
-    id: "CEF-001", code: "R-CEF-001", area: "Calidad",
+    id: "CEF-001", code: "R-CEF-001", area: "Frijoles",
     title: "Registro de Cuchillos y Cucharones — Empaque Frijoles",
     shortTitle: "Cuchillos Empaque Frijoles",
     desc: "Control semanal de cuchillos y cucharones del grupo de empaque de frijoles.",
