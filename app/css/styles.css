@@ -970,3 +970,11 @@ main {
 
 /* Barra de aprobación de registro */
 .review-bar { margin-top: 18px; }
+
+/* --- Celdas calculadas (ej. saldo en inventarios) --- */
+.mini-input.computed {
+  background: var(--green-soft);
+  color: var(--green-dark);
+  font-weight: 600;
+  cursor: not-allowed;
+}

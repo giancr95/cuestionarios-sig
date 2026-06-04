@@ -120,4 +120,13 @@ function shape(r) {
 }
 function safeParse(s) { try { return JSON.parse(s); } catch { return {}; } }
 
-module.exports = { create, get, list, update, remove, addReview };
+// El último registro enviado para un formulario, independientemente del
+// usuario o del estado. Sirve para precargar valores (ej. saldo previo).
+function latestForForm(formId) {
+  const r = db.prepare(
+    "SELECT id, form_id, user_id, user_name, data, status, edited_at, edited_by_id, edited_by_name, created_at FROM submissions WHERE form_id = ? ORDER BY created_at DESC LIMIT 1"
+  ).get(formId);
+  return r ? shape(r) : null;
+}
+
+module.exports = { create, get, list, update, remove, addReview, latestForForm };

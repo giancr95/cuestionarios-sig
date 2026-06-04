@@ -70,6 +70,9 @@ const Store = (() => {
   async function updateSubmission(id, data) {
     return req("PATCH", "/submissions/" + encodeURIComponent(id), { data });
   }
+  async function latestFormSubmission(formId) {
+    return req("GET", "/forms/" + encodeURIComponent(formId) + "/latest");
+  }
   async function reviewSubmission(id) {
     return req("POST", "/submissions/" + encodeURIComponent(id) + "/review");
   }
@@ -91,7 +94,7 @@ const Store = (() => {
   return {
     login, logout, currentUser, cachedUser,
     allSubmissions, saveSubmission, getSubmission, deleteSubmission,
-    updateSubmission, reviewSubmission,
+    updateSubmission, reviewSubmission, latestFormSubmission,
     listUsers, createUser, updateUser, deleteUser
   };
 })();
