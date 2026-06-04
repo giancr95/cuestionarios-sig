@@ -233,10 +233,28 @@ const App = (() => {
     search.addEventListener("input", applyFilter);
   }
 
-  function renderFormView() {
+  async function renderFormView() {
     const schema = FORMS.find(f => f.id === state.currentFormId);
     if (!schema) { goSelect(); return; }
-    Render.renderForm(schema, root);
+    // El R-IDI-001 precarga "Disponible" con el saldo del último registro.
+    let opts;
+    if (schema.id === "IDI-001") {
+      try {
+        const latest = await Store.latestFormSubmission("IDI-001");
+        if (latest && latest.data) {
+          const data = {};
+          for (const k in latest.data) {
+            const m = k.match(/^inv__(\d+)__saldo$/);
+            const v = latest.data[k];
+            if (m && v !== "" && v !== null && v !== undefined) {
+              data["inv__" + m[1] + "__disponible"] = v;
+            }
+          }
+          if (Object.keys(data).length) opts = { data };
+        }
+      } catch (_) {}
+    }
+    Render.renderForm(schema, root, opts);
     window.scrollTo({ top: 0, behavior: "instant" });
   }
 

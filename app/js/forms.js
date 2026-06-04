@@ -2724,9 +2724,9 @@ const FORMS = [
         note: "Anote disponible, entrada, salida y saldo de cada producto. Unidad indicada entre paréntesis.",
         columns: [
           { key: "disponible", label: "Disponible", type: "number" },
-          { key: "entrada", label: "Entrada", type: "number" },
-          { key: "salida", label: "Salida", type: "number" },
-          { key: "saldo", label: "Saldo", type: "number" }
+          { key: "entrada",    label: "Entrada",    type: "number" },
+          { key: "salida",     label: "Salida",     type: "number" },
+          { key: "saldo",      label: "Saldo",      type: "number", compute: "entrada + disponible - salida" }
         ],
         items: [
           { codigo: "ml", desc: "Actellic EC (Pirimifos Metil)" },

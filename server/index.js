@@ -119,6 +119,12 @@ app.post("/api/submissions/:id/review", requireReviewer, (req, res, next) => {
   catch (e) { next(e); }
 });
 
+// El último registro de un formulario — útil para precargar valores
+// como el saldo previo del inventario de insecticidas.
+app.get("/api/forms/:formId/latest", requireAuth, (req, res) => {
+  res.json(subs.latestForForm(req.params.formId));
+});
+
 app.delete("/api/submissions/:id", requireAuth, (req, res) => {
   const ok = subs.remove(req.params.id, { userId: req.user.id, isAdmin: req.user.rol === "admin" });
   if (!ok) return res.status(404).json({ error: "No encontrado o sin permiso" });

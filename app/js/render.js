@@ -77,7 +77,7 @@ const Render = (() => {
   // Campos de identificación que ya se conocen por la sesión del usuario.
   function isAutoFilledField(f) {
     if (!f || !f.id) return false;
-    return /^(encargado|responsable)$/i.test(f.id);
+    return /^(encargado|responsable|realizado[_-]?por)$/i.test(f.id);
   }
 
   // Las listas que apuntan a `RESPONSABLES` se llenan a mano: ya no hay una
@@ -664,15 +664,44 @@ const Render = (() => {
       const tr = el("tr");
       if (sec.showCode !== false) tr.appendChild(el("td", { class: "code-cell" }, item.codigo || ""));
       tr.appendChild(el("td", { class: "aspect" }, item.desc));
+      const rowInputs = {};
       sec.columns.forEach(col => {
         const td = el("td");
-        td.appendChild(el("input", {
-          type: col.type || "number", class: "mini-input",
+        const inp = el("input", {
+          type: col.type || "number", class: "mini-input" + (col.compute ? " computed" : ""),
           name: `${sec.id}__${idx}__${col.key}`,
           min: col.type === "number" ? "0" : col.min,
           step: col.step, placeholder: "—"
-        }));
+        });
+        if (col.compute) inp.setAttribute("readonly", "");
+        rowInputs[col.key] = inp;
+        td.appendChild(inp);
         tr.appendChild(td);
+      });
+      // Recalculadora por columna calculada — leve dependencia: re-evalúa
+      // siempre que cualquier otra entrada de la fila cambie.
+      sec.columns.forEach(col => {
+        if (!col.compute) return;
+        const target = rowInputs[col.key];
+        const recalc = () => {
+          const env = {};
+          let anyInput = false;
+          Object.keys(rowInputs).forEach(k => {
+            const v = rowInputs[k].value;
+            if (v !== "" && k !== col.key) anyInput = true;
+            env[k] = parseFloat(v) || 0;
+          });
+          if (!anyInput) { target.value = ""; return; }
+          try {
+            const fn = new Function(...Object.keys(env), "return (" + col.compute + ")");
+            const r = fn(...Object.values(env));
+            target.value = isFinite(r) ? String(r) : "";
+          } catch { target.value = ""; }
+        };
+        target._recalc = recalc;
+        Object.keys(rowInputs).forEach(k => {
+          if (k !== col.key) rowInputs[k].addEventListener("input", recalc);
+        });
       });
       tbody.appendChild(tr);
     });
@@ -853,6 +882,10 @@ const Render = (() => {
 
     if (opts0.data) fillFromData(form, opts0.data);
     if (readonly) disableForm(form);
+    // Dispara las columnas calculadas (ej. saldo) después de prefill/edición.
+    form.querySelectorAll("input.computed").forEach(inp => {
+      if (typeof inp._recalc === "function") inp._recalc();
+    });
     currentOpts = {};
   }
 
