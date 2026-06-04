@@ -3196,12 +3196,14 @@ const FORMS = [
       {
         type: "material-list", id: "cebaderos",
         title: "Revisión de cebaderos en silos",
-        note: "Por cada cebadero marque el hallazgo: / = sin actividad, X = hallazgo. CC = Cambio de Cebo, TS = Trampa Sucia, EX = Excretas, FT = Falta trampa. La columna Código indica el silo.",
+        note: "Marque las casillas que apliquen para cada cebadero (sin marcar = sin actividad). Anote hallazgos y acción correctiva directamente en la fila.",
         columns: [
-          { key: "cc", label: "CC", type: "text" },
-          { key: "ts", label: "TS", type: "text" },
-          { key: "ex", label: "EX", type: "text" },
-          { key: "ft", label: "FT", type: "text" }
+          { key: "cc",        label: "Cambio de Cebo", type: "checkbox" },
+          { key: "ts",        label: "Trampa Sucia",   type: "checkbox" },
+          { key: "ex",        label: "Excretas",       type: "checkbox" },
+          { key: "ft",        label: "Falta Trampa",   type: "checkbox" },
+          { key: "hallazgo",  label: "Hallazgo",       type: "text" },
+          { key: "accion",    label: "Acción correctiva", type: "text" }
         ],
         items: [
           { codigo: "Silo #0", desc: "CS-01" }, { codigo: "Silo #0", desc: "CS-02" },
@@ -3228,13 +3230,6 @@ const FORMS = [
           { codigo: "Silo #9", desc: "CS-43" }, { codigo: "Silo #9", desc: "CS-44" },
           { codigo: "Silo #9", desc: "CS-45" }, { codigo: "Silo #9", desc: "CS-46" },
           { codigo: "Silo #9", desc: "CS-47" }, { codigo: "Silo #9", desc: "CS-48" }
-        ]
-      },
-      {
-        type: "fields", title: "Hallazgos y acciones",
-        fields: [
-          { id: "hallazgos", label: "Hallazgos detectados", type: "textarea" },
-          { id: "acciones", label: "Acciones correctivas", type: "textarea" }
         ]
       },
       { type: "observaciones" },
