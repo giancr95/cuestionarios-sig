@@ -667,19 +667,40 @@ const Render = (() => {
       const rowInputs = {};
       sec.columns.forEach(col => {
         const td = el("td");
-        const inp = el("input", {
-          type: col.type || "number", class: "mini-input" + (col.compute ? " computed" : ""),
-          name: `${sec.id}__${idx}__${col.key}`,
-          min: col.type === "number" ? "0" : col.min,
-          step: col.step, placeholder: "—"
-        });
-        if (col.compute) inp.setAttribute("readonly", "");
+        let inp;
+        if (col.type === "checkbox") {
+          inp = el("input", {
+            type: "checkbox", class: "mini-checkbox",
+            name: `${sec.id}__${idx}__${col.key}`,
+            value: col.value || "1"
+          });
+          td.setAttribute("style", "text-align:center");
+        } else if (col.type === "select") {
+          inp = el("select", {
+            class: "mini-input", name: `${sec.id}__${idx}__${col.key}`
+          });
+          inp.appendChild(el("option", { value: "" }, "—"));
+          (col.options || []).forEach(o => {
+            const v = typeof o === "string" ? o : o.value;
+            const l = typeof o === "string" ? o : o.label;
+            inp.appendChild(el("option", { value: v }, l));
+          });
+        } else {
+          inp = el("input", {
+            type: col.type || "number",
+            class: "mini-input" + (col.compute ? " computed" : ""),
+            name: `${sec.id}__${idx}__${col.key}`,
+            min: col.type === "number" ? "0" : col.min,
+            step: col.step, placeholder: "—"
+          });
+          if (col.compute) inp.setAttribute("readonly", "");
+        }
         rowInputs[col.key] = inp;
         td.appendChild(inp);
         tr.appendChild(td);
       });
-      // Recalculadora por columna calculada — leve dependencia: re-evalúa
-      // siempre que cualquier otra entrada de la fila cambie.
+      // Recalculadora por columna calculada — reacciona a cambios en las
+      // demás celdas de la fila (incluye checkboxes y selects).
       sec.columns.forEach(col => {
         if (!col.compute) return;
         const target = rowInputs[col.key];
@@ -687,9 +708,15 @@ const Render = (() => {
           const env = {};
           let anyInput = false;
           Object.keys(rowInputs).forEach(k => {
-            const v = rowInputs[k].value;
-            if (v !== "" && k !== col.key) anyInput = true;
-            env[k] = parseFloat(v) || 0;
+            const inp = rowInputs[k];
+            if (inp.type === "checkbox") {
+              env[k] = inp.checked ? 1 : 0;
+              if (inp.checked && k !== col.key) anyInput = true;
+            } else {
+              const v = inp.value;
+              env[k] = parseFloat(v) || 0;
+              if (v !== "" && k !== col.key) anyInput = true;
+            }
           });
           if (!anyInput) { target.value = ""; return; }
           try {
@@ -700,7 +727,10 @@ const Render = (() => {
         };
         target._recalc = recalc;
         Object.keys(rowInputs).forEach(k => {
-          if (k !== col.key) rowInputs[k].addEventListener("input", recalc);
+          if (k !== col.key) {
+            rowInputs[k].addEventListener("input", recalc);
+            rowInputs[k].addEventListener("change", recalc);
+          }
         });
       });
       tbody.appendChild(tr);
