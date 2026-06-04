@@ -2779,18 +2779,33 @@ const FORMS = [
       {
         type: "fields", title: "Información general", columns: 2,
         fields: [
-          { id: "fecha", label: "Fecha de revisión", type: "date", required: true, default: "today" },
-          { id: "responsable", label: "Responsable", type: "text" }
+          { id: "fecha", label: "Fecha de revisión", type: "date", required: true, default: "today" }
+        ]
+      },
+      {
+        type: "info", title: "Códigos de Hallazgos, Correcciones e Insumos",
+        lines: [
+          "Descripción de Hallazgos — A: Excede el límite de palomillas · B: Trampa sucia · C: Trampa dañada · D: No se encuentra la trampa.",
+          "Correcciones — A: Limpiar y fumigar área · B: Limpiar trampa de monitoreo y colocar adhesivo nuevo · C: Reparar trampa o colocar nueva trampa · D: Colocar nueva trampa.",
+          "Nomenclatura del atrayente — P/E: Plodia / Ephestia spp. · S: Sitotroga cerealella.",
+          "Insumos y equipos a utilizar — A: Goma adhesiva · B: Escobilla.",
+          "Umbral máximo permisible: 15 palomillas por trampa por semana."
         ]
       },
       {
         type: "material-list", id: "feromonas",
         title: "Monitoreo de trampas de feromonas",
-        note: "Por cada trampa: anote las capturas, marque X en hallazgos (A/B/C/D) y en correcciones (A/B/C/D). La columna Código indica la numeración / ubicación / tipo.",
+        note: "Anote las capturas por trampa. Marque las casillas A/B/C/D de Hallazgo y Corrección que apliquen según los códigos arriba.",
         columns: [
           { key: "capturas", label: "Capturas", type: "number" },
-          { key: "hallazgo", label: "Hallazgo (A/B/C/D)", type: "text" },
-          { key: "correccion", label: "Corrección (A/B/C/D)", type: "text" }
+          { key: "hallA",    label: "H-A",      type: "checkbox" },
+          { key: "hallB",    label: "H-B",      type: "checkbox" },
+          { key: "hallC",    label: "H-C",      type: "checkbox" },
+          { key: "hallD",    label: "H-D",      type: "checkbox" },
+          { key: "corrA",    label: "C-A",      type: "checkbox" },
+          { key: "corrB",    label: "C-B",      type: "checkbox" },
+          { key: "corrC",    label: "C-C",      type: "checkbox" },
+          { key: "corrD",    label: "C-D",      type: "checkbox" }
         ],
         items: [
           { codigo: "F-01", desc: "Empaque · Sitotroga" },
@@ -2837,14 +2852,13 @@ const FORMS = [
         ]
       },
       {
-        type: "info",
-        title: "Reporte de irregularidades",
-        lines: [
-          "Hallazgos / correcciones se marcan con X en las opciones A, B, C o D según el código de la trampa.",
-          "Describa cualquier irregularidad, observación y acción correctiva o preventiva en el campo de observaciones."
+        type: "fields", title: "Reporte de Irregularidades",
+        fields: [
+          { id: "descripcionIrregularidad", label: "Descripción de la irregularidad", type: "textarea" },
+          { id: "observacionesReporte",     label: "Observaciones",                   type: "textarea" },
+          { id: "accionCorrectivaPreventiva", label: "Acción correctiva / preventiva", type: "textarea" }
         ]
       },
-      { type: "observaciones" },
       {
         type: "firmas",
         fields: [
