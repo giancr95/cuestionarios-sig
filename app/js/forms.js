@@ -5102,5 +5102,35 @@ const FORMS = [
         { id: "firmaSIG", label: "Firma SIG" }
       ] }
     ]
+  },
+
+// ===== R-FFS-001 (PLAGAS) =====
+  {
+    id: "FFS-001", code: "R-FFS-001", area: "Plagas",
+    title: "Registro de Fumigación Fosfuro Silos",
+    shortTitle: "Fumigación Fosfuro Silos",
+    desc: "Registro de fumigaciones con fosfuro en silos.",
+    icon: "🌬️", version: 1, emision: "May-2026", revision: "May-2026",
+    sections: [
+      {
+        type: "repeater-table", id: "fumigacion", rowLabel: "Fumigación",
+        title: "Registros de fumigación",
+        columns: [
+          { key: "fecha",            label: "Fecha de fumigación",  type: "date", default: "today" },
+          { key: "silos",            label: "Silos",                type: "text" },
+          { key: "productoFumigar",  label: "Producto a fumigar",   type: "text" },
+          { key: "productoAplicado", label: "Producto aplicado",    type: "text" },
+          { key: "dosis",            label: "Dosificación",         type: "text" },
+          { key: "fechaLiberacion",  label: "Fecha liberación",     type: "date" },
+          { key: "respLiberacion",   label: "Responsable liberación", type: "text" },
+          { key: "obs",              label: "Observaciones",        type: "textarea" }
+        ]
+      },
+      { type: "observaciones" },
+      { type: "firmas", fields: [
+        { id: "firmaCalidad", label: "Firma Calidad" },
+        { id: "firmaSIG",     label: "Firma SIG" }
+      ] }
+    ]
   }
 ];
