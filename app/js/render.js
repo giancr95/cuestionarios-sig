@@ -788,7 +788,10 @@ const Render = (() => {
     container.appendChild(header);
 
     const form = el("form", { id: "sig-form", autocomplete: "off" });
-    schema.sections.forEach(sec => {
+    // Las firmas en papel ya no son necesarias: la aprobación queda registrada
+    // por el usuario que llena (sesión) y los revisores que aprueban.
+    const visibleSections = (schema.sections || []).filter(s => s.type !== "firmas");
+    visibleSections.forEach(sec => {
       let node;
       switch (sec.type) {
         case "fields":                 node = sectionFields(sec); break;
@@ -803,7 +806,7 @@ const Render = (() => {
         case "evaluacion-grid":        node = sectionEvalGrid(sec); break;
         case "produccion":             node = sectionProduccion(sec); break;
         case "observaciones":          node = sectionObservaciones(); break;
-        case "firmas":                 node = sectionFirmas(sec); break;
+        case "firmas":                 return; // se filtra arriba — se conserva por compatibilidad
         case "info":                   node = sectionInfo(sec); break;
         default: node = el("div", null, `[sección desconocida: ${sec.type}]`);
       }
