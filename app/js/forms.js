@@ -1764,47 +1764,8 @@ const FORMS = [
   },
 
   // =================================================================
-  // 14. R-EDL-01 Entrega y Devolución de Llaves (Silos)
+  // R-EDL-01 retirado temporalmente del sistema (2026-06-02).
   // =================================================================
-  {
-    id: "EDL-01", code: "R-EDL-01", area: "Calidad",
-    title: "Registro de Entrega y Devolución de Llaves (Silos)",
-    shortTitle: "Entrega/Devolución Llaves Silos",
-    desc: "Control de entrega y devolución de llaves de silos con responsables y condición.",
-    icon: "🔑", version: 1, emision: "Aug-2025", revision: "Aug-2025",
-    sections: [
-      {
-        type: "fields", title: "Entrega de llave(s)", columns: 2,
-        fields: [
-          { id: "fechaHoraEntrega", label: "Fecha y hora de entrega", type: "text" },
-          { id: "respEntrega", label: "Responsable que entrega", type: "text" },
-          { id: "respRecibe", label: "Responsable que recibe", type: "text" },
-          { id: "departamento", label: "Departamento / Área", type: "text" },
-          { id: "numeroLlaves", label: "Número de llave(s)", type: "text" },
-          { id: "motivoEntrega", label: "Motivo de entrega", type: "textarea" }
-        ]
-      },
-      {
-        type: "fields", title: "Devolución de llave(s)", columns: 2,
-        fields: [
-          { id: "fechaHoraDevolucion", label: "Fecha y hora de devolución", type: "text" },
-          { id: "condicionLlaves", label: "Condición de la llave(s)", type: "text" }
-        ]
-      },
-      { type: "observaciones" },
-      {
-        type: "firmas",
-        fields: [
-          { id: "firmaEntrega", label: "Firma de quien entrega" },
-          { id: "firmaRecibe", label: "Firma de quien recibe" },
-          { id: "firmaRecibeDevolucion", label: "Firma de quien recibe la devolución" },
-          { id: "firmaDevuelve", label: "Firma de quien devuelve" },
-          { id: "firmaCalidad", label: "Firma Calidad" },
-          { id: "firmaSIG", label: "Firma SIG" }
-        ]
-      }
-    ]
-  },
 
   // =================================================================
   // 15. R-LLC-001 Limpieza Laboratorio Calidad
