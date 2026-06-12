@@ -1,21 +1,97 @@
+/* Tipografía Liborio Design System — Young Serif (display) + Hanken Grotesk (body). */
+@import url('https://fonts.googleapis.com/css2?family=Young+Serif&family=Hanken+Grotesk:wght@400;500;600;700&display=swap');
+
 :root {
-  --green: #2fb673;
-  --green-dark: #1f8f57;
-  --green-soft: #e8f7ef;
-  --green-ring: rgba(47, 182, 115, 0.28);
-  --bg: #fafafa;
-  --surface: #ffffff;
-  --line: #ececec;
-  --line-strong: #d8d8d8;
-  --ink: #1f2328;
-  --ink-muted: #6b7480;
-  --ink-soft: #8a93a0;
-  --danger: #c0392b;
-  --danger-soft: #fdecea;
-  --radius: 10px;
-  --radius-sm: 6px;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04);
-  --t: 160ms ease;
+  /* ── Liborio palette — verde campo, dorado cosecha, crema grano ─────────── */
+  --green-950: #14241B;
+  --green-900: #1C3327;
+  --green-800: #25422F;
+  --green-700: #2E5339;
+  --green-600: #3A6847;
+  --green-500: #4C7D58;
+  --green-400: #6E9A77;
+  --green-300: #9DBFA4;
+  --green-200: #C5DBC8;
+  --green-100: #DFEBE0;
+  --green-50:  #EFF5EE;
+
+  --gold-700: #8A6420;
+  --gold-600: #A87C2A;
+  --gold-500: #C49A3C;
+  --gold-400: #D4B05C;
+  --gold-300: #E0C375;
+  --gold-200: #ECD9A4;
+  --gold-100: #F4E8C9;
+  --gold-50:  #FAF4E3;
+
+  --cream-50:  #FBF8F1;
+  --cream-100: #F5EFE2;
+  --cream-200: #ECE3CF;
+  --cream-300: #DFD3B8;
+
+  --ink-900: #20241F;
+  --ink-700: #3B4037;
+  --ink-600: #565B52;
+  --ink-500: #6E7369;
+  --ink-400: #8A8F84;
+  --ink-300: #ADB1A8;
+  --ink-200: #D2D4CE;
+
+  /* ── Semantic — superficies, texto, bordes ─────────────────────────────── */
+  --surface-page: var(--cream-50);
+  --surface-card: #FFFFFF;
+  --surface-tint: var(--green-50);
+  --surface-tint-gold: var(--gold-50);
+  --surface-inverse: var(--green-900);
+  --border-soft: var(--cream-200);
+  --border-default: var(--cream-300);
+
+  /* ── Tipografía ────────────────────────────────────────────────────────── */
+  --font-display: 'Young Serif', 'Georgia', serif;
+  --font-body: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  --leading-display: 1.08;
+  --leading-heading: 1.18;
+  --leading-body: 1.55;
+  --tracking-display: -0.01em;
+  --tracking-overline: 0.14em;
+
+  /* ── Radios — generosos, orgánicos ─────────────────────────────────────── */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+
+  /* ── Sombras — cálidas, brown-tint, nunca azul-gris ────────────────────── */
+  --shadow-xs: 0 1px 2px rgba(59, 45, 31, 0.06);
+  --shadow-sm: 0 2px 6px rgba(59, 45, 31, 0.08);
+  --shadow-md: 0 6px 18px rgba(59, 45, 31, 0.10);
+  --shadow-lg: 0 14px 36px rgba(59, 45, 31, 0.14);
+  --shadow-focus: 0 0 0 3px rgba(58, 104, 71, 0.25);
+
+  /* ── Animación — calma, sin rebote ─────────────────────────────────────── */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --duration-fast: 150ms;
+  --duration-base: 240ms;
+
+  /* ── Compatibilidad con la hoja existente — mapea los nombres viejos ───── */
+  --green: var(--green-700);
+  --green-dark: var(--green-800);
+  --green-soft: var(--green-50);
+  --green-ring: rgba(58, 104, 71, 0.25);
+  --bg: var(--surface-page);
+  --surface: var(--surface-card);
+  --line: var(--border-soft);
+  --line-strong: var(--border-default);
+  --ink: var(--ink-900);
+  --ink-muted: var(--ink-600);
+  --ink-soft: var(--ink-400);
+  --danger: #A8402F;
+  --danger-soft: #F7E4DF;
+  --radius: var(--radius-md);
+  --radius-sm: var(--radius-sm);
+  --shadow: var(--shadow-sm);
+  --t: var(--duration-fast) var(--ease-out);
 }
 
 * {
@@ -25,13 +101,25 @@
 html, body {
   margin: 0;
   padding: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, sans-serif;
+  background: var(--surface-page);
+  color: var(--ink-900);
+  font-family: var(--font-body);
   font-size: 15px;
-  line-height: 1.45;
+  line-height: var(--leading-body);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* Titulares con la display serif, todo lo demás con el grotesque. */
+h1, h2, h3, .page-title, .login-card h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: var(--tracking-display);
+  line-height: var(--leading-heading);
+  color: var(--green-900);
+}
+
+::selection { background: var(--gold-200); color: var(--ink-900); }
 
 button {
   font-family: inherit;
@@ -44,7 +132,7 @@ input, select, textarea {
   font-size: inherit;
 }
 
-/* ============ TOPBAR ============ */
+/* ============ TOPBAR — única superficie con blur (per Liborio DS) ============ */
 .topbar {
   position: sticky;
   top: 0;
@@ -52,30 +140,31 @@ input, select, textarea {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
-  padding-top: max(10px, env(safe-area-inset-top));
-  background: var(--surface);
-  border-bottom: 1px solid var(--line);
+  padding: 12px 18px;
+  padding-top: max(12px, env(safe-area-inset-top));
+  background: rgba(251, 248, 241, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  letter-spacing: 0.1px;
+  gap: 10px;
 }
-
 .brand-dot {
   width: 10px;
   height: 10px;
-  border-radius: 999px;
-  background: var(--green);
-  box-shadow: 0 0 0 4px var(--green-soft);
+  border-radius: var(--radius-pill);
+  background: var(--gold-500);
+  box-shadow: 0 0 0 4px var(--gold-50);
 }
-
 .brand-name {
-  font-size: 15px;
+  font-family: var(--font-display);
+  font-size: 17px;
+  color: var(--green-900);
+  letter-spacing: -0.005em;
 }
 
 .spacer {
@@ -84,12 +173,12 @@ input, select, textarea {
 
 .user-chip {
   font-size: 13px;
-  color: var(--ink-muted);
-  background: var(--green-soft);
-  color: var(--green-dark);
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-weight: 500;
+  background: var(--green-50);
+  color: var(--green-800);
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  border: 1px solid var(--green-100);
 }
 
 .icon-btn {
@@ -134,12 +223,12 @@ main {
 
 .login-card {
   width: 100%;
-  max-width: 360px;
-  background: var(--surface);
-  border-radius: 14px;
-  padding: 28px 24px 24px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--line);
+  max-width: 380px;
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  padding: 32px 28px 26px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-soft);
 }
 
 .login-logo {
@@ -149,22 +238,22 @@ main {
 }
 
 .logo-circle {
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
-  background: var(--green);
-  color: white;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-lg);
+  background: var(--green-700);
+  color: var(--cream-50);
   display: grid;
   place-items: center;
-  font-weight: 700;
-  font-size: 22px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 14px var(--green-ring);
+  box-shadow: var(--shadow-md);
 }
-
 .login-card h1 {
-  margin: 6px 0 2px;
-  font-size: 20px;
+  margin: 10px 0 4px;
+  font-size: 26px;
   text-align: center;
 }
 
@@ -198,68 +287,82 @@ main {
 .select,
 .textarea {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--ink);
-  transition: border-color var(--t), box-shadow var(--t);
+  padding: 11px 13px;
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+  color: var(--ink-900);
+  font-family: var(--font-body);
+  transition: border-color var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
   outline: none;
 }
-
 .textarea {
-  min-height: 72px;
+  min-height: 84px;
   resize: vertical;
 }
-
 .input:focus,
 .select:focus,
 .textarea:focus {
-  border-color: var(--green);
-  box-shadow: 0 0 0 3px var(--green-ring);
+  border-color: var(--green-600);
+  box-shadow: var(--shadow-focus);
 }
-
 .input[readonly] {
-  background: #f7f7f7;
-  color: var(--ink-muted);
+  background: var(--cream-100);
+  color: var(--ink-600);
 }
 
-/* ============ BUTTONS ============ */
+/* ============ BUTTONS — píldoras Liborio ============ */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 11px 16px;
-  border-radius: var(--radius);
-  border: 1px solid transparent;
+  padding: 11px 22px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--green-300);
+  font-family: var(--font-body);
   font-weight: 600;
-  letter-spacing: 0.1px;
-  transition: all var(--t);
-  background: var(--surface);
-  color: var(--ink);
-  border-color: var(--line-strong);
+  letter-spacing: 0.01em;
+  font-size: 15px;
+  transition: background var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+  background: transparent;
+  color: var(--green-700);
 }
-
 .btn:hover {
-  background: #f4f4f4;
+  background: var(--surface-tint);
+  border-color: var(--green-500);
 }
+.btn:active { transform: scale(0.97); }
 
 .btn-primary {
-  background: var(--green);
-  color: #fff;
-  border-color: var(--green);
+  background: var(--green-700);
+  color: var(--cream-50);
+  border-color: var(--green-700);
+}
+.btn-primary:hover {
+  background: var(--green-800);
+  border-color: var(--green-800);
 }
 
-.btn-primary:hover {
-  background: var(--green-dark);
-  border-color: var(--green-dark);
+.btn-accent {
+  background: var(--gold-500);
+  color: var(--green-950);
+  border-color: var(--gold-500);
+}
+.btn-accent:hover {
+  background: var(--gold-600);
+  border-color: var(--gold-600);
+  color: var(--cream-50);
 }
 
 .btn-ghost {
   background: transparent;
-  border-color: var(--line-strong);
-  color: var(--ink);
+  border-color: var(--border-default);
+  color: var(--ink-700);
 }
 
 .btn-danger {
@@ -280,27 +383,26 @@ main {
 /* ============ SELECTION GRID ============ */
 .page-title {
   margin: 4px 0 4px;
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 30px;
+  font-weight: 400;
 }
-
 .page-sub {
-  margin: 0 0 20px;
-  color: var(--ink-muted);
-  font-size: 14px;
+  margin: 0 0 24px;
+  color: var(--ink-600);
+  font-size: 15px;
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 14px;
+  gap: 16px;
 }
 
 .form-card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 18px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 20px;
   text-align: left;
   cursor: pointer;
   transition: transform var(--t), border-color var(--t), box-shadow var(--t);
@@ -310,34 +412,37 @@ main {
 }
 
 .form-card:hover {
-  transform: translateY(-1px);
-  border-color: var(--green);
-  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+  border-color: var(--green-300);
+  box-shadow: var(--shadow-md);
 }
 
 .form-card .code {
   display: inline-block;
+  font-family: var(--font-body);
   font-size: 11px;
-  letter-spacing: 0.4px;
+  letter-spacing: var(--tracking-overline);
   font-weight: 700;
-  color: var(--green-dark);
-  background: var(--green-soft);
-  padding: 3px 8px;
-  border-radius: 999px;
+  color: var(--gold-700);
+  background: var(--gold-50);
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
   align-self: flex-start;
   text-transform: uppercase;
 }
 
 .form-card h3 {
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.3;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--green-900);
 }
 
 .form-card .desc {
-  font-size: 13px;
-  color: var(--ink-muted);
+  font-size: 14px;
+  color: var(--ink-600);
   margin: 0;
 }
 
@@ -346,55 +451,57 @@ main {
   display: flex;
   gap: 8px;
   font-size: 12px;
-  color: var(--ink-soft);
+  color: var(--ink-500);
 }
 
 .form-card .badge-icon {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
-  border-radius: 12px;
-  background: var(--green-soft);
-  color: var(--green-dark);
-  font-size: 18px;
+  border-radius: var(--radius-md);
+  background: var(--green-50);
+  color: var(--green-800);
+  font-size: 20px;
   margin-bottom: 4px;
 }
 
 /* ============ FORM PAGE ============ */
 .form-header {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 16px 18px;
-  margin-bottom: 16px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  margin-bottom: 18px;
 }
 
 .form-header .code {
-  color: var(--green-dark);
+  color: var(--gold-700);
   font-weight: 700;
   font-size: 12px;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--tracking-overline);
   text-transform: uppercase;
-  margin: 0 0 2px;
+  margin: 0 0 6px;
 }
 
 .form-header h2 {
-  margin: 0 0 4px;
-  font-size: 18px;
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
 }
 
 .form-header .meta {
-  font-size: 12px;
-  color: var(--ink-muted);
+  font-size: 13px;
+  color: var(--ink-500);
 }
 
 .section {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 16px 18px;
-  margin-bottom: 14px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  margin-bottom: 16px;
 }
 
 .section h3 {
@@ -710,27 +817,29 @@ main {
 }
 
 /* --- Agrupación por área en la pantalla de selección --- */
+/* Encabezado de área tipo "eyebrow" Liborio — uppercase con acento dorado. */
 .area-title {
-  margin: 26px 0 12px;
-  font-size: 13px;
+  margin: 28px 0 14px;
+  font-family: var(--font-body);
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--green-dark);
-  padding-bottom: 6px;
-  border-bottom: 2px solid var(--green-soft);
+  letter-spacing: var(--tracking-overline);
+  color: var(--gold-700);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--cream-200);
 }
 .area-title:first-of-type { margin-top: 8px; }
 
 /* --- Encabezado de grupo dentro de tablas de matriz --- */
 .grid-table tr.group-row td.group-head {
-  background: var(--green-soft);
-  color: var(--green-dark);
+  background: var(--gold-50);
+  color: var(--gold-700);
   font-weight: 700;
   font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 8px 10px;
+  letter-spacing: var(--tracking-overline);
+  padding: 9px 12px;
 }
 
 /* --- Celda de código en material-list --- */
@@ -757,29 +866,32 @@ main {
 .section.collapsed .sec-chevron { transform: rotate(-90deg); }
 .section.collapsed > *:not(h3) { display: none; }
 
-/* --- Pestañas de menú (Registros / Guardados) --- */
+/* --- Pestañas de menú con subrayado dorado en activa --- */
 .tab-bar {
   display: flex;
   gap: 4px;
-  margin: 0 0 18px;
-  border-bottom: 1px solid var(--line);
+  margin: 0 0 22px;
+  border-bottom: 1px solid var(--border-soft);
 }
 .tab {
   appearance: none;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  padding: 10px 16px;
+  padding: 11px 18px;
+  font-family: var(--font-body);
   font-size: 14px;
   font-weight: 600;
-  color: var(--ink-muted);
+  color: var(--ink-500);
   cursor: pointer;
   margin-bottom: -1px;
+  transition: color var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out);
 }
-.tab:hover { color: var(--ink); }
+.tab:hover { color: var(--ink-900); }
 .tab.active {
-  color: var(--green-dark);
-  border-bottom-color: var(--green);
+  color: var(--green-900);
+  border-bottom-color: var(--gold-500);
 }
 
 /* --- Barra de búsqueda --- */
@@ -873,12 +985,12 @@ main {
   gap: 8px;
 }
 .area-count {
-  background: var(--green-soft);
-  color: var(--green-dark);
+  background: var(--cream-100);
+  color: var(--ink-700);
   font-size: 11px;
   font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 999px;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
 }
 .area-group .form-grid { margin-top: 12px; }
 .area-group.collapsed .form-grid { display: none; }
@@ -886,11 +998,11 @@ main {
 
 /* --- Gestión de usuarios --- */
 .user-form-card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 20px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 22px;
 }
 .user-form-card h3 { margin: 0 0 12px; }
 .rol-badge {
@@ -900,8 +1012,8 @@ main {
   padding: 3px 9px;
   border-radius: 999px;
 }
-.rol-admin { background: var(--green-soft); color: var(--green-dark); }
-.rol-operador { background: #eef0f3; color: var(--ink-muted); }
+.rol-admin { background: var(--green-50); color: var(--green-800); }
+.rol-operador { background: var(--cream-100); color: var(--ink-700); }
 
 /* --- Estado de usuario (activo / inactivo) --- */
 .estado-badge {
@@ -911,36 +1023,39 @@ main {
   padding: 3px 9px;
   border-radius: 999px;
 }
-.estado-activo { background: var(--green-soft); color: var(--green-dark); }
-.estado-inactivo { background: #fdeaea; color: #c0392b; }
+.estado-activo { background: #E4F1E6; color: #2C5C38; }
+.estado-inactivo { background: #F7E4DF; color: #8B2F23; }
 .data-table tr.row-inactive { opacity: 0.55; }
 .data-table tr.row-inactive:hover { opacity: 0.8; }
 
 /* --- Estado de un registro (pendiente / aprobado) --- */
-.estado-aprobado { background: var(--green-soft); color: var(--green-dark); }
-.estado-pendiente { background: #fff4d8; color: #8a6300; }
+.estado-aprobado { background: #E4F1E6; color: #2C5C38; }
+.estado-pendiente { background: var(--gold-100); color: var(--gold-800); }
 
 /* Chips para filtrar por estado en "Guardados" */
 .chip-bar { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
 .chip {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 5px 13px;
+  background: var(--surface-card);
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--ink-muted);
+  color: var(--ink-600);
   cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out);
 }
-.chip:hover { color: var(--ink); }
+.chip:hover { color: var(--ink-900); border-color: var(--green-300); }
 .chip.active {
-  background: var(--green);
-  border-color: var(--green);
-  color: white;
+  background: var(--green-700);
+  border-color: var(--green-700);
+  color: var(--cream-50);
 }
 
-/* Badge de revisor */
-.rol-revisor { background: #e7eefb; color: #1a4fb3; margin-left: 6px; }
+/* Badge de revisor — acento dorado */
+.rol-revisor { background: var(--gold-50); color: var(--gold-700); margin-left: 6px; }
 
 /* Áreas asignadas (gestión de usuarios) */
 .areas-label {
