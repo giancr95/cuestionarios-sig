@@ -110,7 +110,7 @@ app.get("/api/submissions/:id", requireAuth, (req, res) => {
   res.json(rec);
 });
 
-app.patch("/api/submissions/:id", requireAdmin, (req, res, next) => {
+app.patch("/api/submissions/:id", requireAuth, (req, res, next) => {
   try {
     const { data } = req.body || {};
     res.json(subs.update(req.params.id, req.user, data));

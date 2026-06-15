@@ -459,6 +459,9 @@ const App = (() => {
       return;
     }
     const isAdmin = me.rol === "admin";
+    const isOwner = s.savedBy === me.id;
+    // Quién puede editar: admin (siempre) o el autor mientras esté pendiente.
+    const canEdit = isAdmin || (isOwner && s.status === "pending");
 
     // ¿Puedo accionar este registro? El flujo es pending → revisado → approved.
     // Brian (is_reviewer) marca pendientes como revisados; Andrea (is_approver)
@@ -493,8 +496,8 @@ const App = (() => {
     const formWrap = document.createElement("div");
     root.appendChild(formWrap);
 
-    if (isAdmin) {
-      // El administrador puede editar el registro guardado.
+    if (canEdit) {
+      // Admin siempre, o el autor mientras el registro siga pendiente.
       Render.renderForm(schema, formWrap, {
         data: s.data || {},
         submitLabel: "Guardar cambios",

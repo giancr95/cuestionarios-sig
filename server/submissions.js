@@ -56,10 +56,19 @@ function list(user) {
   return rows.map(shape);
 }
 
+// Puede editar un registro:
+//   - un administrador, siempre;
+//   - el autor, mientras el registro siga en `pending`.
+// Una vez revisado o aprobado, solo el administrador puede tocarlo.
 function update(id, user, data) {
-  const sub = db.prepare("SELECT id FROM submissions WHERE id = ?").get(id);
+  const sub = db.prepare("SELECT id, user_id, status FROM submissions WHERE id = ?").get(id);
   if (!sub) throw httpErr(404, "Registro no encontrado");
   if (data == null || typeof data !== "object") throw httpErr(400, "Datos inválidos");
+  const isAdmin = user.rol === "admin";
+  const isOwner = sub.user_id === user.id;
+  if (!(isAdmin || (isOwner && sub.status === "pending"))) {
+    throw httpErr(403, "Solo el autor puede modificarlo mientras esté pendiente; tras la revisión solo lo edita el administrador.");
+  }
   db.prepare(
     "UPDATE submissions SET data = ?, edited_at = CURRENT_TIMESTAMP, edited_by_id = ?, edited_by_name = ? WHERE id = ?"
   ).run(JSON.stringify(data), user.id, user.nombre, id);
