@@ -3826,41 +3826,7 @@ const FORMS = [
     ]
   },
 
-  // --- R-IDF-001 Inventario de Frijoles ---
-  {
-    id: "IDF-001", code: "R-IDF-001", area: "Frijoles",
-    title: "Registro de Inventario de Frijoles",
-    shortTitle: "Inventario de Frijoles",
-    desc: "Control de ingresos, salidas y existencia de un lote de frijol.",
-    icon: "📦", version: 2, emision: "Feb-2024", revision: "Jun-2026",
-    sections: [
-      {
-        type: "fields", title: "Información general", columns: 2,
-        fields: [
-          { id: "responsable", label: "Responsable", type: "text", required: true },
-          { id: "peso", label: "Peso", type: "select", options: ["45.4 kg", "46 kg"] },
-          { id: "tipo", label: "Tipo", type: "select", options: ["Rojo", "Negro"] }
-        ]
-      },
-      {
-        type: "repeater-table", id: "movimiento", rowLabel: "Movimiento",
-        title: "Movimientos de inventario",
-        note: "Agregue una fila por cada movimiento de ingreso o salida.",
-        columns: [
-          { key: "fecha", label: "Fecha", type: "date", default: "today" },
-          { key: "ingreso", label: "Ingreso", type: "number", min: 0 },
-          { key: "salida", label: "Salida", type: "number", min: 0 },
-          { key: "existencia", label: "Existencia", type: "number", min: 0 },
-          { key: "neto", label: "Neto", type: "number", min: 0 }
-        ]
-      },
-      { type: "observaciones" },
-      { type: "firmas", fields: [
-        { id: "firmaOperario", label: "Firma Operario" },
-        { id: "firmaSIG", label: "Firma SIG" }
-      ] }
-    ]
-  },
+  // R-IDF-001 retirado de la plataforma (2026-06-12).
 
   // --- R-PDF-001 Producción Frijol ---
   {
