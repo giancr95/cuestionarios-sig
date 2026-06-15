@@ -607,7 +607,7 @@ const FORMS = [
         type: "fields", title: "Información general", columns: 2,
         fields: [
           { id: "area", label: "Área", type: "text", required: true, default: "Bodega de empaque" },
-          { id: "semana", label: "Semana (del / al)", type: "text", placeholder: "Del ___ al ___ de ______" }
+          { id: "semana", label: "Fecha", type: "date", default: "today" }
         ]
       },
       {
@@ -660,7 +660,7 @@ const FORMS = [
         type: "fields", title: "Información general", columns: 2,
         fields: [
           { id: "area", label: "Área", type: "text", required: true },
-          { id: "semana", label: "Semana (del / al)", type: "text", placeholder: "Del ___ al ___ de ______" }
+          { id: "semana", label: "Fecha", type: "date", default: "today" }
         ]
       },
       {
@@ -744,7 +744,7 @@ const FORMS = [
         type: "fields", title: "Información general", columns: 2,
         fields: [
           { id: "area", label: "Área", type: "text", required: true },
-          { id: "semana", label: "Semana (del / al)", type: "text", placeholder: "Del ___ al ___ de ______" }
+          { id: "semana", label: "Fecha", type: "date", default: "today" }
         ]
       },
       {
