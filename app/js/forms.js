@@ -2919,13 +2919,15 @@ const FORMS = [
       {
         type: "material-list", id: "trampas",
         title: "Revisión de trampas internas",
-        note: "Por cada trampa marque el hallazgo: / = sin actividad, X = hallazgo. CR = Captura de Roedores, CC = Cambio de Cebo, TS = Trampa Sucia, EX = Excretas, FT = Falta trampa. La columna Código indica la ubicación.",
+        note: "Marque las casillas que apliquen para cada trampa (sin marcar = sin actividad). Anote hallazgos y acción correctiva directamente en la fila. La columna Código indica la ubicación.",
         columns: [
-          { key: "cr", label: "CR", type: "text" },
-          { key: "cc", label: "CC", type: "text" },
-          { key: "ts", label: "TS", type: "text" },
-          { key: "ex", label: "EX", type: "text" },
-          { key: "ft", label: "FT", type: "text" }
+          { key: "cr",        label: "Captura de Roedores", type: "checkbox" },
+          { key: "cc",        label: "Cambio de Cebo",      type: "checkbox" },
+          { key: "ts",        label: "Trampa Sucia",        type: "checkbox" },
+          { key: "ex",        label: "Excretas",            type: "checkbox" },
+          { key: "ft",        label: "Falta Trampa",        type: "checkbox" },
+          { key: "hallazgo",  label: "Hallazgo",            type: "text" },
+          { key: "accion",    label: "Acción correctiva",   type: "text" }
         ],
         items: [
           { codigo: "Empaque", desc: "I-01" }, { codigo: "Empaque", desc: "I-02" },
@@ -2963,13 +2965,6 @@ const FORMS = [
           { codigo: "Planta Secado", desc: "I-52" }, { codigo: "Planta Secado", desc: "I-53" },
           { codigo: "Planta Secado", desc: "I-54" }, { codigo: "Planta Secado", desc: "I-55" },
           { codigo: "Planta Secado", desc: "I-56" }, { codigo: "Planta Secado", desc: "I-57" }
-        ]
-      },
-      {
-        type: "fields", title: "Hallazgos y acciones",
-        fields: [
-          { id: "hallazgos", label: "Hallazgos detectados", type: "textarea" },
-          { id: "acciones", label: "Acciones correctivas", type: "textarea" }
         ]
       },
       { type: "observaciones" },
