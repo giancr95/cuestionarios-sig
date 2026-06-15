@@ -224,7 +224,7 @@ const FORMS = [
     icon: "🏁",
     version: 3,
     emision: "Feb-2024",
-    revision: "Mar-2026",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields",
@@ -273,7 +273,7 @@ const FORMS = [
     icon: "💧",
     version: 4,
     emision: "Feb-2024",
-    revision: "Apr-2026",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields",
@@ -332,7 +332,7 @@ const FORMS = [
     icon: "🥽",
     version: 4,
     emision: "Feb-2024",
-    revision: "Mar-2026",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields",
@@ -385,7 +385,7 @@ const FORMS = [
     icon: "🚰",
     version: 3,
     emision: "Feb-2024",
-    revision: "Apr-2026",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields",
@@ -436,7 +436,7 @@ const FORMS = [
     icon: "✅",
     version: 4,
     emision: "Feb-2024",
-    revision: "Apr-2026",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields",
@@ -491,7 +491,7 @@ const FORMS = [
     icon: "🧼",
     version: 4,
     emision: "Feb-2024",
-    revision: "Apr-2026",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields",
@@ -560,7 +560,7 @@ const FORMS = [
     icon: "📦",
     version: 3,
     emision: "Feb-2024",
-    revision: "Mar-2026",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields",
@@ -601,7 +601,7 @@ const FORMS = [
     id: "LBE-001", code: "R-LBE-001", area: "Empaque",
     title: "Registro Limpieza Bodega de Empaque", shortTitle: "Limpieza Bodega Empaque",
     desc: "Limpieza y desinfección semanal de la bodega de material de empaque.", icon: "🧹",
-    version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -654,7 +654,7 @@ const FORMS = [
     id: "LEA-001", code: "R-LEA-001", area: "Empaque",
     title: "Registro Limpieza Equipos Auxiliares de Empaque", shortTitle: "Limpieza Equipos Empaque",
     desc: "Limpieza y desinfección semanal de equipos auxiliares de empaque.", icon: "🧽",
-    version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -738,7 +738,7 @@ const FORMS = [
     id: "LEH-001", code: "R-LEH-001", area: "Empaque",
     title: "Registro Limpieza Empacadoras y Enfardadora", shortTitle: "Limpieza Empacadoras",
     desc: "Limpieza y desinfección semanal de empacadoras y enfardadora.", icon: "✨",
-    version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -843,7 +843,7 @@ const FORMS = [
     title: "Registro Boleta Control Inventario Mensual y Salida de Material de Empaque",
     shortTitle: "Inventario Material Empaque",
     desc: "Inventario mensual y salida de material de empaque por código.",
-    icon: "📋", version: 3, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "📋", version: 3, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -875,7 +875,7 @@ const FORMS = [
     id: "CAG-001", code: "R-CAG-001", area: "Empaque",
     title: "Registro Control de Agujas", shortTitle: "Control de Agujas",
     desc: "Control de instalación, cambio y recolección de agujas de costura.",
-    icon: "🪡", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🪡", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -910,7 +910,7 @@ const FORMS = [
     id: "CDE-001", code: "R-CDE-001", area: "Empaque",
     title: "Registro Control de Empaque", shortTitle: "Control de Empaque",
     desc: "Consumo de masa blanca, producto empacado, plástico e inactividad.",
-    icon: "📦", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "📦", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -991,7 +991,7 @@ const FORMS = [
     title: "Registro de Cuchillos y Cucharones — Empaque Arroz",
     shortTitle: "Cuchillos Empaque Arroz",
     desc: "Control semanal de cuchillos y cucharones del grupo de empaque de arroz.",
-    icon: "🔪", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🔪", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -1049,7 +1049,7 @@ const FORMS = [
     title: "Registro Control Consumo Material de Empaque Arroz",
     shortTitle: "Consumo Material Empaque",
     desc: "Consumo de material de empaque por máquina y presentación.",
-    icon: "🧵", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🧵", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "repeater-table", id: "consumo", rowLabel: "Registro",
@@ -1080,7 +1080,7 @@ const FORMS = [
     title: "Devolución de Sacos y Saquitas Defectuosas",
     shortTitle: "Devolución de Sacos",
     desc: "Registro de sacos y saquitas devueltos a proveeduría por defectos.",
-    icon: "↩️", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "↩️", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -1125,7 +1125,7 @@ const FORMS = [
     title: "Registro de Actividades No Usuales",
     shortTitle: "Actividades No Usuales",
     desc: "Registro de eventos no usuales con acciones correctivas y responsables.",
-    icon: "⚠️", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "⚠️", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "repeater-table", id: "evento", rowLabel: "Evento",
@@ -1156,7 +1156,7 @@ const FORMS = [
     title: "Registro Control Dosificación de Vitamina",
     shortTitle: "Dosificación de Vitamina",
     desc: "Control de la dosificación de vitamina con tres réplicas y promedio.",
-    icon: "💊", version: 3, emision: "Feb-2024", revision: "Apr-2026",
+    icon: "💊", version: 3, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -1199,7 +1199,7 @@ const FORMS = [
     title: "Registro Control de Pesos de Bolsas Equipo Perfor",
     shortTitle: "Peso de Bolsas Perfor",
     desc: "Control de pesaje de plástico de bolsas del equipo Perfor (tres pesos y promedio).",
-    icon: "⚖️", version: 3, emision: "Feb-2024", revision: "Apr-2026",
+    icon: "⚖️", version: 3, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "repeater-table", id: "pesaje", rowLabel: "Registro",
@@ -1234,7 +1234,7 @@ const FORMS = [
     title: "Registro Etiquetado de Producto Terminado",
     shortTitle: "Etiquetado Producto Terminado",
     desc: "Verificación de etiquetas de producto terminado: legibilidad, código de barras y aceptación.",
-    icon: "🏷️", version: 3, emision: "Feb-2024", revision: "May-2026",
+    icon: "🏷️", version: 3, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "repeater-table", id: "etiqueta", rowLabel: "Registro",
@@ -1272,7 +1272,7 @@ const FORMS = [
     title: "Registro Inventario Diario de Vitamina",
     shortTitle: "Inventario Diario Vitamina",
     desc: "Inventario inicial y final diario de vitamina y cálculo de consumo.",
-    icon: "📊", version: 3, emision: "Feb-2024", revision: "Apr-2026",
+    icon: "📊", version: 3, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -1317,7 +1317,7 @@ const FORMS = [
     title: "Registro de Control, Limpieza y Desinfección de Herramientas para Muestras",
     shortTitle: "Herramientas para Muestras",
     desc: "Limpieza, desinfección y estado de las herramientas usadas para tomar muestras.",
-    icon: "🧪", version: 1, emision: "Feb-2024", revision: "Apr-2026",
+    icon: "🧪", version: 1, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -1369,7 +1369,7 @@ const FORMS = [
     title: "Registro Pruebas de Operación Material de Empaque",
     shortTitle: "Pruebas Operación Empaque",
     desc: "Pruebas de operación en equipos para validar el material de empaque recibido.",
-    icon: "🔧", version: 3, emision: "Feb-2024", revision: "May-2026",
+    icon: "🔧", version: 3, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Descripción del producto", columns: 2,
@@ -1423,7 +1423,7 @@ const FORMS = [
     title: "Registro Control de Producto Rechazado o Retenido",
     shortTitle: "Producto Rechazado/Retenido",
     desc: "Control de producto rechazado o retenido con cantidades, resultado y causa.",
-    icon: "🚫", version: 3, emision: "Feb-2024", revision: "Apr-2026",
+    icon: "🚫", version: 3, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "repeater-table", id: "prr", rowLabel: "Registro",
@@ -1459,7 +1459,7 @@ const FORMS = [
     title: "Registro Revisión de Imanes",
     shortTitle: "Revisión de Imanes",
     desc: "Revisión de imanes por equipo (Empaque, Pilado y Frijoles), metales y residuos.",
-    icon: "🧲", version: 3, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🧲", version: 3, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -1523,7 +1523,7 @@ const FORMS = [
     title: "Registro de Trazabilidad de Reprocesos",
     shortTitle: "Trazabilidad de Reprocesos",
     desc: "Trazabilidad del producto de desecho / reproceso: punto de salida y destino.",
-    icon: "♻️", version: 3, emision: "Aug-2024", revision: "May-2026",
+    icon: "♻️", version: 3, emision: "Aug-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -1561,7 +1561,7 @@ const FORMS = [
     title: "Registro de Cuchillos y Cucharones — Empaque Frijoles",
     shortTitle: "Cuchillos Empaque Frijoles",
     desc: "Control semanal de cuchillos y cucharones del grupo de empaque de frijoles.",
-    icon: "🔪", version: 3, emision: "Feb-2024", revision: "Apr-2026",
+    icon: "🔪", version: 3, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -1620,7 +1620,7 @@ const FORMS = [
     title: "Registro Control Industrial Compra Arroz en Granza — Secadora de Laboratorio",
     shortTitle: "Secadora de Laboratorio",
     desc: "Control de temperatura y humedad de la granza durante el secado de laboratorio.",
-    icon: "🌾", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🌾", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -1655,7 +1655,7 @@ const FORMS = [
     title: "Registro Control Ingresos y Análisis de Compra de Materia Prima",
     shortTitle: "Ingresos y Análisis Materia Prima",
     desc: "Control de ingreso y análisis de calidad, rendimiento e inocuidad de arroz en granza comprado.",
-    icon: "🌾", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🌾", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -1775,7 +1775,7 @@ const FORMS = [
     title: "Registro para la Limpieza del Laboratorio de Calidad",
     shortTitle: "Limpieza Laboratorio Calidad",
     desc: "Limpieza y desinfección semanal de equipos y áreas del laboratorio de calidad.",
-    icon: "🧹", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🧹", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -1832,7 +1832,7 @@ const FORMS = [
     title: "Registro de inspección compresores de aire comprimido",
     shortTitle: "Inspección Compresores",
     desc: "Inspección de compresores de aire comprimido y su mantenimiento.",
-    icon: "🌀", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🌀", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -1883,7 +1883,7 @@ const FORMS = [
     title: "Registro Control consumo de energía en horas punta",
     shortTitle: "Consumo Energía Horas Punta",
     desc: "Control del consumo de energía en los horarios punta (ICE 3, 8 y 13).",
-    icon: "⚡", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "⚡", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "info", title: "Parámetros de control",
@@ -1923,7 +1923,7 @@ const FORMS = [
     title: "Registro inspección gabinetes eléctricos",
     shortTitle: "Inspección Gabinetes Eléctricos",
     desc: "Inspección del estado y seguridad de los gabinetes eléctricos.",
-    icon: "🔌", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🔌", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -1971,7 +1971,7 @@ const FORMS = [
     title: "Registro de inspección de línea de pulido",
     shortTitle: "Inspección Línea de Pulido",
     desc: "Inspección eléctrica y mecánica de la línea de pulido por máquina.",
-    icon: "🛠️", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🛠️", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -2051,7 +2051,7 @@ const FORMS = [
     title: "Registro de inspección de motores eléctricos",
     shortTitle: "Inspección Motores Eléctricos",
     desc: "Inspección del estado mecánico y eléctrico de los motores.",
-    icon: "⚙️", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "⚙️", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -2100,7 +2100,7 @@ const FORMS = [
     title: "Registro Inspección transformadores eléctricos",
     shortTitle: "Inspección Transformadores",
     desc: "Inspección del estado y seguridad de los transformadores eléctricos.",
-    icon: "🔋", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🔋", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -2149,7 +2149,7 @@ const FORMS = [
     title: "Registro limpieza Taller de Mantenimiento",
     shortTitle: "Limpieza Taller Mantenimiento",
     desc: "Limpieza y desinfección semanal del taller de mantenimiento.",
-    icon: "🧹", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🧹", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -2219,7 +2219,7 @@ const FORMS = [
     title: "Registro orden de trabajo para Mantenimiento",
     shortTitle: "Orden de Trabajo Mantenimiento",
     desc: "Solicitud y seguimiento de órdenes de trabajo de mantenimiento.",
-    icon: "📋", version: 3, emision: "Feb-2024", revision: "Nov-2025",
+    icon: "📋", version: 3, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Datos del solicitante", columns: 2,
@@ -2277,7 +2277,7 @@ const FORMS = [
     title: "Registro inspección secadores de aire comprimido",
     shortTitle: "Inspección Secadores Aire",
     desc: "Inspección de los secadores de aire comprimido y su mantenimiento.",
-    icon: "💨", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "💨", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -2321,7 +2321,7 @@ const FORMS = [
     title: "Registro Chequeo de Montacargas",
     shortTitle: "Chequeo de Montacargas",
     desc: "Chequeo diario del estado del montacargas durante la semana.",
-    icon: "🚜", version: 3, emision: "Feb-2024", revision: "Sep-2025",
+    icon: "🚜", version: 3, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -2371,7 +2371,7 @@ const FORMS = [
     title: "Registro Control Pesado de Tarimas Producto Terminado",
     shortTitle: "Pesado de Tarimas PT",
     desc: "Control del pesaje de tarimas de producto terminado estibado.",
-    icon: "⚖️", version: 3, emision: "Feb-2024", revision: "Jul-2026",
+    icon: "⚖️", version: 3, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -2414,7 +2414,7 @@ const FORMS = [
     title: "Registro de Verificación de despacho del producto terminado",
     shortTitle: "Verificación Despacho PT",
     desc: "Verificación del producto y condición del camión al despachar.",
-    icon: "🚚", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🚚", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -2465,7 +2465,7 @@ const FORMS = [
     title: "Registro Revisión y Limpieza de tarimas",
     shortTitle: "Revisión y Limpieza Tarimas",
     desc: "Revisión, limpieza y aceptación de tarimas por contenedor.",
-    icon: "🪵", version: 3, emision: "Feb-2024", revision: "Jan-2026",
+    icon: "🪵", version: 3, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "info", title: "Estado de la tarima que se acepta",
@@ -2511,7 +2511,7 @@ const FORMS = [
     title: "Registro Inspección Interna recibido Furgones de Producto Terminado Bodega Cañas",
     shortTitle: "Inspección Furgones PT Cañas",
     desc: "Inspección interna de furgones de producto terminado en Bodega Cañas.",
-    icon: "🚛", version: 3, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🚛", version: 3, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Descripción del contenedor y su carga", columns: 2,
@@ -2581,7 +2581,7 @@ const FORMS = [
     icon: "🪵",
     version: 2,
     emision: "Feb-2024",
-    revision: "Jul-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -2627,7 +2627,7 @@ const FORMS = [
     icon: "🚛",
     version: 2,
     emision: "Feb-2024",
-    revision: "Jul-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "repeater-table", id: "fumigacion", rowLabel: "Contenedor",
@@ -2668,7 +2668,7 @@ const FORMS = [
     icon: "🧴",
     version: 2,
     emision: "Feb-2024",
-    revision: "Jul-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -2736,7 +2736,7 @@ const FORMS = [
     icon: "🦋",
     version: 3,
     emision: "Feb-2024",
-    revision: "Dec-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -2844,7 +2844,7 @@ const FORMS = [
     icon: "🐀",
     version: 3,
     emision: "Feb-2024",
-    revision: "Dec-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -2908,7 +2908,7 @@ const FORMS = [
     icon: "🪤",
     version: 3,
     emision: "Feb-2024",
-    revision: "May-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -2998,7 +2998,7 @@ const FORMS = [
     icon: "📝",
     version: 2,
     emision: "Feb-2024",
-    revision: "Jul-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -3045,7 +3045,7 @@ const FORMS = [
     icon: "🐭",
     version: 3,
     emision: "Feb-2024",
-    revision: "May-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -3144,7 +3144,7 @@ const FORMS = [
     icon: "🌾",
     version: 3,
     emision: "Feb-2024",
-    revision: "May-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -3217,7 +3217,7 @@ const FORMS = [
     icon: "🩹",
     version: 3,
     emision: "Feb-2024",
-    revision: "Jul-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -3284,7 +3284,7 @@ const FORMS = [
     icon: "🧯",
     version: 2,
     emision: "Feb-2024",
-    revision: "Jul-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -3336,7 +3336,7 @@ const FORMS = [
     icon: "📦",
     version: 1,
     emision: "Feb-2024",
-    revision: "Jul-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -3392,7 +3392,7 @@ const FORMS = [
     icon: "♻️",
     version: 2,
     emision: "Feb-2024",
-    revision: "Jul-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -3443,7 +3443,7 @@ const FORMS = [
     title: "Registro Control Aireación Silos Almacenamiento",
     shortTitle: "Aireación Silos",
     desc: "Control de aireación de silos de almacenamiento (humedad y temperatura).",
-    icon: "🌬️", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🌬️", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -3481,7 +3481,7 @@ const FORMS = [
     title: "Registro Control Secado de Arroz en Granza Húmedo",
     shortTitle: "Secado Granza Húmedo",
     desc: "Control horario de humedad y temperatura del grano en las tres secadoras.",
-    icon: "🌾", version: 3, emision: "Feb-2024", revision: "Dec-2025",
+    icon: "🌾", version: 3, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -3519,7 +3519,7 @@ const FORMS = [
     title: "Registro Control Industrial Secado Arroz en Granza",
     shortTitle: "Control Industrial Secado",
     desc: "Análisis de muestras de secadoras: entrada y salida del proceso de secado.",
-    icon: "🔬", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🔬", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -3566,7 +3566,7 @@ const FORMS = [
     title: "Registro Limpieza Recibo de Granza",
     shortTitle: "Limpieza Recibo Granza",
     desc: "Limpieza y desinfección semanal del área de recibo de granza.",
-    icon: "🧹", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🧹", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -3620,7 +3620,7 @@ const FORMS = [
     title: "Registro Limpieza Secado de Granza",
     shortTitle: "Limpieza Secado Granza",
     desc: "Limpieza y desinfección semanal del área de secado de granza.",
-    icon: "🧹", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🧹", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -3686,7 +3686,7 @@ const FORMS = [
     title: "Registro Control de Romana Arroz en Granza Sección de Secado",
     shortTitle: "Romana Arroz en Granza",
     desc: "Control de pesaje en romana de arroz en granza y monitoreo de insectos.",
-    icon: "⚖️", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "⚖️", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -3729,7 +3729,7 @@ const FORMS = [
     title: "Registro Control Consumo Material de Empaque Frijoles",
     shortTitle: "Consumo Material Empaque Frijoles",
     desc: "Consumo de material de empaque por máquina y presentación en frijoles.",
-    icon: "🧵", version: 2, emision: "Sep-2024", revision: "Jul-2025",
+    icon: "🧵", version: 2, emision: "Sep-2024", revision: "Jun-2026",
     sections: [
       {
         type: "repeater-table", id: "consumo", rowLabel: "Registro",
@@ -3763,7 +3763,7 @@ const FORMS = [
     title: "Registro Inventario Área Frijoles",
     shortTitle: "Inventario Área Frijoles",
     desc: "Inventario diario de productos terminados de frijol por código.",
-    icon: "📋", version: 2, emision: "Jul-2024", revision: "Mar-2025",
+    icon: "📋", version: 2, emision: "Jul-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -3835,7 +3835,7 @@ const FORMS = [
     title: "Registro de Inventario de Frijoles",
     shortTitle: "Inventario de Frijoles",
     desc: "Control de ingresos, salidas y existencia de un lote de frijol.",
-    icon: "📦", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "📦", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -3871,7 +3871,7 @@ const FORMS = [
     title: "Registro Producción de Frijol",
     shortTitle: "Producción de Frijol",
     desc: "Producto enviado a empaque, producción de empaque mecánico y barreduras.",
-    icon: "🫘", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🫘", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -3931,7 +3931,7 @@ const FORMS = [
     title: "Registro Seleccionado Electrónico de Frijol",
     shortTitle: "Seleccionado Electrónico Frijol",
     desc: "Pesado, selección electrónica y rechazo electrónico de frijol.",
-    icon: "⚙️", version: 2, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "⚙️", version: 2, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -3994,7 +3994,7 @@ const FORMS = [
     title: "Registro Limpieza de Áreas Externas",
     shortTitle: "Limpieza Áreas Externas",
     desc: "Limpieza semanal de áreas externas, zonas verdes y recolección de escombros.",
-    icon: "🌳", version: 3, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🌳", version: 3, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -4042,7 +4042,7 @@ const FORMS = [
     title: "Registro Limpieza de Silos",
     shortTitle: "Limpieza de Silos",
     desc: "Limpieza semanal de los equipos y áreas de un silo.",
-    icon: "🏗️", version: 3, emision: "Feb-2024", revision: "Jul-2025",
+    icon: "🏗️", version: 3, emision: "Feb-2024", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -4099,7 +4099,7 @@ const FORMS = [
     icon: "🏭",
     version: 3,
     emision: "Feb-2024",
-    revision: "Dec-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -4212,7 +4212,7 @@ const FORMS = [
     icon: "⚙️",
     version: 2,
     emision: "Feb-2024",
-    revision: "Jul-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -4286,7 +4286,7 @@ const FORMS = [
     icon: "📦",
     version: 2,
     emision: "Feb-2024",
-    revision: "Jul-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -4337,7 +4337,7 @@ const FORMS = [
     icon: "🧹",
     version: 3,
     emision: "Feb-2024",
-    revision: "Dec-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -4406,7 +4406,7 @@ const FORMS = [
     icon: "🧽",
     version: 2,
     emision: "Feb-2024",
-    revision: "Jul-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -4502,7 +4502,7 @@ const FORMS = [
     icon: "↔️",
     version: 3,
     emision: "Feb-2024",
-    revision: "Aug-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -4610,7 +4610,7 @@ const FORMS = [
     icon: "↕️",
     version: 3,
     emision: "Feb-2024",
-    revision: "Aug-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -4728,7 +4728,7 @@ const FORMS = [
     icon: "🧴",
     version: 3,
     emision: "Feb-2024",
-    revision: "Jul-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -4776,7 +4776,7 @@ const FORMS = [
     icon: "🚪",
     version: 2,
     emision: "Feb-2024",
-    revision: "Jul-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -4824,7 +4824,7 @@ const FORMS = [
     icon: "🍽️",
     version: 2,
     emision: "Feb-2024",
-    revision: "Jul-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -4892,7 +4892,7 @@ const FORMS = [
     icon: "🏢",
     version: 2,
     emision: "Feb-2024",
-    revision: "Jul-2025",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -4961,7 +4961,7 @@ const FORMS = [
     icon: "🚻",
     version: 4,
     emision: "Feb-2024",
-    revision: "Jul-2026",
+    revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -5016,7 +5016,7 @@ const FORMS = [
     title: "Registro Monitoreo de Insectos en Trampas de Luz Ultravioleta",
     shortTitle: "Monitoreo Trampas Luz UV",
     desc: "Conteo de insectos capturados en las 10 trampas de luz ultravioleta.",
-    icon: "🪰", version: 3, emision: "Feb-2025", revision: "May-2025",
+    icon: "🪰", version: 3, emision: "Feb-2025", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -5087,7 +5087,7 @@ const FORMS = [
     title: "Registro de Fumigación Fosfuro Silos",
     shortTitle: "Fumigación Fosfuro Silos",
     desc: "Registro de fumigaciones con fosfuro en silos.",
-    icon: "🌬️", version: 1, emision: "May-2026", revision: "May-2026",
+    icon: "🌬️", version: 1, emision: "May-2026", revision: "Jun-2026",
     sections: [
       {
         type: "repeater-table", id: "fumigacion", rowLabel: "Fumigación",
@@ -5420,7 +5420,7 @@ const FORMS = [
     title: "Registro de Recepción y Fumigación de Devoluciones",
     shortTitle: "Recepción Fumigación Devoluciones",
     desc: "Recepción de devoluciones con evaluación de plagas y fumigación con fosfuro.",
-    icon: "🚛", version: 1, emision: "Apr-2026", revision: "Apr-2026",
+    icon: "🚛", version: 1, emision: "Apr-2026", revision: "Jun-2026",
     sections: [
       {
         type: "fields", title: "1. Información general de la recepción", columns: 2,
