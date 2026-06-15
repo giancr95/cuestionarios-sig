@@ -175,7 +175,9 @@ const App = (() => {
 
     const groups = [];
     areas.forEach(area => {
-      const group = el2("div", "area-group");
+      // Por defecto los grupos arrancan colapsados — el operario abre solo el
+      // área en la que va a trabajar y no tiene que ir cerrando las demás.
+      const group = el2("div", "area-group collapsed");
 
       const heading = el2("button", "area-title");
       heading.type = "button";
@@ -334,6 +336,14 @@ const App = (() => {
       return d.toLocaleString("es-CR", { dateStyle: "short", timeStyle: "short" });
     }
 
+    function statusBadge(s) {
+      const cls = s.status === "approved" ? "aprobado"
+        : s.status === "revisado" ? "revisado" : "pendiente";
+      const txt = s.status === "approved" ? "Aprobado"
+        : s.status === "revisado" ? "Revisado" : "Pendiente";
+      return el2("span", "estado-badge estado-" + cls, txt);
+    }
+
     function draw() {
       const q = search.value.trim().toLowerCase();
       const rows = subs.filter(s => {
@@ -348,58 +358,89 @@ const App = (() => {
       tableWrap.innerHTML = "";
       tableWrap.appendChild(el2("p", "result-count",
         `${rows.length} de ${subs.length} registro${subs.length === 1 ? "" : "s"}`));
-
       if (!rows.length) {
         tableWrap.appendChild(el2("div", "empty", "Sin coincidencias."));
         return;
       }
 
-      const table = el2("table", "data-table");
-      table.innerHTML =
-        "<thead><tr><th>Registro</th><th>Área</th><th>Estado</th>" +
-        "<th>Fecha</th><th>Llenado por</th><th></th></tr></thead>";
-      const tbody = document.createElement("tbody");
+      // Agrupa: área → formulario → envíos individuales.
+      const areaOrder = [], byArea = {};
       rows.forEach(s => {
-        const tr = el2("tr", "data-row");
-        const tdName = document.createElement("td");
-        tdName.appendChild(el2("div", "cell-main", s._name));
-        tdName.appendChild(el2("div", "cell-sub", s._code));
-        tr.appendChild(tdName);
-        tr.appendChild(el2("td", null, s._area));
-        const tdEstado = document.createElement("td");
-        tdEstado.appendChild(el2("span",
-          "estado-badge estado-" + (
-            s.status === "approved" ? "aprobado"
-              : s.status === "revisado" ? "revisado"
-              : "pendiente"),
-          s.status === "approved" ? "Aprobado"
-            : s.status === "revisado" ? "Revisado"
-            : "Pendiente"));
-        tr.appendChild(tdEstado);
-        tr.appendChild(el2("td", null, fmtDate(s._date)));
-        tr.appendChild(el2("td", null, s.savedByName));
-
-        const actions = el2("td", "row-actions");
-        const view = mkBtn("Ver", "btn btn-sm", () => goSubmission(s));
-        const dl = mkBtn("⤓", "btn btn-sm btn-icon", () => downloadJSON(s, s._form));
-        dl.title = "Descargar JSON";
-        const rm = mkBtn("✕", "btn btn-sm btn-icon btn-danger", async () => {
-          if (!confirm("¿Eliminar este registro?")) return;
-          try { await Store.deleteSubmission(s.id); render(); }
-          catch (err) { showToast(err.message || "No se pudo eliminar", "err"); }
-        });
-        rm.title = "Eliminar";
-        [view, dl, rm].forEach(b => {
-          b.addEventListener("click", e => e.stopPropagation());
-          actions.appendChild(b);
-        });
-        tr.appendChild(actions);
-
-        tr.addEventListener("click", () => goSubmission(s));
-        tbody.appendChild(tr);
+        if (!byArea[s._area]) { byArea[s._area] = { order: [], by: {} }; areaOrder.push(s._area); }
+        const ag = byArea[s._area];
+        if (!ag.by[s.formId]) { ag.by[s.formId] = { form: s._form, name: s._name, code: s._code, items: [] }; ag.order.push(s.formId); }
+        ag.by[s.formId].items.push(s);
       });
-      table.appendChild(tbody);
-      tableWrap.appendChild(table);
+
+      const expandAll = !!q;
+      areaOrder.forEach(area => {
+        const areaGroup = el2("div", "area-group" + (expandAll ? "" : " collapsed"));
+        const areaHead = el2("button", "area-title");
+        areaHead.type = "button";
+        areaHead.appendChild(el2("span", null, area));
+        const totalInArea = byArea[area].order.reduce((n, fid) => n + byArea[area].by[fid].items.length, 0);
+        const right = el2("span", "area-title-right");
+        right.appendChild(el2("span", "area-count", String(totalInArea)));
+        right.appendChild(el2("span", "sec-chevron", "▾"));
+        areaHead.appendChild(right);
+        areaHead.addEventListener("click", () => {
+          areaGroup.className = areaGroup.className.indexOf("collapsed") >= 0
+            ? "area-group" : "area-group collapsed";
+        });
+        areaGroup.appendChild(areaHead);
+
+        const subs = el2("div", "subgroups");
+        byArea[area].order.forEach(fid => {
+          const g = byArea[area].by[fid];
+          const formGroup = el2("div", "form-subgroup" + (expandAll ? "" : " collapsed"));
+          const formHead = el2("button", "form-subtitle");
+          formHead.type = "button";
+          const left = el2("div", "form-subtitle-name");
+          left.appendChild(el2("span", "form-subtitle-main", g.name));
+          left.appendChild(el2("span", "form-subtitle-code", g.code));
+          formHead.appendChild(left);
+          const fr = el2("span", "area-title-right");
+          fr.appendChild(el2("span", "area-count", String(g.items.length)));
+          fr.appendChild(el2("span", "sec-chevron", "▾"));
+          formHead.appendChild(fr);
+          formHead.addEventListener("click", () => {
+            formGroup.className = formGroup.className.indexOf("collapsed") >= 0
+              ? "form-subgroup" : "form-subgroup collapsed";
+          });
+          formGroup.appendChild(formHead);
+
+          const list = el2("div", "submission-list");
+          g.items.forEach(s => {
+            const row = el2("div", "submission-row");
+            row.addEventListener("click", () => goSubmission(s));
+            row.appendChild(statusBadge(s));
+            const meta = el2("div", "submission-meta");
+            meta.appendChild(el2("div", "submission-date", fmtDate(s._date)));
+            meta.appendChild(el2("div", "submission-by", s.savedByName));
+            row.appendChild(meta);
+            const actions = el2("div", "submission-actions");
+            const view = mkBtn("Ver", "btn btn-sm", () => goSubmission(s));
+            const dl = mkBtn("⤓", "btn btn-sm btn-icon", () => downloadJSON(s, s._form));
+            dl.title = "Descargar JSON";
+            const rm = mkBtn("✕", "btn btn-sm btn-icon btn-danger", async () => {
+              if (!confirm("¿Eliminar este registro?")) return;
+              try { await Store.deleteSubmission(s.id); render(); }
+              catch (err) { showToast(err.message || "No se pudo eliminar", "err"); }
+            });
+            rm.title = "Eliminar";
+            [view, dl, rm].forEach(b => {
+              b.addEventListener("click", e => e.stopPropagation());
+              actions.appendChild(b);
+            });
+            row.appendChild(actions);
+            list.appendChild(row);
+          });
+          formGroup.appendChild(list);
+          subs.appendChild(formGroup);
+        });
+        areaGroup.appendChild(subs);
+        tableWrap.appendChild(areaGroup);
+      });
     }
 
     search.addEventListener("input", draw);
