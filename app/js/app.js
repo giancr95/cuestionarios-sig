@@ -307,10 +307,10 @@ const App = (() => {
       s._editedDate = parseUTC(s.editedAt);
     });
 
-    // Filtro por estado (Todos / Pendientes / Aprobados).
+    // Filtro por estado (Todos / Pendientes / Revisados / Aprobados).
     let statusFilter = "all";
     const filterBar = el2("div", "chip-bar");
-    [["all", "Todos"], ["pending", "Pendientes"], ["approved", "Aprobados"]].forEach(([v, label]) => {
+    [["all", "Todos"], ["pending", "Pendientes"], ["revisado", "Revisados"], ["approved", "Aprobados"]].forEach(([v, label]) => {
       const chip = mkBtn(label, "chip" + (v === statusFilter ? " active" : ""), () => {
         statusFilter = v;
         [...filterBar.children].forEach(c =>
@@ -368,8 +368,13 @@ const App = (() => {
         tr.appendChild(el2("td", null, s._area));
         const tdEstado = document.createElement("td");
         tdEstado.appendChild(el2("span",
-          "estado-badge estado-" + (s.status === "approved" ? "aprobado" : "pendiente"),
-          s.status === "approved" ? "Aprobado" : "Pendiente"));
+          "estado-badge estado-" + (
+            s.status === "approved" ? "aprobado"
+              : s.status === "revisado" ? "revisado"
+              : "pendiente"),
+          s.status === "approved" ? "Aprobado"
+            : s.status === "revisado" ? "Revisado"
+            : "Pendiente"));
         tr.appendChild(tdEstado);
         tr.appendChild(el2("td", null, fmtDate(s._date)));
         tr.appendChild(el2("td", null, s.savedByName));
@@ -413,12 +418,23 @@ const App = (() => {
       return;
     }
     const isAdmin = me.rol === "admin";
-    const alreadyApprovedByMe = (s.approvals || []).some(a => a.reviewer_id === me.id);
-    const canApprove = me.isReviewer && s.status === "pending" && !alreadyApprovedByMe;
+
+    // ¿Puedo accionar este registro? El flujo es pending → revisado → approved.
+    // Brian (is_reviewer) marca pendientes como revisados; Andrea (is_approver)
+    // aprueba los revisados. Los admins pueden hacer ambas cosas.
+    let nextAction = null;
+    if (s.status === "pending" && (me.isReviewer || isAdmin)) {
+      nextAction = { label: "Marcar como revisado", successMsg: "Marcado como revisado — falta aprobación" };
+    } else if (s.status === "revisado" && (me.isApprover || isAdmin)) {
+      nextAction = { label: "Aprobar registro", successMsg: "Registro aprobado" };
+    }
 
     // Banner de estado / autoría / edición / aprobaciones.
     const banner = el2("div", "ro-banner");
-    const statusLabel = s.status === "approved" ? "Aprobado" : "Pendiente de revisión";
+    const statusLabel =
+      s.status === "approved" ? "Aprobado"
+        : s.status === "revisado" ? "Revisado · pendiente de aprobación"
+        : "Pendiente de revisión";
     banner.appendChild(el2("div", null,
       `${statusLabel} · Llenado por ${s.savedByName} · ${fmtDateTime(parseUTC(s.savedAt))}`));
     if (s.editedAt) {
@@ -427,7 +443,7 @@ const App = (() => {
     }
     if (s.approvals && s.approvals.length) {
       banner.appendChild(el2("div", null,
-        "Aprobado por: " + s.approvals
+        "Acciones: " + s.approvals
           .map(a => `${a.reviewer_name} (${fmtDateTime(parseUTC(a.approved_at))})`)
           .join(", ")));
     }
@@ -454,19 +470,15 @@ const App = (() => {
       Render.renderForm(schema, formWrap, { readonly: true, data: s.data || {} });
     }
 
-    if (canApprove) {
+    if (nextAction) {
       const bar = el2("div", "review-bar");
-      bar.appendChild(mkBtn("Aprobar registro", "btn btn-primary btn-block", async () => {
+      bar.appendChild(mkBtn(nextAction.label, "btn btn-primary btn-block", async () => {
         try {
           const updated = await Store.reviewSubmission(s.id);
           state.currentSubmission = updated;
-          showToast(
-            updated.status === "approved"
-              ? "Aprobación registrada — todos los revisores aprobaron"
-              : "Aprobación registrada",
-            "ok");
+          showToast(nextAction.successMsg, "ok");
           render();
-        } catch (err) { showToast(err.message || "No se pudo aprobar", "err"); }
+        } catch (err) { showToast(err.message || "No se pudo registrar la acción", "err"); }
       }));
       root.appendChild(bar);
     }
@@ -554,9 +566,11 @@ const App = (() => {
       const fNombre = inputField("Nombre completo", "text", u ? u.nombre : "", false);
       const fPass = inputField(editing ? "Contraseña nueva (opcional)" : "Contraseña", "text", "", false);
       const fRol = selectField("Rol", u ? u.rol : "operador");
-      const fReviewer = checkboxField("Marcar como revisor (aprueba registros pendientes)",
+      const fReviewer = checkboxField("Revisor (marca pendientes como revisados)",
         u ? !!u.isReviewer : false);
-      [fUsuario, fNombre, fPass, fRol, fReviewer].forEach(f => grid.appendChild(f));
+      const fApprover = checkboxField("Aprobador (aprueba los registros ya revisados)",
+        u ? !!u.isApprover : false);
+      [fUsuario, fNombre, fPass, fRol, fReviewer, fApprover].forEach(f => grid.appendChild(f));
       formCard.appendChild(grid);
 
       // Áreas asignadas (vacío = sin restricción).
@@ -584,6 +598,7 @@ const App = (() => {
           rol: fRol._input.value,
           password: fPass._input.value,
           isReviewer: fReviewer._input.checked,
+          isApprover: fApprover._input.checked,
           areas: selectedAreas.length ? selectedAreas : null
         };
         try {
@@ -629,6 +644,9 @@ const App = (() => {
           u.rol === "admin" ? "Administrador" : "Operador"));
         if (u.isReviewer) {
           tdRol.appendChild(el2("span", "rol-badge rol-revisor", "Revisor"));
+        }
+        if (u.isApprover) {
+          tdRol.appendChild(el2("span", "rol-badge rol-aprobador", "Aprobador"));
         }
         tr.appendChild(tdRol);
         const tdEstado = document.createElement("td");

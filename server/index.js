@@ -3,7 +3,7 @@ const crypto = require("crypto");
 const express = require("express");
 const cookieSession = require("cookie-session");
 
-const { login, requireAuth, requireAdmin, requireReviewer } = require("./auth");
+const { login, requireAuth, requireAdmin, requireReviewerOrApprover } = require("./auth");
 const subs = require("./submissions");
 const users = require("./users");
 
@@ -63,7 +63,8 @@ app.post("/api/login", loginRateLimit, (req, res) => {
   req.session.iat = Date.now();
   res.json({
     id: u.id, usuario: u.usuario, nombre: u.nombre, rol: u.rol,
-    isReviewer: !!u.isReviewer, areas: u.areas || null
+    isReviewer: !!u.isReviewer, isApprover: !!u.isApprover,
+    areas: u.areas || null
   });
 });
 
@@ -79,6 +80,7 @@ app.get("/api/me", requireAuth, (req, res) => {
     nombre: req.user.nombre,
     rol: req.user.rol,
     isReviewer: !!req.user.isReviewer,
+    isApprover: !!req.user.isApprover,
     areas: req.user.areas || null
   });
 });
@@ -102,7 +104,8 @@ app.get("/api/submissions/:id", requireAuth, (req, res) => {
   const canSee =
     req.user.rol === "admin" ||
     rec.savedBy === req.user.id ||
-    (req.user.isReviewer && rec.status === "pending");
+    (req.user.isReviewer && rec.status === "pending") ||
+    (req.user.isApprover && rec.status === "revisado");
   if (!canSee) return res.status(403).json({ error: "Sin permiso" });
   res.json(rec);
 });
@@ -114,7 +117,7 @@ app.patch("/api/submissions/:id", requireAdmin, (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-app.post("/api/submissions/:id/review", requireReviewer, (req, res, next) => {
+app.post("/api/submissions/:id/review", requireReviewerOrApprover, (req, res, next) => {
   try { res.json(subs.addReview(req.params.id, req.user)); }
   catch (e) { next(e); }
 });

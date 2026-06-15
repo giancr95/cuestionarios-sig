@@ -33,27 +33,25 @@ function get(id) {
   return r ? shape(r) : null;
 }
 
-// `user` es req.user (id, rol, isReviewer).
+// `user` es req.user (id, rol, isReviewer, isApprover).
 //   admin     → ve todos los registros.
-//   reviewer  → ve los propios + los pendientes que aún no haya aprobado.
-//   operador  → ve los propios.
+//   reviewer  → ve los propios + los pendientes (para marcar como revisado).
+//   approver  → ve los propios + los revisados (para aprobar).
+//   operador  → solo los propios.
+// Si una persona es ambos (reviewer + approver), ve propios + pendientes + revisados.
 function list(user) {
+  const SEL = "SELECT id, form_id, user_id, user_name, data, status, edited_at, edited_by_id, edited_by_name, created_at FROM submissions";
   let rows;
   if (user.rol === "admin") {
-    rows = db.prepare(
-      "SELECT id, form_id, user_id, user_name, data, status, edited_at, edited_by_id, edited_by_name, created_at FROM submissions ORDER BY created_at DESC"
-    ).all();
-  } else if (user.isReviewer) {
-    rows = db.prepare(
-      "SELECT id, form_id, user_id, user_name, data, status, edited_at, edited_by_id, edited_by_name, created_at FROM submissions s " +
-      "WHERE s.user_id = ? OR (s.status = 'pending' AND NOT EXISTS (" +
-      "  SELECT 1 FROM submission_reviews r WHERE r.submission_id = s.id AND r.reviewer_id = ?" +
-      ")) ORDER BY created_at DESC"
-    ).all(user.id, user.id);
+    rows = db.prepare(SEL + " ORDER BY created_at DESC").all();
+  } else if (user.isReviewer || user.isApprover) {
+    const wantedStatuses = [];
+    if (user.isReviewer) wantedStatuses.push("'pending'");
+    if (user.isApprover) wantedStatuses.push("'revisado'");
+    const cond = wantedStatuses.length ? " OR status IN (" + wantedStatuses.join(",") + ")" : "";
+    rows = db.prepare(SEL + " WHERE user_id = ?" + cond + " ORDER BY created_at DESC").all(user.id);
   } else {
-    rows = db.prepare(
-      "SELECT id, form_id, user_id, user_name, data, status, edited_at, edited_by_id, edited_by_name, created_at FROM submissions WHERE user_id = ? ORDER BY created_at DESC"
-    ).all(user.id);
+    rows = db.prepare(SEL + " WHERE user_id = ? ORDER BY created_at DESC").all(user.id);
   }
   return rows.map(shape);
 }
@@ -76,27 +74,34 @@ function remove(id, { userId, isAdmin }) {
   return true;
 }
 
-// Registra la aprobación de un revisor. Si todos los revisores activos del
-// sistema (is_reviewer = 1 AND activo = 1) han aprobado, el estado pasa a
-// `approved`.
-function addReview(submissionId, reviewer) {
+// Flujo de aprobación en dos pasos:
+//   pending  → revisado : un usuario con is_reviewer = 1 marca como revisado.
+//   revisado → approved : un usuario con is_approver = 1 lo aprueba.
+// Quien acciona queda registrado en submission_reviews para el historial.
+function addReview(submissionId, user) {
   const sub = db.prepare("SELECT id, status FROM submissions WHERE id = ?").get(submissionId);
   if (!sub) throw httpErr(404, "Registro no encontrado");
   if (sub.status === "approved") throw httpErr(400, "El registro ya está aprobado");
 
+  let next;
+  if (sub.status === "pending") {
+    if (!user.isReviewer && user.rol !== "admin") {
+      throw httpErr(403, "Este registro está pendiente; requiere revisor");
+    }
+    next = "revisado";
+  } else if (sub.status === "revisado") {
+    if (!user.isApprover && user.rol !== "admin") {
+      throw httpErr(403, "Este registro está revisado; requiere aprobador");
+    }
+    next = "approved";
+  } else {
+    throw httpErr(400, "Estado del registro no permite acciones");
+  }
+
   db.prepare(
     "INSERT OR IGNORE INTO submission_reviews (submission_id, reviewer_id, reviewer_name) VALUES (?, ?, ?)"
-  ).run(submissionId, reviewer.id, reviewer.nombre);
-
-  const totalReviewers = db.prepare(
-    "SELECT COUNT(*) AS n FROM users WHERE is_reviewer = 1 AND activo = 1"
-  ).get().n;
-  const approvals = db.prepare(
-    "SELECT COUNT(DISTINCT reviewer_id) AS n FROM submission_reviews WHERE submission_id = ?"
-  ).get(submissionId).n;
-  if (totalReviewers > 0 && approvals >= totalReviewers) {
-    db.prepare("UPDATE submissions SET status = 'approved' WHERE id = ?").run(submissionId);
-  }
+  ).run(submissionId, user.id, user.nombre);
+  db.prepare("UPDATE submissions SET status = ? WHERE id = ?").run(next, submissionId);
   return get(submissionId);
 }
 
