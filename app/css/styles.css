@@ -15,6 +15,7 @@
   --green-100: #DFEBE0;
   --green-50:  #EFF5EE;
 
+  --gold-800: #6F4F18;
   --gold-700: #8A6420;
   --gold-600: #A87C2A;
   --gold-500: #C49A3C;
@@ -1101,3 +1102,9 @@ main {
   margin: 0;
   accent-color: var(--green);
 }
+
+/* --- Estado "Revisado" (paso intermedio del flujo de aprobación) --- */
+.estado-revisado { background: var(--blue-50, #EEF5F7); color: var(--blue-700, #1F4E5F); }
+
+/* --- Badge de aprobador (Andrea, supervisora SIG) --- */
+.rol-aprobador { background: var(--gold-100); color: var(--gold-800); margin-left: 6px; }

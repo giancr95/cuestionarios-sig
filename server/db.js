@@ -19,6 +19,7 @@ db.exec(`
     rol         TEXT NOT NULL CHECK (rol IN ('admin','operador')),
     activo      INTEGER NOT NULL DEFAULT 1,
     is_reviewer INTEGER NOT NULL DEFAULT 0,
+    is_approver INTEGER NOT NULL DEFAULT 0,
     areas       TEXT,
     created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
   );
@@ -30,7 +31,7 @@ db.exec(`
     user_name       TEXT NOT NULL,
     data            TEXT NOT NULL,
     status          TEXT NOT NULL DEFAULT 'approved'
-                    CHECK (status IN ('pending','approved')),
+                    CHECK (status IN ('pending','revisado','approved')),
     edited_at       DATETIME,
     edited_by_id    INTEGER,
     edited_by_name  TEXT,
@@ -57,6 +58,7 @@ function addColumn(table, name, ddl) {
 }
 addColumn("users", "activo",        "INTEGER NOT NULL DEFAULT 1");
 addColumn("users", "is_reviewer",   "INTEGER NOT NULL DEFAULT 0");
+addColumn("users", "is_approver",   "INTEGER NOT NULL DEFAULT 0");
 addColumn("users", "areas",         "TEXT");
 addColumn("submissions", "status",         "TEXT NOT NULL DEFAULT 'approved'");
 addColumn("submissions", "edited_at",      "DATETIME");

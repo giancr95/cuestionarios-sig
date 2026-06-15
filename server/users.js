@@ -29,13 +29,14 @@ function normalizeAreas(v) {
 
 function publicRow(id) {
   const r = db
-    .prepare("SELECT id, usuario, nombre, rol, activo, is_reviewer, areas, created_at FROM users WHERE id = ?")
+    .prepare("SELECT id, usuario, nombre, rol, activo, is_reviewer, is_approver, areas, created_at FROM users WHERE id = ?")
     .get(id);
   if (!r) return null;
   return {
     ...r,
     activo: !!r.activo,
     isReviewer: !!r.is_reviewer,
+    isApprover: !!r.is_approver,
     areas: parseAreas(r.areas)
   };
 }
@@ -50,18 +51,19 @@ function submissionCount(userId) {
 
 function list() {
   return db
-    .prepare("SELECT id, usuario, nombre, rol, activo, is_reviewer, areas, created_at FROM users ORDER BY activo DESC, rol, usuario COLLATE NOCASE")
+    .prepare("SELECT id, usuario, nombre, rol, activo, is_reviewer, is_approver, areas, created_at FROM users ORDER BY activo DESC, rol, usuario COLLATE NOCASE")
     .all()
     .map(u => ({
       ...u,
       activo: !!u.activo,
       isReviewer: !!u.is_reviewer,
+      isApprover: !!u.is_approver,
       areas: parseAreas(u.areas),
       submissions: submissionCount(u.id)
     }));
 }
 
-function create({ usuario, nombre, password, rol, isReviewer, areas }) {
+function create({ usuario, nombre, password, rol, isReviewer, isApprover, areas }) {
   usuario = String(usuario || "").trim();
   nombre = String(nombre || "").trim();
   rol = rol === "admin" ? "admin" : "operador";
@@ -75,19 +77,20 @@ function create({ usuario, nombre, password, rol, isReviewer, areas }) {
     throw httpErr(409, "Ya existe un usuario con ese nombre de acceso");
   }
   const info = db
-    .prepare("INSERT INTO users (usuario, nombre, password, rol, is_reviewer, areas) VALUES (?, ?, ?, ?, ?, ?)")
+    .prepare("INSERT INTO users (usuario, nombre, password, rol, is_reviewer, is_approver, areas) VALUES (?, ?, ?, ?, ?, ?, ?)")
     .run(
       usuario, nombre,
       bcrypt.hashSync(String(password), 10),
       rol,
       isReviewer ? 1 : 0,
+      isApprover ? 1 : 0,
       normalizeAreas(areas)
     );
   return publicRow(info.lastInsertRowid);
 }
 
 function update(id, body, currentUserId) {
-  const { nombre, password, rol, activo, isReviewer, areas } = body || {};
+  const { nombre, password, rol, activo, isReviewer, isApprover, areas } = body || {};
   const u = db.prepare("SELECT id, rol, activo FROM users WHERE id = ?").get(id);
   if (!u) throw httpErr(404, "Usuario no encontrado");
 
@@ -116,6 +119,9 @@ function update(id, body, currentUserId) {
   }
   if (isReviewer != null) {
     sets.push("is_reviewer = ?"); vals.push(isReviewer ? 1 : 0);
+  }
+  if (isApprover != null) {
+    sets.push("is_approver = ?"); vals.push(isApprover ? 1 : 0);
   }
   if (areas !== undefined) {
     sets.push("areas = ?"); vals.push(normalizeAreas(areas));
