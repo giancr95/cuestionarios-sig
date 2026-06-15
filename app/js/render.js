@@ -159,7 +159,9 @@ const Render = (() => {
         id: field.id, name: field.id, class: "input",
         type: field.type || "text",
         placeholder: field.placeholder || "",
-        min: field.min, max: field.max, step: field.step
+        min: field.min, max: field.max,
+        // Permitir decimales por defecto en inputs numéricos.
+        step: field.step || (field.type === "number" ? "any" : undefined)
       });
     }
     if (field.default != null && field.type !== "select") {
@@ -637,7 +639,8 @@ const Render = (() => {
         type: col.type || "text", class: "input", name,
         placeholder: col.placeholder || "",
         value: col.default === "today" ? todayISO() : (col.default || ""),
-        min: col.min, max: col.max, step: col.step
+        min: col.min, max: col.max,
+        step: col.step || (col.type === "number" ? "any" : undefined)
       }));
     }
     return d;
@@ -691,7 +694,9 @@ const Render = (() => {
             class: "mini-input" + (col.compute ? " computed" : ""),
             name: `${sec.id}__${idx}__${col.key}`,
             min: col.type === "number" ? "0" : col.min,
-            step: col.step, placeholder: "—"
+            // Permitir decimales por defecto (sin step explícito el navegador exige enteros).
+            step: col.step || ((col.type || "number") === "number" ? "any" : undefined),
+            placeholder: "—"
           });
           if (col.compute) inp.setAttribute("readonly", "");
         }

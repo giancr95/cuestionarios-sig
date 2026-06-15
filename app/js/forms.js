@@ -2644,7 +2644,6 @@ const FORMS = [
           { key: "observaciones", label: "Observaciones", type: "textarea" }
         ]
       },
-      { type: "observaciones" },
       {
         type: "firmas",
         fields: [
@@ -2674,9 +2673,7 @@ const FORMS = [
         type: "fields", title: "Información general", columns: 2,
         fields: [
           { id: "area", label: "Área", type: "text", required: true, default: "Bodega Control de Plagas" },
-          { id: "semana", label: "Semana", type: "number", default: "weekNum" },
-          { id: "fechaInicio", label: "Fecha inicio", type: "date", default: "weekStart" },
-          { id: "fechaFin", label: "Fecha fin", type: "date", default: "weekEnd" },
+          { id: "fechaInicio", label: "Fecha", type: "date", required: true, default: "today" },
           { id: "realizadoPor", label: "Realizado por", type: "text" }
         ]
       },
