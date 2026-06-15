@@ -994,8 +994,52 @@ main {
   border-radius: var(--radius-pill);
 }
 .area-group .form-grid { margin-top: 12px; }
-.area-group.collapsed .form-grid { display: none; }
+.area-group.collapsed > *:not(.area-title) { display: none; }
+.area-group.collapsed > .area-title > .area-title-right > .sec-chevron { transform: rotate(-90deg); }
 .area-group.collapsed .sec-chevron { transform: rotate(-90deg); }
+
+/* --- Guardados anidados: área > formulario > envíos --- */
+.subgroups { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.form-subgroup {
+  background: var(--surface-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.form-subtitle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--cream-50);
+  border: none;
+  padding: 11px 14px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  text-align: left;
+}
+.form-subtitle:hover { background: var(--cream-100); }
+.form-subtitle-name { display: flex; flex-direction: column; gap: 2px; }
+.form-subtitle-main { font-weight: 600; color: var(--ink-900); font-size: 14px; }
+.form-subtitle-code { font-size: 11px; color: var(--ink-500); letter-spacing: var(--tracking-overline); text-transform: uppercase; font-weight: 700; }
+.form-subgroup.collapsed > *:not(.form-subtitle) { display: none; }
+.form-subgroup.collapsed .sec-chevron { transform: rotate(-90deg); }
+.submission-list { display: flex; flex-direction: column; }
+.submission-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border-soft);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+.submission-row:hover { background: var(--cream-50); }
+.submission-meta { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.submission-date { font-size: 13px; color: var(--ink-900); }
+.submission-by { font-size: 12px; color: var(--ink-500); }
+.submission-actions { display: flex; gap: 4px; flex-shrink: 0; }
 
 /* --- Gestión de usuarios --- */
 .user-form-card {
