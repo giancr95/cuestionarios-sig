@@ -997,7 +997,7 @@ const FORMS = [
         type: "fields", title: "Información general", columns: 2,
         fields: [
           { id: "area", label: "Área", type: "text", required: true },
-          { id: "semana", label: "Semana (del / al)", type: "text", placeholder: "Del ___ al ___ de ______" }
+          { id: "semana", label: "Fecha", type: "date", default: "today" }
         ]
       },
       {
@@ -3957,7 +3957,7 @@ const FORMS = [
       {
         type: "fields", title: "Información general", columns: 2,
         fields: [
-          { id: "semana", label: "Fecha (del / al)", type: "text", placeholder: "Del ___ al ___ de ______ del ____" }
+          { id: "semana", label: "Fecha", type: "date", required: true, default: "today" }
         ]
       },
       {
@@ -3977,13 +3977,6 @@ const FORMS = [
           "Tolva Ceniza", "Tolva Lajilla", "Recibo Granza #1", "Romana", "Zonas Verdes",
           "Limpieza de Caños", "Caseta de Seguridad", "Bodega Frijoles Externa",
           "Pilado Externo", "Secado Externo"
-        ]
-      },
-      {
-        type: "fields", title: "Responsables", columns: 2,
-        fields: [
-          { id: "respAlan", label: "Responsable (Alan M.)", type: "text" },
-          { id: "respFreddy", label: "Responsable (Freddy)", type: "text" }
         ]
       },
       { type: "observaciones" },
