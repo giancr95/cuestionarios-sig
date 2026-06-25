@@ -589,8 +589,18 @@ const App = (() => {
 
     root.appendChild(controls);
 
+    // Botón de imprimir / exportar a PDF (vía diálogo de impresión del navegador).
+    const actions = el2("div", "report-actions");
+    actions.appendChild(mkBtn("Imprimir / PDF", "btn btn-primary report-print-btn",
+      () => window.print()));
+    root.appendChild(actions);
+
     const descEl = el2("p", "report-desc");
     root.appendChild(descEl);
+
+    // Encabezado que solo aparece al imprimir/exportar (oculto en pantalla).
+    const printHeader = el2("div", "print-header");
+    root.appendChild(printHeader);
 
     const out = el2("div", "report-output");
     root.appendChild(out);
@@ -602,6 +612,15 @@ const App = (() => {
       reportState.to = toInp.value;
       const report = Reports.get(reportState.reportId);
       descEl.textContent = report.desc || "";
+
+      // Arma el encabezado de impresión con el reporte y el período.
+      printHeader.innerHTML = "";
+      printHeader.appendChild(el2("div", "print-brand",
+        "Arrocera Liborio S.A. · Sistema Integrado de Gestión"));
+      printHeader.appendChild(el2("div", "print-title", report.label));
+      const rango = (reportState.from || "inicio") + "  –  " + (reportState.to || "actualidad");
+      printHeader.appendChild(el2("div", "print-range",
+        "Período: " + rango + "  ·  Generado: " + new Date().toLocaleDateString("es-CR")));
 
       out.innerHTML = "";
       out.appendChild(el2("div", "empty", "Cargando…"));
