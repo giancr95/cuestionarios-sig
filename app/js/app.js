@@ -54,7 +54,10 @@ const App = (() => {
     const bar = el2("div", "tab-bar");
     const user = Store.cachedUser();
     const tabs = [["select", "Registros"], ["saved", "Guardados"]];
-    if (user && user.rol === "admin") tabs.push(["users", "Usuarios"]);
+    if (user && user.rol === "admin") {
+      tabs.push(["reports", "Reportes"]);
+      tabs.push(["users", "Usuarios"]);
+    }
     tabs.forEach(([v, label]) => {
       const t = el2("button", "tab" + (v === active ? " active" : ""), label);
       t.type = "button";
@@ -73,7 +76,8 @@ const App = (() => {
     }
     topbar.hidden = false;
     userChip.textContent = user.rol === "admin" ? `${user.nombre} · admin` : user.nombre;
-    btnBack.hidden = state.view === "select" || state.view === "saved" || state.view === "users";
+    btnBack.hidden = state.view === "select" || state.view === "saved" ||
+                     state.view === "users" || state.view === "reports";
   }
 
   btnBack.addEventListener("click", () => {
@@ -95,6 +99,7 @@ const App = (() => {
     if (state.view === "saved")  return renderSaved();
     if (state.view === "submission") return renderSubmission();
     if (state.view === "users")  return renderUsers();
+    if (state.view === "reports") return renderReports();
   }
 
   function renderLogin() {
@@ -527,6 +532,97 @@ const App = (() => {
       root.appendChild(bar);
     }
     window.scrollTo({ top: 0, behavior: "instant" });
+  }
+
+  // Estado persistente de la pestaña Reportes mientras dura la sesión de vista.
+  let reportState = { reportId: null, from: "", to: "" };
+
+  async function renderReports() {
+    root.innerHTML = "";
+    root.appendChild(tabBar("reports"));
+    const me = Store.cachedUser();
+    if (!me || me.rol !== "admin") {
+      root.appendChild(el2("div", "empty", "Solo los administradores pueden ver los reportes."));
+      return;
+    }
+    root.appendChild(el2("h1", "page-title", "Reportes"));
+    root.appendChild(el2("p", "page-sub",
+      "Resumen de los datos recolectados. Filtre por fecha para acotar el período."));
+
+    const available = Reports.list();
+    if (!available.length) {
+      root.appendChild(el2("div", "empty", "Aún no hay reportes disponibles."));
+      return;
+    }
+    if (!reportState.reportId || !available.some(r => r.id === reportState.reportId)) {
+      reportState.reportId = available[0].id;
+    }
+
+    // --- controles: selector de reporte + rango de fechas ---
+    const controls = el2("div", "report-controls");
+
+    const selWrap = el2("div", "field");
+    selWrap.appendChild(el2("label", null, "Reporte"));
+    const sel = document.createElement("select");
+    sel.className = "select";
+    available.forEach(r => {
+      const o = el2("option", null, r.label); o.value = r.id;
+      if (r.id === reportState.reportId) o.selected = true;
+      sel.appendChild(o);
+    });
+    selWrap.appendChild(sel);
+    controls.appendChild(selWrap);
+
+    const fromWrap = el2("div", "field");
+    fromWrap.appendChild(el2("label", null, "Desde"));
+    const fromInp = document.createElement("input");
+    fromInp.type = "date"; fromInp.className = "input"; fromInp.value = reportState.from;
+    fromWrap.appendChild(fromInp);
+    controls.appendChild(fromWrap);
+
+    const toWrap = el2("div", "field");
+    toWrap.appendChild(el2("label", null, "Hasta"));
+    const toInp = document.createElement("input");
+    toInp.type = "date"; toInp.className = "input"; toInp.value = reportState.to;
+    toWrap.appendChild(toInp);
+    controls.appendChild(toWrap);
+
+    root.appendChild(controls);
+
+    const descEl = el2("p", "report-desc");
+    root.appendChild(descEl);
+
+    const out = el2("div", "report-output");
+    root.appendChild(out);
+
+    let allSubs = null;
+    async function refresh() {
+      reportState.reportId = sel.value;
+      reportState.from = fromInp.value;
+      reportState.to = toInp.value;
+      const report = Reports.get(reportState.reportId);
+      descEl.textContent = report.desc || "";
+
+      out.innerHTML = "";
+      out.appendChild(el2("div", "empty", "Cargando…"));
+      try {
+        if (allSubs === null) allSubs = await Store.allSubmissions();
+      } catch (err) {
+        out.innerHTML = "";
+        out.appendChild(el2("div", "empty", "No fue posible cargar los registros."));
+        showToast(err.message || "Error al cargar", "err");
+        return;
+      }
+      const subs = allSubs.filter(s => report.formIds.indexOf(s.formId) >= 0);
+      const filtered = Reports.filterByDate(report, subs, reportState.from, reportState.to);
+      out.innerHTML = "";
+      Reports.render(report, out, filtered, {});
+    }
+
+    sel.addEventListener("change", refresh);
+    fromInp.addEventListener("change", refresh);
+    toInp.addEventListener("change", refresh);
+    refresh();
   }
 
   async function renderUsers() {

@@ -1152,3 +1152,94 @@ main {
 
 /* --- Badge de aprobador (Andrea, supervisora SIG) --- */
 .rol-aprobador { background: var(--gold-100); color: var(--gold-800); margin-left: 6px; }
+
+/* ============ REPORTES ============ */
+.report-controls {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.report-controls .field { margin-bottom: 0; }
+.report-desc {
+  margin: 0 0 18px;
+  color: var(--ink-600);
+  font-size: 14px;
+}
+
+.report-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.report-stat {
+  background: var(--surface-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  text-align: center;
+}
+.report-stat-value {
+  font-family: var(--font-display);
+  font-size: 24px;
+  color: var(--green-900);
+  line-height: 1.1;
+}
+.report-stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-overline);
+  color: var(--ink-500);
+  margin-top: 4px;
+  font-weight: 700;
+}
+
+.report-table td { vertical-align: middle; }
+.report-row.has-rejections .cell-main { font-weight: 600; }
+
+/* Barra de % de aceptación */
+.rate-bar {
+  display: inline-block;
+  width: 90px;
+  height: 8px;
+  background: var(--cream-200);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+.rate-fill {
+  height: 100%;
+  background: var(--green-500);
+  border-radius: var(--radius-pill);
+}
+.rate-fill.low { background: var(--gold-500); }
+.rate-label { font-size: 12px; color: var(--ink-700); font-variant-numeric: tabular-nums; }
+
+.rej-toggle { padding: 4px 10px; font-size: 12px; }
+
+/* Detalle expandible de rechazos */
+.rej-detail > td { background: var(--gold-50); padding: 0 14px 12px; }
+.rej-list { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; }
+.rej-item {
+  background: var(--surface-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+}
+.rej-head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.rej-date { font-weight: 700; color: var(--green-800); }
+.rej-area {
+  background: var(--green-50); color: var(--green-800);
+  padding: 1px 8px; border-radius: var(--radius-pill); font-weight: 600;
+}
+.rej-by { color: var(--ink-500); margin-left: auto; }
+.rej-line { font-size: 13px; color: var(--ink-700); }
+.rej-line.rej-empty { color: var(--ink-400); font-style: italic; }
