@@ -397,7 +397,6 @@ const FORMS = [
         title: "Información general",
         columns: 2,
         fields: [
-          { id: "semana",     label: "Semana",     type: "number", required: true, default: "weekNum" },
           { id: "fecha",      label: "Fecha",      type: "date",   required: true, default: "weekStart" },
           { id: "areaBidon",  label: "Área bidón", type: "text",   placeholder: "Ej: Comedor" },
           { id: "responsable",label: "Responsable",type: "select", required: true, options: RESPONSABLES }
@@ -448,8 +447,7 @@ const FORMS = [
         title: "Información general",
         columns: 2,
         fields: [
-          { id: "semana",     label: "Semana",      type: "number", required: true, default: "weekNum" },
-          { id: "fechaInicio",label: "Fecha inicio",type: "date",   required: true, default: "weekStart" }
+          { id: "fechaInicio", label: "Fecha", type: "date", required: true, default: "today" }
         ]
       },
       {
@@ -503,8 +501,7 @@ const FORMS = [
         title: "Información general",
         columns: 2,
         fields: [
-          { id: "semana",     label: "Semana",      type: "number", required: true, default: "weekNum" },
-          { id: "fechaInicio",label: "Fecha inicio",type: "date",   required: true, default: "weekStart" }
+          { id: "fechaInicio", label: "Fecha", type: "date", required: true, default: "today" }
         ]
       },
       {
@@ -1571,7 +1568,7 @@ const FORMS = [
         type: "fields", title: "Información general", columns: 2,
         fields: [
           { id: "area", label: "Área", type: "text", required: true, default: "Frijoles" },
-          { id: "semana", label: "Semana (del / al)", type: "text", placeholder: "Del ___ al ___ de ______ del ______" }
+          { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" }
         ]
       },
       {
@@ -1785,7 +1782,7 @@ const FORMS = [
         type: "fields", title: "Información general", columns: 2,
         fields: [
           { id: "area", label: "Área", type: "text", required: true, default: "Laboratorio Pilado" },
-          { id: "semana", label: "Semana (del / al)", type: "text", placeholder: "Del ___ al ___ de ______ del ______" },
+          { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" },
           { id: "realizadoPor", label: "Realizado por", type: "select", options: RESPONSABLES }
         ]
       },
@@ -2331,7 +2328,7 @@ const FORMS = [
         type: "fields", title: "Información general", columns: 2,
         fields: [
           { id: "area", label: "Área", type: "text", required: true },
-          { id: "semana", label: "Semana (del / al)", type: "text", placeholder: "Del ___ al ___ de ______" },
+          { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" },
           { id: "horometro", label: "Horómetro", type: "number", min: 0 },
           { id: "codigoEquipo", label: "Código de equipo", type: "text" },
           { id: "responsable", label: "Responsable", type: "select", required: true, options: RESPONSABLES }
@@ -3568,7 +3565,7 @@ const FORMS = [
         type: "fields", title: "Información general", columns: 2,
         fields: [
           { id: "area", label: "Área", type: "text", required: true, default: "Recibo de granza" },
-          { id: "semana", label: "Semana (del / al)", type: "text", placeholder: "Del ___ al ___ de ______ del ____" }
+          { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" }
         ]
       },
       {
@@ -3622,7 +3619,7 @@ const FORMS = [
         type: "fields", title: "Información general", columns: 2,
         fields: [
           { id: "area", label: "Área", type: "text", required: true, default: "Secado de granza" },
-          { id: "semana", label: "Semana (del / al)", type: "text", placeholder: "Del ___ al ___ de ______ del ____" }
+          { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" }
         ]
       },
       {
@@ -4004,7 +4001,7 @@ const FORMS = [
         fields: [
           { id: "area", label: "Área", type: "text", required: true, default: "Silos" },
           { id: "numeroSilo", label: "Número de silo", type: "text", required: true },
-          { id: "semana", label: "Fecha (del / al)", type: "text", placeholder: "Del ___ al ___ de ______ del ____" }
+          { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" }
         ]
       },
       {
@@ -4299,7 +4296,7 @@ const FORMS = [
         fields: [
           { id: "area",         label: "Área",          type: "text", required: true, default: "Bodega Subproductos" },
           { id: "realizadoPor", label: "Realizado por", type: "text" },
-          { id: "semana",       label: "Semana (del / al)", type: "text", placeholder: "Del ___ al ___ de ______ del ____" }
+          { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" }
         ]
       },
       {
@@ -4464,7 +4461,7 @@ const FORMS = [
         fields: [
           { id: "area",        label: "Área",        type: "text", required: true, default: "Transportadores Horizontal" },
           { id: "responsable", label: "Responsable", type: "text" },
-          { id: "semana",      label: "Semana (del / al)", type: "text", placeholder: "Del ___ al ___ de ______ del ____" }
+          { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" }
         ]
       },
       {
@@ -4572,7 +4569,7 @@ const FORMS = [
         fields: [
           { id: "area",         label: "Área",          type: "text", required: true, default: "Transportador Vertical" },
           { id: "realizadoPor", label: "Realizado por", type: "text" },
-          { id: "semana",       label: "Semana (del / al)", type: "text", placeholder: "Del ___ al ___ de ______ del ____" }
+          { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" }
         ]
       },
       {
@@ -4688,7 +4685,7 @@ const FORMS = [
       {
         type: "fields", title: "Información general", columns: 2,
         fields: [
-          { id: "semana", label: "Semana", type: "number", default: "weekNum" },
+          { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" },
           { id: "reviso", label: "Revisó", type: "select", options: RESPONSABLES }
         ]
       },
@@ -4853,7 +4850,7 @@ const FORMS = [
         type: "fields", title: "Información general", columns: 2,
         fields: [
           { id: "area",        label: "Área",        type: "text", required: true },
-          { id: "semana",      label: "Semana (del / al)", type: "text", placeholder: "Del ___ al ___ de ______ del ____" },
+          { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" },
           { id: "responsable", label: "Responsable", type: "text" }
         ]
       },
@@ -5088,7 +5085,6 @@ const FORMS = [
         type: "repeater-table", id: "ana", rowLabel: "Análisis",
         title: "Análisis por lote",
         columns: [
-          { key: "semana", label: "# Semana", type: "number" },
           { key: "dia", label: "Día", type: "text" },
           { key: "turno", label: "Turno", type: "text" },
           { key: "operario", label: "Operario", type: "text" },
