@@ -203,6 +203,13 @@ const MATERIALES_EMPAQUE = [
   { codigo: "10-2-143", desc: "FORMULARIO SACO 23 KILOS BLANCO 99-1%" },
   { codigo: "12-1-1", desc: "VITAMINA" },
   { codigo: "17-1-1", desc: "RODILLOS DE HULE FOREMAN" },
+  { codigo: "1-8-9", desc: "FRIJOLES ROJOS DON MANUEL 800G" },
+  { codigo: "1-8-10", desc: "FRIJOLES NEGROS DON MANUEL 800G" },
+  { codigo: "1-4-28", desc: "SAQUITAS COSTEÑA 8KG" },
+  { codigo: "1-4-29", desc: "SAQUITAS LIBORIO 95% 5KG" },
+  { codigo: "1-1-33", desc: "BOBINA MOLINA 95-05 5KG" },
+  { codigo: "1-1-43", desc: "BOBINA MOLINA 90-10 1.8KG" },
+  { codigo: "1-1-34", desc: "BOBINA MOLINA 95-10 3KG" },
 ];
 
 const SINO_OPC = [
@@ -839,7 +846,7 @@ const FORMS = [
   },
 
   {
-    id: "BCI-001", code: "R-BCI-001", area: "Empaque",
+    id: "BCI-001", code: "R-BCI-001", area: ["Empaque", "Proveeduría", "Frijoles"],
     title: "Registro Boleta Control Inventario Mensual y Salida de Material de Empaque",
     shortTitle: "Inventario Material Empaque",
     desc: "Inventario mensual y salida de material de empaque por código.",
@@ -858,8 +865,7 @@ const FORMS = [
         note: "Anote la cantidad por código. Deje en blanco los materiales sin movimiento.",
         columns: [
           { key: "kg", label: "Kilogramos", type: "number" },
-          { key: "uds", label: "Unidades", type: "number" },
-          { key: "lote", label: "Lote", type: "text" }
+          { key: "uds", label: "Unidades", type: "number" }
         ],
         items: MATERIALES_EMPAQUE
       },

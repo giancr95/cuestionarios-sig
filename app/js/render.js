@@ -128,6 +128,28 @@ const Render = (() => {
     return def;
   }
 
+  // Listas de referencia según el nombre del campo:
+  //   "presentacion*"           → Presentaciones Liborio
+  //   "empleado" / "*colaborador*" → Empleados activos
+  function refListFor(idOrKey) {
+    const k = String(idOrKey || "").toLowerCase();
+    if (typeof PRESENTACIONES_LIBORIO !== "undefined" && /presentacion/.test(k)) return PRESENTACIONES_LIBORIO;
+    if (typeof EMPLEADOS_ACTIVOS !== "undefined" && (k === "empleado" || /colaborador/.test(k))) return EMPLEADOS_ACTIVOS;
+    return null;
+  }
+  function buildRefSelect(name, id, options, selected) {
+    const attrs = { name, class: "select" };
+    if (id) attrs.id = id;
+    const s = el("select", attrs);
+    s.appendChild(el("option", { value: "" }, "— Seleccione —"));
+    options.forEach(o => {
+      const opt = el("option", { value: o }, o);
+      if (selected === o) opt.setAttribute("selected", "");
+      s.appendChild(opt);
+    });
+    return s;
+  }
+
   // ---------- field ----------
   function renderField(field) {
     const labelHtml = field.label + (field.required ? ' <span class="req">*</span>' : "");
@@ -135,7 +157,10 @@ const Render = (() => {
     wrap.appendChild(el("label", { html: labelHtml, for: field.id }));
 
     let input;
-    if (field.type === "select" && isResponsablesList(field.options)) {
+    const refList = refListFor(field.id);
+    if (refList) {
+      input = buildRefSelect(field.id, field.id, refList, field.default);
+    } else if (field.type === "select" && isResponsablesList(field.options)) {
       // El listado de responsables ya no se ofrece — se llena manualmente.
       input = el("input", {
         id: field.id, name: field.id, class: "input", type: "text",
@@ -355,7 +380,9 @@ const Render = (() => {
     const grid = el("div", { class: "two-col" });
     const nameField = el("div", { class: "field" },
       el("label", null, "Nombre del colaborador"),
-      el("input", { type: "text", class: "input", name: `epp__${idx}__colaborador`, placeholder: "Nombre completo" })
+      (typeof EMPLEADOS_ACTIVOS !== "undefined")
+        ? buildRefSelect(`epp__${idx}__colaborador`, null, EMPLEADOS_ACTIVOS, null)
+        : el("input", { type: "text", class: "input", name: `epp__${idx}__colaborador`, placeholder: "Nombre completo" })
     );
     const fechaField = el("div", { class: "field" },
       el("label", null, "Fecha"),
@@ -575,16 +602,12 @@ const Render = (() => {
     }));
     return d;
   }
-  function selPres(name, label, productos) {
+  function selPres(name, label /*, productos (ignorado) */) {
+    // Presentación desde la lista de referencia "Presentaciones Liborio".
     const d = el("div", { class: "field" });
     d.appendChild(el("label", null, label));
-    const s = el("select", { class: "select", name });
-    s.appendChild(el("option", { value: "" }, "— Seleccione —"));
-    productos.forEach(p => {
-      const label = `${p.codigo ? p.codigo + " · " : ""}${p.nombre}${p.calidad && p.calidad !== "N/A" ? " (" + p.calidad + ")" : ""}`;
-      s.appendChild(el("option", { value: p.nombre }, label));
-    });
-    d.appendChild(s);
+    const opts = (typeof PRESENTACIONES_LIBORIO !== "undefined") ? PRESENTACIONES_LIBORIO : [];
+    d.appendChild(buildRefSelect(name, null, opts, null));
     return d;
   }
   function selResp(name, label /*, responsables (ignorado) */) {
@@ -611,7 +634,10 @@ const Render = (() => {
   function repField(name, col) {
     const d = el("div", { class: "field" });
     d.appendChild(el("label", null, col.label));
-    if (col.type === "select" && isResponsablesList(col.options)) {
+    const refList = refListFor(col.key);
+    if (refList) {
+      d.appendChild(buildRefSelect(name, null, refList, col.default));
+    } else if (col.type === "select" && isResponsablesList(col.options)) {
       d.appendChild(el("input", { type: "text", class: "input", name, placeholder: col.placeholder || "" }));
     } else if (col.type === "select") {
       const s = el("select", { class: "select", name });
