@@ -1459,7 +1459,7 @@ const FORMS = [
     title: "Registro Revisión de Imanes",
     shortTitle: "Revisión de Imanes",
     desc: "Revisión de imanes por equipo (Empaque, Pilado y Frijoles), metales y residuos.",
-    icon: "🧲", version: 3, emision: "Feb-2024", revision: "Jun-2026",
+    icon: "🧲", version: 3, emision: "Feb-2024", revision: "Jul-2026",
     sections: [
       {
         type: "fields", title: "Información general", columns: 2,
@@ -1503,6 +1503,7 @@ const FORMS = [
         type: "fields", title: "Hallazgos", columns: 2,
         fields: [
           { id: "metales", label: "Metales encontrados", type: "text" },
+          { id: "otros", label: "Otros", type: "text" },
           { id: "pesoResidual", label: "Peso de material residual", type: "number", step: "0.01", min: 0 },
           { id: "accionesCorrectivas", label: "Acciones correctivas", type: "textarea" }
         ]
