@@ -1291,3 +1291,51 @@ main {
 
   @page { margin: 14mm; }
 }
+
+/* ============ EXPORTAR REGISTRO A PDF ============ */
+.submission-topactions { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+
+/* El documento de impresión: oculto en pantalla, visible solo al imprimir. */
+.print-doc { display: none; }
+
+.print-doc-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--green-700);
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+}
+.print-doc-logo { display: flex; align-items: baseline; gap: 8px; }
+.print-doc-logo-dot {
+  width: 12px; height: 12px; border-radius: 999px;
+  background: var(--gold-500); align-self: center;
+}
+.print-doc-logo-name {
+  font-family: var(--font-display); font-size: 24px; color: var(--green-900);
+}
+.print-doc-logo-sa {
+  font-family: var(--font-display); font-size: 14px; color: var(--gold-700);
+}
+.print-doc-org {
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-500); font-weight: 700;
+}
+.print-doc-meta { margin-bottom: 16px; }
+.print-doc-title {
+  font-family: var(--font-display); font-size: 20px; color: var(--green-900); margin-bottom: 4px;
+}
+.print-doc-sub { font-size: 12px; color: var(--ink-600); margin-top: 2px; }
+
+@media print {
+  /* Al exportar un registro, mostrar solo el documento y ocultar el resto. */
+  body.printing-doc > *:not(.print-doc) { display: none !important; }
+  body.printing-doc .print-doc { display: block !important; }
+  /* Dentro del documento, mostrar todas las secciones (sin colapsar). */
+  body.printing-doc .section.collapsed > *:not(h3) { display: revert !important; }
+  body.printing-doc .form-actions,
+  body.printing-doc .add-row,
+  body.printing-doc .row-del,
+  body.printing-doc .review-bar { display: none !important; }
+  .print-doc .section { break-inside: avoid; box-shadow: none; }
+}
