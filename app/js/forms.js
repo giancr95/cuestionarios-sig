@@ -1242,8 +1242,8 @@ const FORMS = [
         title: "Etiquetado de producto terminado",
         columns: [
           { key: "fecha", label: "Fecha", type: "date", default: "today" },
-          { key: "codigoProducto", label: "Código producto", type: "text" },
-          { key: "calidad", label: "Calidad", type: "text" },
+          { key: "codigoProducto", label: "Código producto", type: "text", list: CODIGOS_PRODUCTO },
+          { key: "calidad", label: "Calidad", type: "text", autofillFrom: "codigoProducto", autofillMap: CODIGO_CALIDAD },
           { key: "registroSanitario", label: "Registro sanitario", type: "text" },
           { key: "lote", label: "Lote", type: "text" },
           { key: "fechaVencimiento", label: "Fecha vencimiento", type: "date" },
@@ -1291,13 +1291,13 @@ const FORMS = [
           { key: "iniTolvas", label: "Inicial — Tolvas", type: "number", min: 0 },
           { key: "iniDosificador", label: "Inicial — Dosificador", type: "number", min: 0 },
           { key: "iniKg", label: "Inicial — Kg", type: "number", step: "0.01", min: 0 },
-          { key: "iniTotal", label: "Inicial — Total inventario", type: "number", step: "0.01", min: 0 },
+          { key: "iniTotal", label: "Inicial — Total inventario", type: "number", compute: "Math.round((iniTarimas + iniTolvas + iniDosificador + iniKg) * 100) / 100" },
           { key: "finTarimas", label: "Final — Tarimas", type: "number", min: 0 },
           { key: "finTolvas", label: "Final — Tolvas", type: "number", min: 0 },
           { key: "finDosificador", label: "Final — Dosificador", type: "number", min: 0 },
           { key: "finKg", label: "Final — Kg", type: "number", step: "0.01", min: 0 },
-          { key: "finTotal", label: "Final — Total inventario", type: "number", step: "0.01", min: 0 },
-          { key: "consumo", label: "Consumo", type: "number", step: "0.01", min: 0 },
+          { key: "finTotal", label: "Final — Total inventario", type: "number", compute: "Math.round((finTarimas + finTolvas + finDosificador + finKg) * 100) / 100" },
+          { key: "consumo", label: "Consumo", type: "number", compute: "Math.round((iniTotal - finTotal) * 100) / 100" },
           { key: "observaciones", label: "Observaciones", type: "text" }
         ]
       },

@@ -98,6 +98,16 @@ const PRODUCTOS = [
   { codigo: "",    nombre: "DP 99% 1.5 KG",         calidad: "99%" }
 ];
 
+// Mapa código de producto → calidad (número), derivado del catálogo de
+// productos. Ej. 71 → 99. Se usa para autocompletar la calidad en el ETP.
+const CODIGO_CALIDAD = {};
+PRODUCTOS.forEach(function (p) {
+  const m = String(p.calidad || "").match(/(\d+)\s*%/);
+  if (p.codigo && m) CODIGO_CALIDAD[String(p.codigo).trim()] = m[1];
+});
+// Lista de códigos disponibles (para el selector del ETP).
+const CODIGOS_PRODUCTO = Object.keys(CODIGO_CALIDAD);
+
 // Los usuarios iniciales se crean en el backend (server/db.js) a partir de las
 // variables de entorno SEED_ADMIN_PASSWORD y SEED_OPERATOR_PASSWORD la primera
 // vez que arranca el servicio. El frontend ya no conoce credenciales.
