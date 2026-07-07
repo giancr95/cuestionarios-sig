@@ -649,6 +649,9 @@ const Render = (() => {
     const refList = refListFor(col.key);
     if (refList) {
       d.appendChild(buildRefCombo(name, null, refList, { value: col.default }));
+    } else if (Array.isArray(col.list)) {
+      // Combo buscable con una lista de opciones explícita (ej. códigos ETP).
+      d.appendChild(buildRefCombo(name, null, col.list, { value: col.default }));
     } else if (col.type === "select" && isResponsablesList(col.options)) {
       d.appendChild(el("input", { type: "text", class: "input", name, placeholder: col.placeholder || "" }));
     } else if (col.type === "select") {
@@ -822,14 +825,32 @@ const Render = (() => {
     });
     row.appendChild(grid);
 
+    // Inputs de la fila por clave de columna (para compute y autofill).
+    const inputByKey = {};
+    sec.columns.forEach(col => {
+      inputByKey[col.key] = grid.querySelector(`[name="${sec.id}__${idx}__${col.key}"]`);
+    });
+
+    // Autocompletado: cuando cambia la columna origen, se llena esta columna
+    // según un mapa (ej. ETP: código de producto → calidad).
+    sec.columns.forEach(col => {
+      if (!col.autofillFrom || !col.autofillMap) return;
+      const target = inputByKey[col.key];
+      const source = inputByKey[col.autofillFrom];
+      if (!target || !source) return;
+      const map = col.autofillMap;
+      const apply = () => {
+        const v = map[String(source.value).trim()];
+        if (v != null && v !== "") target.value = v;
+      };
+      source.addEventListener("input", apply);
+      source.addEventListener("change", apply);
+    });
+
     // Columnas calculadas (compute): se recalculan al cambiar las demás celdas
     // de la fila. Ej. CDV: promedio = (R1 + R2 + R3) / 3.
     const computeCols = sec.columns.filter(c => c.compute);
     if (computeCols.length) {
-      const inputByKey = {};
-      sec.columns.forEach(col => {
-        inputByKey[col.key] = grid.querySelector(`[name="${sec.id}__${idx}__${col.key}"]`);
-      });
       computeCols.forEach(col => {
         const target = inputByKey[col.key];
         if (!target) return;
