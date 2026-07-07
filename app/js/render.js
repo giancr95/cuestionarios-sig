@@ -561,20 +561,20 @@ const Render = (() => {
     grid2.appendChild(selSiNo(`prod__${idx}__plaga`,  "Plaga viva o muerta"));
     row.appendChild(grid2);
 
-    // Físicos / Organolépticos
+    // Físicos / Organolépticos — de "metales" a "textura" son numéricos.
     row.appendChild(el("div", { class: "label", style: "margin-top:16px;color:var(--green-dark);font-weight:600" }, "Parámetros físicos y organolépticos"));
     const grid3 = el("div", { class: "two-col" });
     [
-      ["metales",    "Metales (presencia)"],
-      ["vidrios",    "Vidrios (presencia)"],
-      ["impurezas",  "Impurezas (presencia)"],
-      ["apariencia", "Apariencia correcta"],
-      ["olor",       "Olor característico"],
-      ["color",      "Color característico"],
-      ["sabor",      "Sabor característico"],
-      ["textura",    "Textura característica"],
-      ["alergenos",  "Alérgenos"]
-    ].forEach(([k, lbl]) => grid3.appendChild(selSiNo(`prod__${idx}__${k}`, lbl)));
+      ["metales",    "Metales"],
+      ["vidrios",    "Vidrios"],
+      ["impurezas",  "Impurezas"],
+      ["apariencia", "Apariencia"],
+      ["olor",       "Olor"],
+      ["color",      "Color"],
+      ["sabor",      "Sabor"],
+      ["textura",    "Textura"]
+    ].forEach(([k, lbl]) => grid3.appendChild(fld(`prod__${idx}__${k}`, lbl, "number", "", "0", "any")));
+    grid3.appendChild(selSiNo(`prod__${idx}__alergenos`, "Alérgenos"));
     row.appendChild(grid3);
 
     // Liberación
