@@ -426,8 +426,8 @@ const App = (() => {
             row.appendChild(meta);
             const actions = el2("div", "submission-actions");
             const view = mkBtn("Ver", "btn btn-sm", () => goSubmission(s));
-            const dl = mkBtn("⤓", "btn btn-sm btn-icon", () => downloadJSON(s, s._form));
-            dl.title = "Descargar JSON";
+            const dl = mkBtn("⤓", "btn btn-sm btn-icon", () => exportSubmissionPDF(s));
+            dl.title = "Descargar PDF";
             const rm = mkBtn("✕", "btn btn-sm btn-icon btn-danger", async () => {
               if (!confirm("¿Eliminar este registro?")) return;
               try { await Store.deleteSubmission(s.id); render(); }
@@ -498,6 +498,10 @@ const App = (() => {
           .join(", ")));
     }
     root.appendChild(banner);
+
+    const topActions = el2("div", "submission-topactions");
+    topActions.appendChild(mkBtn("Descargar PDF", "btn btn-sm", () => exportSubmissionPDF(s)));
+    root.appendChild(topActions);
 
     const formWrap = document.createElement("div");
     root.appendChild(formWrap);
@@ -863,13 +867,59 @@ const App = (() => {
     drawTable();
   }
 
-  function downloadJSON(submission, form) {
-    const filename = `${(form && form.code) || submission.formId}_${submission.savedAt.slice(0,10)}.json`;
-    const blob = new Blob([JSON.stringify(submission, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = filename; a.click();
-    URL.revokeObjectURL(url);
+  // Exporta un registro guardado a PDF mediante el diálogo de impresión del
+  // navegador ("Guardar como PDF"). Reusa el renderer en solo-lectura y arma un
+  // documento con el encabezado (logo) de la Arrocera. Produce un PDF con texto
+  // seleccionable, sin librerías externas.
+  function exportSubmissionPDF(s) {
+    const schema = FORMS.find(f => f.id === s.formId);
+    if (!schema) { showToast("No se encontró el formulario de este registro", "err"); return; }
+    const form = s._form || schema;
+
+    const doc = el2("div", "print-doc");
+
+    const header = el2("div", "print-doc-header");
+    const logo = el2("div", "print-doc-logo");
+    logo.appendChild(el2("span", "print-doc-logo-dot"));
+    logo.appendChild(el2("span", "print-doc-logo-name", "Arrocera Liborio"));
+    logo.appendChild(el2("span", "print-doc-logo-sa", "S.A."));
+    header.appendChild(logo);
+    header.appendChild(el2("div", "print-doc-org", "Sistema Integrado de Gestión"));
+    doc.appendChild(header);
+
+    const meta = el2("div", "print-doc-meta");
+    meta.appendChild(el2("div", "print-doc-title", schema.title));
+    const areaTxt = form ? formAreas(form).join(", ") : "";
+    meta.appendChild(el2("div", "print-doc-sub",
+      `${schema.code} · v${schema.version}` + (areaTxt ? ` · ${areaTxt}` : "")));
+    const estado = s.status === "approved" ? "Aprobado"
+      : s.status === "revisado" ? "Revisado" : "Pendiente";
+    meta.appendChild(el2("div", "print-doc-sub",
+      `Llenado por ${s.savedByName} · ${fmtDateTime(parseUTC(s.savedAt))} · Estado: ${estado}`));
+    if (s.approvals && s.approvals.length) {
+      meta.appendChild(el2("div", "print-doc-sub",
+        "Aprobaciones: " + s.approvals
+          .map(a => `${a.reviewer_name} (${fmtDateTime(parseUTC(a.approved_at))})`).join(", ")));
+    }
+    doc.appendChild(meta);
+
+    const formWrap = el2("div");
+    Render.renderForm(schema, formWrap, { readonly: true, data: s.data || {} });
+    doc.appendChild(formWrap);
+
+    document.body.appendChild(doc);
+    document.body.classList.add("printing-doc");
+    let done = false;
+    const cleanup = () => {
+      if (done) return; done = true;
+      document.body.classList.remove("printing-doc");
+      doc.remove();
+      window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup);
+    window.print();
+    // Respaldo por si afterprint no dispara (algunos navegadores).
+    setTimeout(cleanup, 1500);
   }
 
   // --- Navigation ---
