@@ -821,6 +821,45 @@ const Render = (() => {
       grid.appendChild(repField(`${sec.id}__${idx}__${col.key}`, col));
     });
     row.appendChild(grid);
+
+    // Columnas calculadas (compute): se recalculan al cambiar las demás celdas
+    // de la fila. Ej. CDV: promedio = (R1 + R2 + R3) / 3.
+    const computeCols = sec.columns.filter(c => c.compute);
+    if (computeCols.length) {
+      const inputByKey = {};
+      sec.columns.forEach(col => {
+        inputByKey[col.key] = grid.querySelector(`[name="${sec.id}__${idx}__${col.key}"]`);
+      });
+      computeCols.forEach(col => {
+        const target = inputByKey[col.key];
+        if (!target) return;
+        target.setAttribute("readonly", "");
+        target.classList.add("computed");
+        const recalc = () => {
+          const env = {}; let anyInput = false;
+          Object.keys(inputByKey).forEach(k => {
+            const inp = inputByKey[k];
+            if (!inp) { env[k] = 0; return; }
+            if (inp.type === "checkbox") { env[k] = inp.checked ? 1 : 0; if (inp.checked && k !== col.key) anyInput = true; }
+            else { const v = inp.value; env[k] = parseFloat(v) || 0; if (v !== "" && k !== col.key) anyInput = true; }
+          });
+          if (!anyInput) { target.value = ""; return; }
+          try {
+            const fn = new Function(...Object.keys(env), "return (" + col.compute + ")");
+            const r = fn(...Object.values(env));
+            target.value = isFinite(r) ? String(r) : "";
+          } catch { target.value = ""; }
+        };
+        target._recalc = recalc;
+        Object.keys(inputByKey).forEach(k => {
+          if (k !== col.key && inputByKey[k]) {
+            inputByKey[k].addEventListener("input", recalc);
+            inputByKey[k].addEventListener("change", recalc);
+          }
+        });
+      });
+    }
+
     container.appendChild(row);
   }
 
