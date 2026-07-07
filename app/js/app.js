@@ -528,15 +528,40 @@ const App = (() => {
       const bar = el2("div", "review-bar");
       bar.appendChild(mkBtn(nextAction.label, "btn btn-primary btn-block", async () => {
         try {
-          const updated = await Store.reviewSubmission(s.id);
-          state.currentSubmission = updated;
+          await Store.reviewSubmission(s.id);
           showToast(nextAction.successMsg, "ok");
-          render();
+          // Encadena la revisión/aprobación: abre de inmediato el siguiente
+          // registro que este usuario pueda accionar, sin volver a la lista.
+          await openNextForAction(s.id);
         } catch (err) { showToast(err.message || "No se pudo registrar la acción", "err"); }
       }));
       root.appendChild(bar);
     }
     window.scrollTo({ top: 0, behavior: "instant" });
+  }
+
+  // ¿Puede este usuario accionar (revisar/aprobar) este registro?
+  function canActOn(sub, me) {
+    return ((me.isReviewer || me.rol === "admin") && sub.status === "pending") ||
+           ((me.isApprover || me.rol === "admin") && sub.status === "revisado");
+  }
+
+  // Abre el siguiente registro pendiente de acción (más antiguo primero) para
+  // seguir el proceso; si no queda ninguno, vuelve a Guardados.
+  async function openNextForAction(afterId) {
+    const me = Store.cachedUser() || {};
+    let subs;
+    try { subs = await Store.allSubmissions(); }
+    catch { goSaved(); return; }
+    const next = subs
+      .filter(x => x.id !== afterId && canActOn(x, me))
+      .sort((a, b) => (parseUTC(a.savedAt) - parseUTC(b.savedAt)))[0];
+    if (next) {
+      goSubmission(next);
+    } else {
+      showToast("No quedan registros por procesar", "ok");
+      goSaved();
+    }
   }
 
   // Estado persistente de la pestaña Reportes mientras dura la sesión de vista.
