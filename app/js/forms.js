@@ -1178,7 +1178,7 @@ const FORMS = [
           { key: "r1", label: "Revisión dosificador R1", type: "number", step: "0.01" },
           { key: "r2", label: "Revisión dosificador R2", type: "number", step: "0.01" },
           { key: "r3", label: "Revisión dosificador R3", type: "number", step: "0.01" },
-          { key: "promedio", label: "Promedio", type: "number", step: "0.01" },
+          { key: "promedio", label: "Promedio", type: "number", compute: "Math.round((r1 + r2 + r3) / 3 * 100) / 100" },
           { key: "ajuste", label: "Ajuste realizado", type: "radio", options: [{ value: "SI", label: "Sí" }, { value: "NO", label: "No" }] },
           { key: "responsable", label: "Responsable", type: "select", options: RESPONSABLES },
           { key: "observaciones", label: "Observaciones", type: "text" }
@@ -1253,7 +1253,6 @@ const FORMS = [
           { key: "sinSaltos", label: "Sin saltos de impresión", type: "radio", options: [{ value: "SI", label: "Sí" }, { value: "NO", label: "No" }] },
           { key: "codigoBarras", label: "Buen código de barras", type: "radio", options: [{ value: "SI", label: "Sí" }, { value: "NO", label: "No" }] },
           { key: "aceptaLiborio", label: "Firma aceptación uso — Calidad Liborio", type: "text" },
-          { key: "aceptaKani", label: "Firma aceptación uso — Calidad KANI", type: "text" },
           { key: "observaciones", label: "Observaciones", type: "text" }
         ]
       },
