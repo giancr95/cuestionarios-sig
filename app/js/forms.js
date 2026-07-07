@@ -5484,3 +5484,40 @@ const FORMS = [
     ]
   }
 ];
+
+// ---------------------------------------------------------------------------
+// Reasignación de áreas (2026-06): el área "Calidad" se separó en tres —
+// Calidad Pilado, Calidad Empaque y Calidad Frijoles. Un formulario puede
+// pertenecer a varias. Se centraliza aquí para no tocar cada esquema.
+// ---------------------------------------------------------------------------
+(function () {
+  const CP = "Calidad Pilado", CE = "Calidad Empaque", CF = "Calidad Frijoles";
+  const AREAS = {
+    PBM_001: [CP, CE, CF], PBP_001: [CP, CE, CF], RDI_001: [CP, CE, CF],
+    LHM_001: [CP, CE, CF], IBP_001: [CP, CE, CF], EPP_001: [CP, CE, CF],
+    CPH_001: [CP, CE, CF], DAC_001: [CP, CE, CF],
+    PRR_001: [CP, CE], TPD_001: [CP, CE], ANU_001: [CP, CE],
+    AGF_001: [CP, CF],
+    LLC_001: [CP], CIA_001: [CP], ASL_001: [CP], VPQ_001: [CP], PQV_001: [CP],
+    ARL_001: [CE], PLP_001: [CE], CDV_001: [CE], INV_001: [CE],
+    ETP_001: [CE], POM_001: [CE], NCE_001: [CE],
+    LDD_001: [CP, CF, "Limpieza", "Mantenimiento", "Empaque"]
+  };
+  // Formularios retirados de la plataforma.
+  const REMOVED = { "CPB-001": 1, "RFD-001": 1 };
+
+  for (let i = FORMS.length - 1; i >= 0; i--) {
+    const f = FORMS[i];
+    if (REMOVED[f.id]) { FORMS.splice(i, 1); continue; }
+    const key = f.id.replace(/-/g, "_");
+    if (AREAS[key]) f.area = AREAS[key].slice();
+  }
+
+  // R-RDI-001: segregado por área. El renderer oculta el selector de área y
+  // muestra solo las máquinas del área desde la que se abre el formulario.
+  const rdi = FORMS.find(f => f.id === "RDI-001");
+  if (rdi) {
+    rdi.areaScoped = true;
+    (rdi.sections || []).forEach(s => { if (s.type === "checklist") s.scopeByArea = true; });
+  }
+})();

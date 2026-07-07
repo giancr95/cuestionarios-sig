@@ -864,9 +864,39 @@ const Render = (() => {
     container.appendChild(header);
 
     const form = el("form", { id: "sig-form", autocomplete: "off" });
+
+    // Segregación por área (ej. R-RDI-001): cuando el formulario está marcado
+    // como `areaScoped` y se abre desde un área concreta, se oculta el selector
+    // de área y solo se muestran las máquinas de esa área. El área se toma de
+    // opts.area (al abrir) o de data.area (al ver un registro guardado). El
+    // último token del área — "Calidad Pilado" → "Pilado" — es el valor interno.
+    let scopedArea = null;
+    if (schema.areaScoped) {
+      const src = currentOpts.area || (currentOpts.data && currentOpts.data.area);
+      if (src) scopedArea = String(src).trim().split(" ").pop();
+    }
+
+    let effectiveSections = (schema.sections || []).slice();
+    if (scopedArea) {
+      effectiveSections = [];
+      (schema.sections || []).forEach(sec => {
+        if (sec.type === "radio-area") return; // se elimina el selector
+        if (sec.type === "checklist" && sec.scopeByArea) {
+          const items = (sec.items || [])
+            .filter(it => it.split(" — ")[0].trim() === scopedArea)
+            .map(it => { const k = it.indexOf(" — "); return k >= 0 ? it.slice(k + 3) : it; });
+          effectiveSections.push(Object.assign({}, sec, { items }));
+        } else {
+          effectiveSections.push(sec);
+        }
+      });
+      // Guarda el área resuelta (el selector ya no existe).
+      form.appendChild(el("input", { type: "hidden", name: "area", value: scopedArea }));
+    }
+
     // Las firmas en papel ya no son necesarias: la aprobación queda registrada
     // por el usuario que llena (sesión) y los revisores que aprueban.
-    const visibleSections = (schema.sections || []).filter(s => s.type !== "firmas");
+    const visibleSections = effectiveSections.filter(s => s.type !== "firmas");
     visibleSections.forEach(sec => {
       let node;
       switch (sec.type) {
@@ -907,7 +937,7 @@ const Render = (() => {
 
       form.addEventListener("submit", (e) => {
         e.preventDefault();
-        const data = collectData(form, schema);
+        const data = collectData(form, effectiveSections);
         if (opts0.onSubmit) opts0.onSubmit(data);
         else App.handleSave(schema, data);
       });
@@ -925,7 +955,9 @@ const Render = (() => {
   }
 
   // ---------- collection ----------
-  function collectData(form, schema) {
+  // `sections` son las secciones efectivas realmente renderizadas (ya filtradas
+  // por área si aplica), para que el índice del checklist coincida con el DOM.
+  function collectData(form, sections) {
     const fd = new FormData(form);
     const obj = {};
 
@@ -936,7 +968,7 @@ const Render = (() => {
 
     // checklist__idx => array ordered
     const checklist = [];
-    schema.sections
+    (sections || [])
       .filter(s => s.type === "checklist")
       .forEach(sec => {
         sec.items.forEach((item, idx) => {

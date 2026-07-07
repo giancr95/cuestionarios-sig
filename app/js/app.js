@@ -214,7 +214,7 @@ const App = (() => {
             <span>·</span>
             <span>Revisión ${f.revision}</span>
           </div>`;
-        card.addEventListener("click", () => goForm(f.id));
+        card.addEventListener("click", () => goForm(f.id, area));
         grid.appendChild(card);
         cards.push({ card, form: f });
       });
@@ -253,8 +253,9 @@ const App = (() => {
   async function renderFormView() {
     const schema = FORMS.find(f => f.id === state.currentFormId);
     if (!schema) { goSelect(); return; }
+    // Área desde la que se abrió (para formularios segregados por área, ej. RDI).
+    let opts = state.currentArea ? { area: state.currentArea } : undefined;
     // El R-IDI-001 precarga "Disponible" con el saldo del último registro.
-    let opts;
     if (schema.id === "IDI-001") {
       try {
         const latest = await Store.latestFormSubmission("IDI-001");
@@ -267,7 +268,7 @@ const App = (() => {
               data["inv__" + m[1] + "__disponible"] = v;
             }
           }
-          if (Object.keys(data).length) opts = { data };
+          if (Object.keys(data).length) opts = Object.assign({}, opts, { data });
         }
       } catch (_) {}
     }
@@ -876,8 +877,8 @@ const App = (() => {
     state = { view: "select", currentFormId: null };
     render();
   }
-  function goForm(id) {
-    state = { view: "form", currentFormId: id };
+  function goForm(id, area) {
+    state = { view: "form", currentFormId: id, currentArea: area || null };
     render();
   }
   function goSaved() {
