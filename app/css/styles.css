@@ -1339,3 +1339,7 @@ main {
   body.printing-doc .review-bar { display: none !important; }
   .print-doc .section { break-inside: avoid; box-shadow: none; }
 }
+
+/* Combo buscable (presentaciones / empleados): input + datalist nativo */
+.ref-combo { display: block; }
+.ref-combo > .input { width: 100%; }

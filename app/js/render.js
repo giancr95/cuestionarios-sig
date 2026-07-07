@@ -137,17 +137,25 @@ const Render = (() => {
     if (typeof EMPLEADOS_ACTIVOS !== "undefined" && (k === "empleado" || /colaborador/.test(k))) return EMPLEADOS_ACTIVOS;
     return null;
   }
-  function buildRefSelect(name, id, options, selected) {
-    const attrs = { name, class: "select" };
-    if (id) attrs.id = id;
-    const s = el("select", attrs);
-    s.appendChild(el("option", { value: "" }, "— Seleccione —"));
-    options.forEach(o => {
-      const opt = el("option", { value: o }, o);
-      if (selected === o) opt.setAttribute("selected", "");
-      s.appendChild(opt);
-    });
-    return s;
+  // Combo de referencia buscable: input + datalist. A diferencia del <select>
+  // nativo (que solo salta por el inicio del texto — el primer apellido), el
+  // datalist filtra por coincidencia de caracteres en cualquier parte, así que
+  // se puede buscar por nombre, presentación, etc.
+  let refComboSeq = 0;
+  function buildRefCombo(name, id, options, opts) {
+    opts = opts || {};
+    const listId = "refdl-" + (++refComboSeq);
+    const iattrs = {
+      name, class: "input", type: "text", list: listId,
+      autocomplete: "off", placeholder: opts.placeholder || "Escriba para buscar…"
+    };
+    if (id) iattrs.id = id;
+    if (opts.required) iattrs.required = true;
+    const input = el("input", iattrs);
+    if (opts.value != null && opts.value !== "") input.value = opts.value;
+    const datalist = el("datalist", { id: listId });
+    options.forEach(o => datalist.appendChild(el("option", { value: o })));
+    return el("span", { class: "ref-combo" }, input, datalist);
   }
 
   // ---------- field ----------
@@ -156,11 +164,15 @@ const Render = (() => {
     const wrap = el("div", { class: "field" });
     wrap.appendChild(el("label", { html: labelHtml, for: field.id }));
 
-    let input;
     const refList = refListFor(field.id);
     if (refList) {
-      input = buildRefSelect(field.id, field.id, refList, field.default);
-    } else if (field.type === "select" && isResponsablesList(field.options)) {
+      wrap.appendChild(buildRefCombo(field.id, field.id, refList,
+        { required: field.required, value: field.default }));
+      return wrap;
+    }
+
+    let input;
+    if (field.type === "select" && isResponsablesList(field.options)) {
       // El listado de responsables ya no se ofrece — se llena manualmente.
       input = el("input", {
         id: field.id, name: field.id, class: "input", type: "text",
@@ -381,7 +393,7 @@ const Render = (() => {
     const nameField = el("div", { class: "field" },
       el("label", null, "Nombre del colaborador"),
       (typeof EMPLEADOS_ACTIVOS !== "undefined")
-        ? buildRefSelect(`epp__${idx}__colaborador`, null, EMPLEADOS_ACTIVOS, null)
+        ? buildRefCombo(`epp__${idx}__colaborador`, null, EMPLEADOS_ACTIVOS, {})
         : el("input", { type: "text", class: "input", name: `epp__${idx}__colaborador`, placeholder: "Nombre completo" })
     );
     const fechaField = el("div", { class: "field" },
@@ -607,7 +619,7 @@ const Render = (() => {
     const d = el("div", { class: "field" });
     d.appendChild(el("label", null, label));
     const opts = (typeof PRESENTACIONES_LIBORIO !== "undefined") ? PRESENTACIONES_LIBORIO : [];
-    d.appendChild(buildRefSelect(name, null, opts, null));
+    d.appendChild(buildRefCombo(name, null, opts, {}));
     return d;
   }
   function selResp(name, label /*, responsables (ignorado) */) {
@@ -636,7 +648,7 @@ const Render = (() => {
     d.appendChild(el("label", null, col.label));
     const refList = refListFor(col.key);
     if (refList) {
-      d.appendChild(buildRefSelect(name, null, refList, col.default));
+      d.appendChild(buildRefCombo(name, null, refList, { value: col.default }));
     } else if (col.type === "select" && isResponsablesList(col.options)) {
       d.appendChild(el("input", { type: "text", class: "input", name, placeholder: col.placeholder || "" }));
     } else if (col.type === "select") {
