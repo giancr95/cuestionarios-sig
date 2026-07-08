@@ -6,6 +6,8 @@ const cookieSession = require("cookie-session");
 const { login, requireAuth, requireAdmin, requireReviewerOrApprover } = require("./auth");
 const subs = require("./submissions");
 const users = require("./users");
+const { ssoLogin } = require("./sso");
+const csrfOrigin = require("./csrf-origin");
 
 const PORT = Number(process.env.PORT) || 3000;
 const NODE_ENV = process.env.NODE_ENV || "development";
@@ -28,10 +30,14 @@ app.use(
     keys: [SESSION_SECRET],
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
     httpOnly: true,
-    sameSite: "lax",
-    secure: NODE_ENV === "production"
+    sameSite: "none",      // vive dentro del iframe del ERP
+    secure: true,
+    partitioned: true      // CHIPS: sobrevive el bloqueo de cookies de terceros
   })
 );
+
+// Guard CSRF por Origin (Lax ya no protege al pasar a SameSite=None).
+app.use(csrfOrigin);
 
 // ---------- Rate limit muy simple (memoria) para /api/login ----------
 const loginAttempts = new Map();
@@ -158,6 +164,8 @@ app.delete("/api/users/:id", requireAdmin, (req, res, next) => {
 });
 
 // ---------- Archivos estáticos (frontend) ----------
+app.get("/api/sso/odoo", ssoLogin);
+
 app.use(express.static(APP_DIR, { index: "index.html", extensions: ["html"] }));
 
 // SPA fallback (cualquier ruta no-API sirve index.html)
