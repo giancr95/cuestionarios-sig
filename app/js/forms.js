@@ -5022,7 +5022,9 @@ const FORMS = [
           { codigo: "L-07", desc: "Secado" },
           { codigo: "L-08", desc: "Empaque" },
           { codigo: "L-09", desc: "Subproductos" },
-          { codigo: "L-10", desc: "Pilado" }
+          { codigo: "L-10", desc: "Pilado" },
+          { codigo: "L-11", desc: "Pilado" },
+          { codigo: "L-12", desc: "Empaque" }
         ]
       },
       { type: "observaciones" },
