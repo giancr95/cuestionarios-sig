@@ -2510,7 +2510,10 @@ const FORMS = [
     title: "Registro Inspección Interna recibido Furgones de Producto Terminado Bodega Cañas",
     shortTitle: "Inspección Furgones PT Cañas",
     desc: "Inspección interna de furgones de producto terminado en Bodega Cañas.",
-    icon: "🚛", version: 3, emision: "Feb-2024", revision: "Jun-2026",
+    icon: "🚛", version: 3, emision: "Feb-2024", revision: "Jul-2026",
+    // Llenado en dos fases: un usuario llena la fumigación (queda bloqueada) y
+    // otro usuario puede abrir el mismo registro pendiente y completar el resto.
+    collaborative: true,
     sections: [
       {
         type: "fields", title: "Descripción del contenedor y su carga", columns: 2,
@@ -2546,6 +2549,7 @@ const FORMS = [
       },
       {
         type: "fields", title: "Descripción de labores de fumigación", columns: 2,
+        lockPhase: true,
         fields: [
           { id: "equipoUtilizado", label: "Equipo utilizado", type: "select", options: ["Termonebulizadora", "Motobomba"] },
           { id: "productoUtilizado", label: "Producto utilizado", type: "text" },
@@ -2695,7 +2699,7 @@ const FORMS = [
           { codigo: "ml", desc: "Dorfen EW (Imidacloprid + Pyriproxyfen)" },
           { codigo: "ml", desc: "K-Obiol 2,5 EC (Deltametrina + PBO)" },
           { codigo: "kg", desc: "Malation" },
-          { codigo: "ml", desc: "Proxur 15 EC (Propoxur)" },
+          { codigo: "ml", desc: "Proxur 15 EC (Propoxur)", retired: true },
           { codigo: "g", desc: "Proxur 70 WP (Propoxur)" },
           { codigo: "ml", desc: "Riptide EW (Piretrina + PBO)" },
           { codigo: "kg", desc: "Rodenticida" },
@@ -2962,7 +2966,9 @@ const FORMS = [
           { codigo: "Planta Secado", desc: "I-50" }, { codigo: "Planta Secado", desc: "I-51" },
           { codigo: "Planta Secado", desc: "I-52" }, { codigo: "Planta Secado", desc: "I-53" },
           { codigo: "Planta Secado", desc: "I-54" }, { codigo: "Planta Secado", desc: "I-55" },
-          { codigo: "Planta Secado", desc: "I-56" }, { codigo: "Planta Secado", desc: "I-57" }
+          { codigo: "Planta Secado", desc: "I-56" }, { codigo: "Planta Secado", desc: "I-57" },
+          { codigo: "Contenedor 22", desc: "I-67" }, { codigo: "Contenedor 22", desc: "I-68" },
+          { codigo: "Contenedor 22", desc: "I-69" }, { codigo: "Contenedor 22", desc: "I-70" }
         ]
       },
       { type: "observaciones" },
@@ -4017,13 +4023,6 @@ const FORMS = [
           { label: "Tubería", equipo: "Escoba" },
           { label: "Transportadores de Colochos", equipo: "Escoba" },
           { label: "Soplado en Silos", equipo: "Motobomba" }
-        ]
-      },
-      {
-        type: "fields", title: "Responsables", columns: 2,
-        fields: [
-          { id: "respAlan", label: "Responsable (Alan M.)", type: "text" },
-          { id: "respFreddy", label: "Responsable (Freddy)", type: "text" }
         ]
       },
       { type: "observaciones" },

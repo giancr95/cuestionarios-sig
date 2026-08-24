@@ -10,6 +10,13 @@ function genId() {
   return "S" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
+// Formularios de llenado colaborativo: mientras el registro esté pendiente,
+// cualquier usuario autenticado puede verlo y completarlo (el frontend bloquea
+// las fases ya llenadas). Ej. RPC: fumigación primero, recepción después.
+const COLLABORATIVE_FORMS = ["RPC-001"];
+const COLLAB_SQL = "('" + COLLABORATIVE_FORMS.join("','") + "')";
+function isCollaborative(formId) { return COLLABORATIVE_FORMS.indexOf(formId) >= 0; }
+
 // El estado inicial depende de quién envía el registro: los administradores
 // generan registros aprobados; el resto entra en estado pendiente para que
 // los revisores activos lo aprueben.
@@ -41,6 +48,9 @@ function get(id) {
 // Si una persona es ambos (reviewer + approver), ve propios + pendientes + revisados.
 function list(user) {
   const SEL = "SELECT id, form_id, user_id, user_name, data, status, edited_at, edited_by_id, edited_by_name, created_at FROM submissions";
+  // Los formularios colaborativos pendientes son visibles para todos los
+  // usuarios autenticados (alguien más debe poder completarlos).
+  const collab = " OR (status = 'pending' AND form_id IN " + COLLAB_SQL + ")";
   let rows;
   if (user.rol === "admin") {
     rows = db.prepare(SEL + " ORDER BY created_at DESC").all();
@@ -49,9 +59,9 @@ function list(user) {
     if (user.isReviewer) wantedStatuses.push("'pending'");
     if (user.isApprover) wantedStatuses.push("'revisado'");
     const cond = wantedStatuses.length ? " OR status IN (" + wantedStatuses.join(",") + ")" : "";
-    rows = db.prepare(SEL + " WHERE user_id = ?" + cond + " ORDER BY created_at DESC").all(user.id);
+    rows = db.prepare(SEL + " WHERE user_id = ?" + cond + collab + " ORDER BY created_at DESC").all(user.id);
   } else {
-    rows = db.prepare(SEL + " WHERE user_id = ? ORDER BY created_at DESC").all(user.id);
+    rows = db.prepare(SEL + " WHERE user_id = ?" + collab + " ORDER BY created_at DESC").all(user.id);
   }
   return rows.map(shape);
 }
@@ -61,12 +71,13 @@ function list(user) {
 //   - el autor, mientras el registro siga en `pending`.
 // Una vez revisado o aprobado, solo el administrador puede tocarlo.
 function update(id, user, data) {
-  const sub = db.prepare("SELECT id, user_id, status FROM submissions WHERE id = ?").get(id);
+  const sub = db.prepare("SELECT id, user_id, form_id, status FROM submissions WHERE id = ?").get(id);
   if (!sub) throw httpErr(404, "Registro no encontrado");
   if (data == null || typeof data !== "object") throw httpErr(400, "Datos inválidos");
   const isAdmin = user.rol === "admin";
   const isOwner = sub.user_id === user.id;
-  if (!(isAdmin || (isOwner && sub.status === "pending"))) {
+  const collab = isCollaborative(sub.form_id) && sub.status === "pending";
+  if (!(isAdmin || (isOwner && sub.status === "pending") || collab)) {
     throw httpErr(403, "Solo el autor puede modificarlo mientras esté pendiente; tras la revisión solo lo edita el administrador.");
   }
   db.prepare(
@@ -143,4 +154,4 @@ function latestForForm(formId) {
   return r ? shape(r) : null;
 }
 
-module.exports = { create, get, list, update, remove, addReview, latestForForm };
+module.exports = { create, get, list, update, remove, addReview, latestForForm, isCollaborative };
