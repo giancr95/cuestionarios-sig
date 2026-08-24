@@ -5480,6 +5480,58 @@ const FORMS = [
       },
       { type: "observaciones" }
     ]
+  },
+
+  // =================================================================
+  // R-LAC-001 — Registro Limpieza Andenes de Carga (Despacho)
+  // =================================================================
+  {
+    id: "LAC-001", code: "R-LAC-001", area: "Despacho",
+    title: "Registro Limpieza Andenes de Carga",
+    shortTitle: "Limpieza Andenes de Carga",
+    desc: "Limpieza y desinfección de los andenes de carga y sus equipos.",
+    icon: "🛻", version: 2, emision: "Feb-2024", revision: "Jun-2026",
+    sections: [
+      {
+        type: "fields", title: "Información general", columns: 2,
+        fields: [
+          { id: "area", label: "Área", type: "text", required: true, default: "Andenes de Carga" },
+          { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" }
+        ]
+      },
+      {
+        type: "daily-activity-matrix",
+        title: "Actividades de limpieza y desinfección",
+        note: "Desinfectante: AC Bioeco · Ingrediente activo: Amonio · Dosis: 39 ml por litro de agua · Rango: contacto directo 300–500 ppm, no directo 500–1000 ppm. Marque la actividad realizada.",
+        days: DIAS_SEMANA,
+        columns: [{ key: "limpieza", label: "Limpieza" }, { key: "desinfeccion", label: "Desinfección" }],
+        rows: [
+          { label: "Cortina Metálica Andén 1", equipo: "Aire comprimido, Escobas" },
+          { label: "Cortina Metálica Andén 2", equipo: "Aire comprimido, Escobas" },
+          { label: "Motor Cortina Metálica Andén 1", equipo: "Aire comprimido, Escobas" },
+          { label: "Motor Cortina Metálica Andén 2", equipo: "Aire comprimido, Escobas" },
+          { label: "Techo Andén 1", equipo: "Escoba, Sopladora Manual" },
+          { label: "Techo Andén 2", equipo: "Escoba, Sopladora Manual" },
+          { label: "Piso (1 m alrededor andenes)", equipo: "Escoba, Aire comprimido" },
+          { label: "Lámpara Andén 1", equipo: "Escoba, Aire comprimido" },
+          { label: "Lámpara Andén 2", equipo: "Escoba, Aire comprimido" },
+          { label: "Muelles (superior y laterales) Andén 1", equipo: "Escoba, Aire comprimido" },
+          { label: "Muelles (superior y laterales) Andén 2", equipo: "Escoba, Aire comprimido" }
+        ]
+      },
+      {
+        type: "fields", title: "Concentración de desinfectante", columns: 2,
+        fields: [
+          { id: "concentracion", label: "Concentración (ppm)", type: "number", min: 0 },
+          { id: "supervisadoPor", label: "Supervisado por", type: "text" }
+        ]
+      },
+      { type: "observaciones" },
+      { type: "firmas", fields: [
+        { id: "firmaCalidad", label: "Firma Calidad" },
+        { id: "firmaSIG", label: "Firma SIG" }
+      ] }
+    ]
   }
 ];
 
