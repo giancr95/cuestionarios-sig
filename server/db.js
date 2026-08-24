@@ -75,6 +75,18 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_submissions_status ON submissions(status);
 `);
 
+// Ediciones de formularios hechas desde la app (editor de administradores).
+// Cada fila guarda el esquema completo del formulario que reemplaza al del
+// código al cargar la aplicación.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS form_overrides (
+    form_id         TEXT PRIMARY KEY,
+    schema          TEXT NOT NULL,
+    updated_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_by_name TEXT
+  );
+`);
+
 // ---------------------------------------------------------------------------
 // Seed inicial — si la tabla users está vacía, crea los 6 usuarios base.
 // Las contraseñas pueden venir por variable de entorno SEED_USERS (JSON) o

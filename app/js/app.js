@@ -56,6 +56,7 @@ const App = (() => {
     const tabs = [["select", "Registros"], ["saved", "Guardados"]];
     if (user && user.rol === "admin") {
       tabs.push(["reports", "Reportes"]);
+      tabs.push(["editor", "Editor"]);
       tabs.push(["users", "Usuarios"]);
     }
     tabs.forEach(([v, label]) => {
@@ -100,6 +101,30 @@ const App = (() => {
     if (state.view === "submission") return renderSubmission();
     if (state.view === "users")  return renderUsers();
     if (state.view === "reports") return renderReports();
+    if (state.view === "editor") return renderEditor();
+  }
+
+  async function renderEditor() {
+    root.innerHTML = "";
+    root.appendChild(tabBar("editor"));
+    const me = Store.cachedUser();
+    if (!me || me.rol !== "admin") {
+      root.appendChild(el2("div", "empty", "Solo los administradores pueden editar formularios."));
+      return;
+    }
+    root.appendChild(el2("h1", "page-title", "Editor de formularios"));
+    await Editor.render(root);
+  }
+
+  // Aplica las ediciones guardadas (form_overrides) sobre el catálogo FORMS.
+  async function applyFormOverrides() {
+    try {
+      const ov = await Store.formOverrides();
+      Object.keys(ov || {}).forEach(fid => {
+        const i = FORMS.findIndex(f => f.id === fid);
+        if (i >= 0 && ov[fid] && ov[fid].schema) FORMS[i] = ov[fid].schema;
+      });
+    } catch (_) { /* sin sesión o sin overrides — se usa el catálogo del código */ }
   }
 
   function renderLogin() {
@@ -135,6 +160,7 @@ const App = (() => {
       try {
         const s = await Store.login(u, p);
         showToast("Bienvenido, " + s.nombre, "ok");
+        await applyFormOverrides();
         state.view = "select";
         render();
       } catch (err) {
@@ -167,15 +193,19 @@ const App = (() => {
       return formAreas(f).some(a => allowedAreas.has(a));
     });
 
-    // Agrupa los formularios por área. Un formulario con varias áreas
-    // aparece en cada grupo correspondiente.
+    // Agrupa los formularios por área. Un formulario con varias áreas aparece
+    // en cada grupo correspondiente, pero SOLO en las áreas que el usuario
+    // tiene asignadas: un formulario compartido no debe arrastrar los grupos
+    // de otras áreas a la vista de un usuario restringido.
     const areas = [];
     const byArea = {};
     visibleForms.forEach(f => {
-      formAreas(f).forEach(area => {
-        if (!byArea[area]) { byArea[area] = []; areas.push(area); }
-        byArea[area].push(f);
-      });
+      formAreas(f)
+        .filter(area => !allowedAreas || allowedAreas.has(area))
+        .forEach(area => {
+          if (!byArea[area]) { byArea[area] = []; areas.push(area); }
+          byArea[area].push(f);
+        });
     });
 
     const groups = [];
@@ -460,8 +490,30 @@ const App = (() => {
     const me = Store.cachedUser() || {};
     const schema = FORMS.find(f => f.id === s.formId);
     if (!schema) {
-      root.appendChild(el2("div", "empty",
-        "No se encontró la definición del formulario de este registro."));
+      // Formulario retirado del catálogo: el registro sigue siendo legible —
+      // se muestran los datos crudos para no perder acceso a la información.
+      root.appendChild(el2("div", "ro-banner",
+        `Registro de un formulario retirado (${s.formId}) · Llenado por ${s.savedByName} · ${fmtDateTime(parseUTC(s.savedAt))}`));
+      const wrap = el2("div", "table-wrap");
+      const table = el2("table", "data-table");
+      table.innerHTML = "<thead><tr><th>Campo</th><th>Valor</th></tr></thead>";
+      const tb = document.createElement("tbody");
+      Object.keys(s.data || {}).forEach(k => {
+        if (k === "_checklist") return;
+        const tr = document.createElement("tr");
+        tr.appendChild(el2("td", "cell-sub", k));
+        tr.appendChild(el2("td", null, String(s.data[k])));
+        tb.appendChild(tr);
+      });
+      (s.data && s.data._checklist || []).forEach(c => {
+        const tr = document.createElement("tr");
+        tr.appendChild(el2("td", "cell-sub", c.item));
+        tr.appendChild(el2("td", null, c.valor || "—"));
+        tb.appendChild(tr);
+      });
+      table.appendChild(tb);
+      wrap.appendChild(table);
+      root.appendChild(wrap);
       return;
     }
     const isAdmin = me.rol === "admin";
@@ -992,6 +1044,7 @@ const App = (() => {
   // --- Init ---
   async function init() {
     const me = await Store.currentUser();
+    if (me) await applyFormOverrides();
     state.view = me ? "select" : "login";
     render();
   }

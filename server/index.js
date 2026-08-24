@@ -134,6 +134,37 @@ app.get("/api/forms/:formId/latest", requireAuth, (req, res) => {
   res.json(subs.latestForForm(req.params.formId));
 });
 
+// ---------- Ediciones de formularios (editor de administradores) ----------
+const dbRef = require("./db");
+
+app.get("/api/form-overrides", requireAuth, (_req, res) => {
+  const rows = dbRef.prepare("SELECT form_id, schema, updated_at, updated_by_name FROM form_overrides").all();
+  const out = {};
+  rows.forEach(r => {
+    try { out[r.form_id] = { schema: JSON.parse(r.schema), updatedAt: r.updated_at, updatedBy: r.updated_by_name }; }
+    catch (_) {}
+  });
+  res.json(out);
+});
+
+app.put("/api/form-overrides/:formId", requireAdmin, (req, res) => {
+  const { schema } = req.body || {};
+  if (!schema || typeof schema !== "object" || schema.id !== req.params.formId ||
+      !schema.code || !Array.isArray(schema.sections)) {
+    return res.status(400).json({ error: "Esquema inválido: requiere id (igual al de la URL), code y sections" });
+  }
+  dbRef.prepare(
+    "INSERT INTO form_overrides (form_id, schema, updated_at, updated_by_name) VALUES (?, ?, CURRENT_TIMESTAMP, ?) " +
+    "ON CONFLICT(form_id) DO UPDATE SET schema = excluded.schema, updated_at = CURRENT_TIMESTAMP, updated_by_name = excluded.updated_by_name"
+  ).run(req.params.formId, JSON.stringify(schema), req.user.nombre);
+  res.json({ ok: true });
+});
+
+app.delete("/api/form-overrides/:formId", requireAdmin, (req, res) => {
+  dbRef.prepare("DELETE FROM form_overrides WHERE form_id = ?").run(req.params.formId);
+  res.json({ ok: true });
+});
+
 app.delete("/api/submissions/:id", requireAuth, (req, res) => {
   const ok = subs.remove(req.params.id, { userId: req.user.id, isAdmin: req.user.rol === "admin" });
   if (!ok) return res.status(404).json({ error: "No encontrado o sin permiso" });

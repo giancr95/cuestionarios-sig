@@ -1343,3 +1343,56 @@ main {
 /* Combo buscable (presentaciones / empleados): input + datalist nativo */
 .ref-combo { display: block; }
 .ref-combo > .input { width: 100%; }
+
+/* ============ EDITOR DE FORMULARIOS ============ */
+.ed-pick { max-width: 520px; margin-bottom: 16px; }
+.ed-section {
+  background: var(--surface-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+}
+.ed-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.ed-section-type {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-overline);
+  color: var(--gold-700);
+}
+.ed-section-controls { display: flex; gap: 4px; }
+.ed-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+.ed-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--cream-50);
+}
+.ed-grow { flex: 1 1 200px; }
+.ed-type { width: 120px; }
+.ed-row .textarea { flex-basis: 100%; min-height: 40px; }
+.ed-fixed { color: var(--ink-500); font-size: 13px; font-style: italic; margin: 0; }
+.ed-addbar { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 16px; }
+.ed-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin: 18px 0;
+}
+.ed-preview {
+  border: 2px dashed var(--gold-300);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-top: 14px;
+  background: var(--cream-50);
+}

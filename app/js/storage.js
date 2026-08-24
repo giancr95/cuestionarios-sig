@@ -73,6 +73,17 @@ const Store = (() => {
   async function latestFormSubmission(formId) {
     return req("GET", "/forms/" + encodeURIComponent(formId) + "/latest");
   }
+
+  // --- Ediciones de formularios (editor de administradores) ---
+  async function formOverrides() {
+    return req("GET", "/form-overrides");
+  }
+  async function saveFormOverride(formId, schema) {
+    return req("PUT", "/form-overrides/" + encodeURIComponent(formId), { schema });
+  }
+  async function deleteFormOverride(formId) {
+    return req("DELETE", "/form-overrides/" + encodeURIComponent(formId));
+  }
   async function reviewSubmission(id) {
     return req("POST", "/submissions/" + encodeURIComponent(id) + "/review");
   }
@@ -95,6 +106,7 @@ const Store = (() => {
     login, logout, currentUser, cachedUser,
     allSubmissions, saveSubmission, getSubmission, deleteSubmission,
     updateSubmission, reviewSubmission, latestFormSubmission,
+    formOverrides, saveFormOverride, deleteFormOverride,
     listUsers, createUser, updateUser, deleteUser
   };
 })();
