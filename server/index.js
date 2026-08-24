@@ -111,7 +111,8 @@ app.get("/api/submissions/:id", requireAuth, (req, res) => {
     req.user.rol === "admin" ||
     rec.savedBy === req.user.id ||
     (req.user.isReviewer && rec.status === "pending") ||
-    (req.user.isApprover && rec.status === "revisado");
+    (req.user.isApprover && rec.status === "revisado") ||
+    (subs.isCollaborative(rec.formId) && rec.status === "pending");
   if (!canSee) return res.status(403).json({ error: "Sin permiso" });
   res.json(rec);
 });

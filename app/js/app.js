@@ -290,11 +290,14 @@ const App = (() => {
       try {
         const latest = await Store.latestFormSubmission("IDI-001");
         if (latest && latest.data) {
+          const invItems = (schema.sections.find(x => x.type === "material-list") || {}).items || [];
           const data = {};
           for (const k in latest.data) {
             const m = k.match(/^inv__(\d+)__saldo$/);
             const v = latest.data[k];
-            if (m && v !== "" && v !== null && v !== undefined) {
+            // Los químicos retirados no se precargan (su fila ya no se ofrece).
+            if (m && v !== "" && v !== null && v !== undefined &&
+                !(invItems[+m[1]] && invItems[+m[1]].retired)) {
               data["inv__" + m[1] + "__disponible"] = v;
             }
           }
@@ -518,8 +521,11 @@ const App = (() => {
     }
     const isAdmin = me.rol === "admin";
     const isOwner = s.savedBy === me.id;
-    // Quién puede editar: admin (siempre) o el autor mientras esté pendiente.
-    const canEdit = isAdmin || (isOwner && s.status === "pending");
+    // Quién puede editar: admin (siempre), el autor mientras esté pendiente, o
+    // cualquier usuario si el formulario es de llenado colaborativo (ej. RPC:
+    // fumigación primero, recepción después) y el registro sigue pendiente.
+    const isCollab = !!schema.collaborative && s.status === "pending";
+    const canEdit = isAdmin || (isOwner && s.status === "pending") || isCollab;
 
     // ¿Puedo accionar este registro? El flujo es pending → revisado → approved.
     // Brian (is_reviewer) marca pendientes como revisados; Andrea (is_approver)
@@ -559,14 +565,19 @@ const App = (() => {
     root.appendChild(formWrap);
 
     if (canEdit) {
-      // Admin siempre, o el autor mientras el registro siga pendiente.
+      // Admin siempre, el autor mientras siga pendiente, o llenado colaborativo.
+      // En el flujo colaborativo las fases ya llenadas quedan bloqueadas (salvo
+      // admin) y al guardar se conservan sus valores fusionando con lo previo.
+      const lockFilled = isCollab && !isAdmin;
       Render.renderForm(schema, formWrap, {
         data: s.data || {},
+        lockFilled,
         submitLabel: "Guardar cambios",
         onCancel: () => goSaved(),
         onSubmit: async (data) => {
           try {
-            await Store.updateSubmission(s.id, data);
+            const payload = lockFilled ? Object.assign({}, s.data || {}, data) : data;
+            await Store.updateSubmission(s.id, payload);
             showToast("Registro actualizado", "ok");
             goSaved();
           } catch (err) { showToast(err.message || "No se pudo guardar", "err"); }

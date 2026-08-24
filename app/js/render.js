@@ -704,7 +704,17 @@ const Render = (() => {
     table.appendChild(thead);
 
     const tbody = el("tbody");
+    const dataObj = currentOpts.data || null;
     sec.items.forEach((item, idx) => {
+      // Ítems retirados: no se ofrecen en llenados nuevos, pero conservan su
+      // índice y se muestran al ver registros viejos que sí tienen datos.
+      if (item.retired) {
+        const hasData = dataObj && sec.columns.some(c => {
+          const v = dataObj[`${sec.id}__${idx}__${c.key}`];
+          return v !== undefined && v !== null && v !== "";
+        });
+        if (!hasData) return;
+      }
       const tr = el("tr");
       if (sec.showCode !== false) tr.appendChild(el("td", { class: "code-cell" }, item.codigo || ""));
       tr.appendChild(el("td", { class: "aspect" }, item.desc));
@@ -1014,6 +1024,7 @@ const Render = (() => {
         case "info":                   node = sectionInfo(sec); break;
         default: node = el("div", null, `[sección desconocida: ${sec.type}]`);
       }
+      if (sec.lockPhase) node.setAttribute("data-lock-phase", "1");
       makeCollapsible(node);
       form.appendChild(node);
     });
@@ -1045,6 +1056,24 @@ const Render = (() => {
 
     if (opts0.data) fillFromData(form, opts0.data);
     if (readonly) disableForm(form);
+
+    // Fases bloqueadas: una sección `lockPhase` cuyo contenido ya fue llenado
+    // queda de solo lectura (flujo colaborativo, ej. fumigación del RPC).
+    if (opts0.lockFilled && !readonly) {
+      form.querySelectorAll('[data-lock-phase]').forEach(secEl => {
+        const inputs = [...secEl.querySelectorAll("input, select, textarea")];
+        const hasData = inputs.some(n => {
+          const t = (n.getAttribute("type") || "").toLowerCase();
+          if (t === "radio" || t === "checkbox") return n.checked;
+          return n.value !== "" && n.value != null;
+        });
+        if (hasData) {
+          inputs.forEach(n => { n.setAttribute("disabled", ""); n.disabled = true; });
+          secEl.classList.add("phase-locked");
+        }
+      });
+    }
+
     // Dispara las columnas calculadas (ej. saldo) después de prefill/edición.
     form.querySelectorAll("input.computed").forEach(inp => {
       if (typeof inp._recalc === "function") inp._recalc();
