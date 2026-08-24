@@ -1889,8 +1889,8 @@ const FORMS = [
       {
         type: "info", title: "Parámetros de control",
         lines: [
-          "Revisión de parámetros de control en tres horarios punta:",
-          "9:50 am (ICE 3) · 4:50 pm (ICE 8) · 7:50 pm (ICE 13)."
+          "Revisión de parámetros de control en dos horarios punta:",
+          "9:50 am (ICE 3) · 4:50 pm (ICE 8)."
         ]
       },
       {
@@ -1902,8 +1902,7 @@ const FORMS = [
           { key: "operador", label: "Operador de energía", type: "text", default: "ICE" },
           { key: "area", label: "Área", type: "text", default: "Transformadores" },
           { key: "ice3", label: "9:50 am (ICE 3)", type: "number", step: 0.01 },
-          { key: "ice8", label: "4:50 pm (ICE 8)", type: "number", step: 0.01 },
-          { key: "ice13", label: "7:50 pm (ICE 13)", type: "number", step: 0.01 }
+          { key: "ice8", label: "4:50 pm (ICE 8)", type: "number", step: 0.01 }
         ]
       },
       { type: "observaciones" },
@@ -1950,7 +1949,7 @@ const FORMS = [
           "El tablero se encuentra instalado entre 0.6 m y 2 m de altura desde el nivel del piso.",
           "El tablero se encuentra conectado a tierras (incluyendo su puerta).",
           "El tablero cuenta con interruptores de corte o interruptores termomagnéticos automáticos.",
-          "El tablero cuenta con interruptores diferenciales (10 mA para 220V monofásicos y 30 mA para 380V trifásicos).",
+          "El tablero cuenta con interruptores diferenciales (10 mA para 220V monofásicos y 30 mA para 480V trifásicos).",
           "Todos los interruptores del tablero están debidamente identificados."
         ]
       },
@@ -2327,7 +2326,7 @@ const FORMS = [
       {
         type: "fields", title: "Información general", columns: 2,
         fields: [
-          { id: "area", label: "Área", type: "text", required: true },
+          { id: "area", label: "Área", type: "select", required: true, options: ["Pilado", "Frijoles", "Empaque", "Mantenimiento", "Proveeduría"] },
           { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" },
           { id: "horometro", label: "Horómetro", type: "number", min: 0 },
           { id: "codigoEquipo", label: "Código de equipo", type: "text" },
@@ -2420,7 +2419,7 @@ const FORMS = [
       {
         type: "fields", title: "Información general", columns: 2,
         fields: [
-          { id: "area", label: "Área", type: "text", required: true }
+          { id: "area", label: "Área", type: "select", required: true, options: ["Frijoles", "Empaque"] }
         ]
       },
       {
@@ -2431,7 +2430,7 @@ const FORMS = [
           { key: "fecha", label: "Fecha", type: "date", default: "today" },
           { key: "horaEntrada", label: "Hora entrada", type: "time" },
           { key: "horaSalida", label: "Hora salida", type: "time" },
-          { key: "notaEnvio", label: "Nota de envío", type: "text" },
+          { key: "notaEnvio", label: "Nota de envío", type: "select", options: ["Kani", "Dipo", "Traslado", "CNP", "Interglo", "Consolidado"] },
           { key: "placaCabezal", label: "Placa cabezal", type: "text" },
           { key: "placaContenedor", label: "Placa contenedor", type: "text" },
           { key: "sopla", label: "Se sopla el producto", type: "radio", options: [{ value: "SI", label: "✓" }, { value: "NO", label: "✗" }] },
@@ -2444,8 +2443,7 @@ const FORMS = [
           { key: "camionLibreOlor", label: "Camión libre de olores", type: "radio", options: [{ value: "SI", label: "✓" }, { value: "NO", label: "✗" }] },
           { key: "sinFiltraciones", label: "Sin filtraciones", type: "radio", options: [{ value: "SI", label: "✓" }, { value: "NO", label: "✗" }] },
           { key: "sinAberturas", label: "Sin aberturas", type: "radio", options: [{ value: "SI", label: "✓" }, { value: "NO", label: "✗" }] },
-          { key: "sinMaterialesExtranos", label: "Sin materiales extraños", type: "radio", options: [{ value: "SI", label: "✓" }, { value: "NO", label: "✗" }] },
-          { key: "realizadoPor", label: "Realizado por", type: "select", options: RESPONSABLES }
+          { key: "sinMaterialesExtranos", label: "Sin materiales extraños", type: "radio", options: [{ value: "SI", label: "✓" }, { value: "NO", label: "✗" }] }
         ]
       },
       { type: "observaciones" },
@@ -2519,11 +2517,10 @@ const FORMS = [
         fields: [
           { id: "fecha", label: "Fecha", type: "date", required: true, default: "today" },
           { id: "area", label: "Área", type: "text", default: "Bodega Cañas" },
-          { id: "cliente", label: "Cliente", type: "text" },
+          { id: "cliente", label: "Cliente", type: "select", options: ["Kani", "CNP", "Interglo", "Dipo", "Traslado", "Consolidado"] },
           { id: "placaFurgon", label: "Placa de furgón", type: "text" },
           { id: "numeroMarchamo", label: "Número de marchamo", type: "text" },
-          { id: "cantidadTarimas", label: "Cantidad de tarimas", type: "number", min: 0 },
-          { id: "encargadoBodega", label: "Encargado de bodega", type: "select", options: RESPONSABLES }
+          { id: "cantidadTarimas", label: "Cantidad de tarimas", type: "number", min: 0 }
         ]
       },
       {
@@ -5506,7 +5503,7 @@ const FORMS = [
     LDD_001: [CP, CF, "Limpieza", "Mantenimiento", "Empaque"]
   };
   // Formularios retirados de la plataforma.
-  const REMOVED = { "CPB-001": 1, "RFD-001": 1 };
+  const REMOVED = { "CPB-001": 1, "RFD-001": 1, "OTM-001": 1 };
 
   for (let i = FORMS.length - 1; i >= 0; i--) {
     const f = FORMS[i];
