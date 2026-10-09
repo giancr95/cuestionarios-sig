@@ -89,6 +89,10 @@ const Store = (() => {
   }
 
   // --- Usuarios (solo administradores) ---
+  async function loginInfo() {
+    return req("GET", "/login-info");
+  }
+
   async function listUsers() {
     return req("GET", "/users");
   }
@@ -107,6 +111,6 @@ const Store = (() => {
     allSubmissions, saveSubmission, getSubmission, deleteSubmission,
     updateSubmission, reviewSubmission, latestFormSubmission,
     formOverrides, saveFormOverride, deleteFormOverride,
-    listUsers, createUser, updateUser, deleteUser
+    listUsers, createUser, updateUser, deleteUser, loginInfo
   };
 })();

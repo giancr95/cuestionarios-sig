@@ -38,7 +38,9 @@ Reglas de visibilidad:
 | Método | Ruta | Auth | Descripción |
 |---|---|---|---|
 | GET  | `/api/health`          | —   | Healthcheck (Coolify / Traefik). |
-| POST | `/api/login`           | —   | `{usuario, password}` → set cookie. |
+| POST | `/api/login`           | —   | `{usuario, password}` → set cookie. La contraseña la valida Odoo (ver abajo). |
+| GET  | `/api/login-info`      | —   | Plazo de la clave local `{localHasta, localActivo, soloOdooDesde}`. |
+| GET  | `/api/sso/odoo`        | —   | Handoff del lanzador de Odoo (`?token=&next=`). |
 | POST | `/api/logout`          | —   | Limpia cookie. |
 | GET  | `/api/me`              | ✅  | Usuario actual. |
 | GET  | `/api/submissions`     | ✅  | Listado (admin: todos; operador: los suyos). |
@@ -47,6 +49,20 @@ Reglas de visibilidad:
 | DELETE | `/api/submissions/:id` | ✅ | Eliminar (owner o admin). |
 
 Hay un rate limit simple en memoria: 10 intentos/min por IP en `/api/login`.
+
+### Ingreso con la cuenta de Odoo
+
+`/api/login` manda usuario y contraseña a Odoo (`POST {ODOO_URL}/liborio/sso/login/sig`
+con `Authorization: Bearer <ODOO_SSO_SECRET>`); Odoo responde con el mismo token del
+lanzador y la sesión se crea igual que en el SSO: el rol lo manda Odoo, mientras que
+revisor, aprobador y áreas se siguen administrando en el SIG. La contraseña se cambia en
+Odoo (Empleados › Acceso); el SIG no guarda claves de las cuentas con correo.
+
+- El usuario se puede escribir como el correo de Odoo, como nombre corto (`jmolina`) o
+  con el usuario anterior de la persona (columna `users.usuario_anterior`, p.ej. su código).
+- **Transición**: hasta `LOGIN_LOCAL_HASTA` (fecha de Costa Rica, inclusive; por defecto
+  2026-10-31) también sirve la clave local del SIG, con un aviso al entrar. Después de esa
+  fecha solo entra quien valide en Odoo (también `admin`).
 
 ---
 
@@ -109,6 +125,9 @@ DATA_DIR=/data
 SESSION_SECRET=<openssl rand -hex 32>
 SEED_ADMIN_PASSWORD=<contraseña admin>
 SEED_OPERATOR_PASSWORD=<contraseña inicial operadores>
+ODOO_SSO_SECRET=<secreto de la app "sig" en Odoo › Aplicaciones>
+ODOO_URL=https://erp.liboriocr.com        # opcional (valor por defecto)
+LOGIN_LOCAL_HASTA=2026-10-31              # opcional: último día de la clave local
 ```
 
 > Genere el `SESSION_SECRET` con `openssl rand -hex 32` y guárdelo; si cambia, todas las sesiones activas se invalidan.

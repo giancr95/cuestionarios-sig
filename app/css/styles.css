@@ -1411,3 +1411,21 @@ main {
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
+
+/* Aviso de transición al login con la cuenta de Odoo */
+.aviso-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface-tint-gold);
+  border: 1px solid var(--gold-200);
+  color: var(--gold-800);
+  font-size: 13px;
+  line-height: var(--leading-body);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  margin-bottom: 14px;
+}
+.aviso-banner .aviso-text { flex: 1; }
+.aviso-banner .btn { flex-shrink: 0; }
+.field-hint { font-size: 12px; color: var(--ink-muted); margin-top: 4px; }

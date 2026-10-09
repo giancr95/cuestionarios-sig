@@ -64,19 +64,25 @@ function upsertFromClaims(payload) {
 // Strict relative path: single leading '/', no '//' or backslash.
 const SAFE_NEXT = /^\/(?![/\\])[^\\]*$/;
 
-function ssoLogin(req, res) {
-    const token = typeof req.query.token === "string" ? req.query.token : "";
+// Token de Odoo → sesión del SIG. Lo usan el handoff del lanzador
+// (/api/sso/odoo) y el login directo validado por Odoo (/api/login).
+// Devuelve { uid } o { error: "token" | "replay" | "inactivo" }.
+function sessionFromToken(req, token) {
     const payload = verifyOdooToken(token);
-    if (!payload) return res.redirect("/?sso=failed");
+    if (!payload) return { error: "token" };
+    // Anti-replay: recordar el jti hasta que expire (TTL corto). Evita que un
+    // mismo token fije la sesión de otro navegador dos veces.
+    if (payload.jti && !markJtiUsed(payload.jti, payload.exp)) return { error: "replay" };
     const uid = upsertFromClaims(payload);
-    if (!uid) return res.redirect("/?sso=failed");
+    if (!uid) return { error: "inactivo" };
     req.session.uid = uid;
     req.session.iat = Date.now();
-    // Anti-replay: recordar el jti hasta que expire (TTL corto). Evita que un
-    // mismo token de handoff fije la sesión de otro navegador dos veces.
-    if (payload.jti && !markJtiUsed(payload.jti, payload.exp)) {
-        return res.redirect("/?sso=failed");
-    }
+    return { uid };
+}
+
+function ssoLogin(req, res) {
+    const token = typeof req.query.token === "string" ? req.query.token : "";
+    if (sessionFromToken(req, token).error) return res.redirect("/?sso=failed");
     let next = typeof req.query.next === "string" ? req.query.next : "/";
     if (!SAFE_NEXT.test(next)) next = "/";
     res.redirect(next);
@@ -92,4 +98,4 @@ function markJtiUsed(jti, exp) {
     return true;
 }
 
-module.exports = { verifyOdooToken, ssoLogin };
+module.exports = { verifyOdooToken, ssoLogin, sessionFromToken };

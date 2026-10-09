@@ -5,8 +5,13 @@
 // Cada usuario puede tener una lista de áreas asignadas (JSON) y la marca
 // is_reviewer que lo habilita como revisor de los registros pendientes.
 // ---------------------------------------------------------------------------
+const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const db = require("./db");
+
+// Cuentas de Odoo (el usuario es el correo): la contraseña la valida Odoo.
+const esCuentaOdoo = (usuario) => String(usuario || "").includes("@");
+const MSG_CLAVE_EN_ODOO = "La contraseña se administra en Odoo (Empleados › Acceso)";
 
 function httpErr(status, msg) {
   const e = new Error(msg);
@@ -29,7 +34,7 @@ function normalizeAreas(v) {
 
 function publicRow(id) {
   const r = db
-    .prepare("SELECT id, usuario, nombre, rol, activo, is_reviewer, is_approver, areas, created_at FROM users WHERE id = ?")
+    .prepare("SELECT id, usuario, usuario_anterior, nombre, rol, activo, is_reviewer, is_approver, areas, created_at FROM users WHERE id = ?")
     .get(id);
   if (!r) return null;
   return {
@@ -51,7 +56,7 @@ function submissionCount(userId) {
 
 function list() {
   return db
-    .prepare("SELECT id, usuario, nombre, rol, activo, is_reviewer, is_approver, areas, created_at FROM users ORDER BY activo DESC, rol, usuario COLLATE NOCASE")
+    .prepare("SELECT id, usuario, usuario_anterior, nombre, rol, activo, is_reviewer, is_approver, areas, created_at FROM users ORDER BY activo DESC, rol, usuario COLLATE NOCASE")
     .all()
     .map(u => ({
       ...u,
@@ -67,6 +72,11 @@ function create({ usuario, nombre, password, rol, isReviewer, isApprover, areas 
   usuario = String(usuario || "").trim();
   nombre = String(nombre || "").trim();
   rol = rol === "admin" ? "admin" : "operador";
+  if (esCuentaOdoo(usuario)) {
+    // Sin clave local: entra con la contraseña de Odoo.
+    if (password) throw httpErr(400, MSG_CLAVE_EN_ODOO);
+    password = crypto.randomBytes(32).toString("hex");
+  }
   if (!usuario || !nombre || !password) {
     throw httpErr(400, "Usuario, nombre y contraseña son obligatorios");
   }
@@ -91,8 +101,11 @@ function create({ usuario, nombre, password, rol, isReviewer, isApprover, areas 
 
 function update(id, body, currentUserId) {
   const { nombre, password, rol, activo, isReviewer, isApprover, areas } = body || {};
-  const u = db.prepare("SELECT id, rol, activo FROM users WHERE id = ?").get(id);
+  const u = db.prepare("SELECT id, usuario, rol, activo FROM users WHERE id = ?").get(id);
   if (!u) throw httpErr(404, "Usuario no encontrado");
+  if (password != null && String(password) !== "" && esCuentaOdoo(u.usuario)) {
+    throw httpErr(400, MSG_CLAVE_EN_ODOO);
+  }
 
   const sets = [];
   const vals = [];

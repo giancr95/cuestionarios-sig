@@ -60,6 +60,10 @@ addColumn("users", "activo",        "INTEGER NOT NULL DEFAULT 1");
 addColumn("users", "is_reviewer",   "INTEGER NOT NULL DEFAULT 0");
 addColumn("users", "is_approver",   "INTEGER NOT NULL DEFAULT 0");
 addColumn("users", "areas",         "TEXT");
+// Usuario con que la persona entraba antes (p.ej. su código de empleado) —
+// sigue sirviendo para identificarse al pasar al login con la cuenta de Odoo.
+addColumn("users", "usuario_anterior", "TEXT");
+db.exec("CREATE INDEX IF NOT EXISTS idx_users_usuario_anterior ON users(usuario_anterior COLLATE NOCASE)");
 addColumn("submissions", "status",         "TEXT NOT NULL DEFAULT 'approved'");
 addColumn("submissions", "edited_at",      "DATETIME");
 addColumn("submissions", "edited_by_id",   "INTEGER");
