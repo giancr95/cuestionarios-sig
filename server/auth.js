@@ -1,24 +1,9 @@
-const bcrypt = require("bcryptjs");
 const db = require("./db");
 
 function parseAreas(s) {
   if (!s) return null;
   try { const a = JSON.parse(s); return Array.isArray(a) && a.length ? a : null; }
   catch { return null; }
-}
-
-function login(usuario, password) {
-  const u = db
-    .prepare("SELECT id, usuario, nombre, password, rol, activo, is_reviewer, is_approver, areas FROM users WHERE usuario = ? COLLATE NOCASE")
-    .get(String(usuario || "").trim());
-  if (!u) return null;
-  if (!bcrypt.compareSync(password, u.password)) return null;
-  if (!u.activo) return { inactive: true };
-  return {
-    id: u.id, usuario: u.usuario, nombre: u.nombre, rol: u.rol,
-    isReviewer: !!u.is_reviewer, isApprover: !!u.is_approver,
-    areas: parseAreas(u.areas)
-  };
 }
 
 function requireAuth(req, res, next) {
@@ -59,4 +44,4 @@ function requireAdmin(req, res, next) {
   });
 }
 
-module.exports = { login, requireAuth, requireAdmin, requireReviewerOrApprover };
+module.exports = { requireAuth, requireAdmin, requireReviewerOrApprover };

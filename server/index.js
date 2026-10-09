@@ -3,10 +3,11 @@ const crypto = require("crypto");
 const express = require("express");
 const cookieSession = require("cookie-session");
 
-const { login, requireAuth, requireAdmin, requireReviewerOrApprover } = require("./auth");
+const { requireAuth, requireAdmin, requireReviewerOrApprover } = require("./auth");
 const subs = require("./submissions");
 const users = require("./users");
 const { ssoLogin } = require("./sso");
+const { loginHandler, loginInfo } = require("./login");
 const csrfOrigin = require("./csrf-origin");
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -57,22 +58,13 @@ function loginRateLimit(req, res, next) {
 // ---------- API ----------
 app.get("/api/health", (_req, res) => res.json({ ok: true, ts: Date.now() }));
 
-app.post("/api/login", loginRateLimit, (req, res) => {
-  const { usuario, password } = req.body || {};
-  if (!usuario || !password) return res.status(400).json({ error: "Usuario y contraseña requeridos" });
-  const u = login(usuario, password);
-  if (!u) return res.status(401).json({ error: "Usuario o contraseña incorrectos" });
-  if (u.inactive) {
-    return res.status(403).json({ error: "La cuenta está desactivada. Contacte al administrador." });
-  }
-  req.session.uid = u.id;
-  req.session.iat = Date.now();
-  res.json({
-    id: u.id, usuario: u.usuario, nombre: u.nombre, rol: u.rol,
-    isReviewer: !!u.isReviewer, isApprover: !!u.isApprover,
-    areas: u.areas || null
-  });
+// Ingreso con la cuenta de Odoo (ver server/login.js; incluye la transición
+// con la clave local del SIG hasta LOGIN_LOCAL_HASTA).
+app.post("/api/login", loginRateLimit, (req, res, next) => {
+  loginHandler(req, res).catch(next);
 });
+
+app.get("/api/login-info", (_req, res) => res.json(loginInfo()));
 
 app.post("/api/logout", (req, res) => {
   req.session = null;

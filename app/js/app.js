@@ -22,6 +22,25 @@ const App = (() => {
     toastTimer = setTimeout(() => { toast.hidden = true; }, 2800);
   }
 
+  // --- Aviso del login (transición a la contraseña de Odoo) ---
+  const AVISO_KEY = "sig_aviso_login";
+  function setAviso(msg) {
+    try { msg ? sessionStorage.setItem(AVISO_KEY, msg) : sessionStorage.removeItem(AVISO_KEY); } catch (_) {}
+  }
+  function getAviso() {
+    try { return sessionStorage.getItem(AVISO_KEY); } catch (_) { return null; }
+  }
+  function avisoBanner() {
+    const msg = getAviso();
+    if (!msg) return null;
+    const b = el2("div", "aviso-banner");
+    b.setAttribute("role", "status");
+    b.appendChild(el2("div", "aviso-text", msg));
+    const close = mkBtn("Entendido", "btn btn-sm", () => { setAviso(null); b.remove(); });
+    b.appendChild(close);
+    return b;
+  }
+
   // --- DOM helpers ---
   function el2(tag, cls, text) {
     const n = document.createElement(tag);
@@ -86,6 +105,7 @@ const App = (() => {
     else goSelect();
   });
   btnLogout.addEventListener("click", async () => {
+    setAviso(null);
     await Store.logout();
     state = { view: "login" };
     render();
@@ -138,8 +158,9 @@ const App = (() => {
         <p class="sub">Arrocera Liborio S.A.</p>
         <form id="login-form" autocomplete="off">
           <div class="field">
-            <label for="lu">Usuario</label>
-            <input id="lu" class="input" type="text" required autocomplete="username" />
+            <label for="lu">Usuario (correo de Odoo)</label>
+            <input id="lu" class="input" type="text" required autocomplete="username"
+                   placeholder="usuario@liboriocr.com" autocapitalize="none" spellcheck="false" />
           </div>
           <div class="field">
             <label for="lp">Contraseña</label>
@@ -159,6 +180,7 @@ const App = (() => {
       btn.textContent = "Ingresando…";
       try {
         const s = await Store.login(u, p);
+        setAviso(s.aviso || null);
         showToast("Bienvenido, " + s.nombre, "ok");
         await applyFormOverrides();
         state.view = "select";
@@ -175,6 +197,8 @@ const App = (() => {
   async function renderSelect() {
     root.innerHTML = "";
     root.appendChild(tabBar("select"));
+    const aviso = avisoBanner();
+    if (aviso) root.appendChild(aviso);
     root.appendChild(el2("h1", "page-title", "Seleccione el registro a completar"));
     root.appendChild(el2("p", "page-sub", "Formularios del Sistema Integrado de Gestión."));
 
@@ -747,6 +771,17 @@ const App = (() => {
     }
     root.appendChild(el2("h1", "page-title", "Gestión de usuarios"));
     root.appendChild(el2("p", "page-sub", "Cree y administre las cuentas de acceso al sistema."));
+    const nota = el2("div", "aviso-banner");
+    nota.appendChild(el2("div", "aviso-text",
+      "Las cuentas con correo (las de Odoo) entran con la contraseña de Odoo; se cambia en Odoo › Empleados › Acceso."));
+    root.appendChild(nota);
+    Store.loginInfo().then(info => {
+      if (info && info.localActivo) {
+        nota.firstChild.textContent += ` Las contraseñas locales del SIG dejan de servir el ${info.soloOdooDesde}: desde ese día solo pueden entrar las cuentas de Odoo.`;
+      } else if (info) {
+        nota.firstChild.textContent += " Las cuentas sin correo ya no pueden iniciar sesión.";
+      }
+    }).catch(() => {});
 
     const loading = el2("div", "empty", "Cargando…");
     root.appendChild(loading);
@@ -817,6 +852,17 @@ const App = (() => {
       const fUsuario = inputField("Usuario (acceso)", "text", u ? u.usuario : "", editing);
       const fNombre = inputField("Nombre completo", "text", u ? u.nombre : "", false);
       const fPass = inputField(editing ? "Contraseña nueva (opcional)" : "Contraseña", "text", "", false);
+      const passHint = el2("div", "field-hint", "La contraseña se administra en Odoo (Empleados › Acceso).");
+      fPass.appendChild(passHint);
+      // Cuentas de Odoo (usuario = correo): sin contraseña local.
+      function syncPass() {
+        const odoo = (editing ? u.usuario : fUsuario._input.value).includes("@");
+        fPass._input.disabled = odoo;
+        if (odoo) fPass._input.value = "";
+        passHint.hidden = !odoo;
+      }
+      if (!editing) fUsuario._input.addEventListener("input", syncPass);
+      syncPass();
       const fRol = selectField("Rol", u ? u.rol : "operador");
       const fReviewer = checkboxField("Revisor (marca pendientes como revisados)",
         u ? !!u.isReviewer : false);
@@ -848,7 +894,7 @@ const App = (() => {
         const body = {
           nombre: fNombre._input.value.trim(),
           rol: fRol._input.value,
-          password: fPass._input.value,
+          password: fPass._input.disabled ? "" : fPass._input.value,
           isReviewer: fReviewer._input.checked,
           isApprover: fApprover._input.checked,
           areas: selectedAreas.length ? selectedAreas : null
@@ -884,7 +930,9 @@ const App = (() => {
       usuarios.forEach(u => {
         const tr = document.createElement("tr");
         if (!u.activo) tr.className = "row-inactive";
-        tr.appendChild(el2("td", "cell-main", u.usuario));
+        const tdUsuario = el2("td", "cell-main", u.usuario);
+        if (u.usuario_anterior) tdUsuario.appendChild(el2("div", "cell-sub", "Antes: " + u.usuario_anterior));
+        tr.appendChild(tdUsuario);
         const tdNombre = document.createElement("td");
         tdNombre.appendChild(el2("div", null, u.nombre));
         if (u.areas && u.areas.length) {
